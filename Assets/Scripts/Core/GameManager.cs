@@ -176,7 +176,7 @@ namespace DiceDiceDice
 
             Phase = GamePhase.Shopping;
             PhaseChanged?.Invoke();
-            RequestBanner("Hoàn thành Wave " + Wave + "! +" + bonus + " vàng");
+            RequestBanner("Wave " + Wave + " complete! +" + bonus + " gold");
         }
 
         public void NotifyGoldPopup(int slot, int amount)
@@ -204,7 +204,7 @@ namespace DiceDiceDice
 
         private void OnBossArmorBroken()
         {
-            ToastRequested?.Invoke("Giáp của Boss đã vỡ!");
+            ToastRequested?.Invoke("Boss armor shattered!");
         }
 
         private void OnWallDestroyed()

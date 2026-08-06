@@ -34,7 +34,7 @@ namespace DiceDiceDice
             _icon.color = Color.white;
             _nameLabel.text = definition.DisplayName;
             _nameLabel.color = palette.GroupColor(definition.Group);
-            _tagLabel.text = "Common · " + groupName;
+            _tagLabel.text = "Common - " + groupName;
             _descriptionLabel.text = definition.Description;
             _priceLabel.text = definition.Price.ToString();
             _group.alpha = offer.Sold ? 0.35f : 1f;

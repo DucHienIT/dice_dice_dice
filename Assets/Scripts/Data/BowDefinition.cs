@@ -52,7 +52,7 @@ namespace DiceDiceDice
                     rain.SourceName = DisplayName;
                     ctx.Projectiles.Spawn(rain);
                 }
-                ctx.ShowBanner?.Invoke("MƯA TÊN!");
+                ctx.ShowBanner?.Invoke("ARROW RAIN!");
             }
 
             ctx.Audio.Play(Sfx.Shoot);

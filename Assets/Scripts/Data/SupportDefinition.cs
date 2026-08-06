@@ -25,13 +25,13 @@ namespace DiceDiceDice
             float speed = SpeedAura(rarity, ctx.Mods);
             if (phys > 0f && speed > 0f)
             {
-                return string.Format("+{0:0}% sát thương vật lý · +{1:0}% tốc độ toàn đội", phys * 100f, speed * 100f);
+                return string.Format("+{0:0}% physical damage | +{1:0}% team speed", phys * 100f, speed * 100f);
             }
             if (phys > 0f)
             {
-                return string.Format("+{0:0}% sát thương vật lý toàn đội", phys * 100f);
+                return string.Format("+{0:0}% physical damage for the team", phys * 100f);
             }
-            return string.Format("+{0:0}% tốc độ toàn đội", speed * 100f);
+            return string.Format("+{0:0}% speed for the team", speed * 100f);
         }
 
 #if UNITY_EDITOR

@@ -50,12 +50,12 @@ namespace DiceDiceDice
         {
             if (phase == GamePhase.Wave)
             {
-                _phaseLabel.text = "WAVE ĐANG DIỄN RA!";
+                _phaseLabel.text = "WAVE IN PROGRESS!";
                 _phaseLabel.color = palette.GroupColor(ItemGroup.Weapon);
             }
             else
             {
-                _phaseLabel.text = "GIAI ĐOẠN MUA SẮM";
+                _phaseLabel.text = "SHOPPING PHASE";
                 _phaseLabel.color = palette.TextDim;
             }
         }

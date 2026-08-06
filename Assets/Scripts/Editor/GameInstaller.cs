@@ -41,11 +41,9 @@ namespace DiceDiceDice.EditorTools
             return font;
         }
 
-        /// <summary>Display font for ASCII-only text (numbers, "Wave", "SHOP"). It has no Vietnamese glyphs —
-        /// Vietnamese strings must stay on the TMP default font.</summary>
+        /// <summary>The one font used by every text in the game. Its static atlas is ASCII-only,
+        /// so all game strings must be plain ASCII (project rule: English text only).</summary>
         private static TMPro.TMP_FontAsset DisplayFont => LoadFont("GermaniaOne-Regular SDF.asset");
-
-        private static TMPro.TMP_FontAsset DisplayFontOutlined => LoadFont("GermaniaOne-Regular SDF_OutlineDark.asset");
 
         [MenuItem("Tools/DICE DICE DICE/Install All")]
         public static void InstallAll()
@@ -162,67 +160,67 @@ namespace DiceDiceDice.EditorTools
         {
             var dice = GetOrCreateAsset<DiceDefinition>(DataRoot + "/Items/Dice.asset");
             dice.EditorSetup("Dice", ItemGroup.Economy, 10,
-                "Tự roll 1–6 theo thời gian trong wave, tạo vàng bằng mặt số. Merge để roll nhanh hơn, mặt số tối thiểu cao hơn, vàng nhân theo phẩm cấp.",
+                "Rolls 1-6 over time during waves, making gold equal to the face. Merge for faster rolls, higher minimum faces and multiplied gold.",
                 ItemIcon.Dice, 1f);
             dice.EditorSetupDice(5f, 0.7f, 1.2f);
 
             var bow = GetOrCreateAsset<BowDefinition>(DataRoot + "/Items/Bow.asset");
             bow.EditorSetup("Bow", ItemGroup.Weapon, 12,
-                "Bắn nhanh, sát thương thấp. Epic: xuyên mục tiêu. Legendary: thỉnh thoảng tạo mưa tên.",
+                "Fast, low-damage arrows. Epic: pierces targets. Legendary: sometimes unleashes an arrow rain.",
                 ItemIcon.Bow, 1f);
             bow.EditorSetupCombat(4f, 0.8f, DamageType.Physical);
 
             var sword = GetOrCreateAsset<SwordDefinition>(DataRoot + "/Items/Sword.asset");
             sword.EditorSetup("Sword", ItemGroup.Weapon, 14,
-                "Kiếm khí chém quái gần tường thành nhất, chém trúng nhiều mục tiêu theo phẩm cấp.",
+                "Sword wave that slashes the monsters closest to the wall; hits more targets per rarity.",
                 ItemIcon.Sword, 1f);
             sword.EditorSetupCombat(9f, 1.6f, DamageType.Physical);
 
             var crossbow = GetOrCreateAsset<CrossbowDefinition>(DataRoot + "/Items/Crossbow.asset");
             crossbow.EditorSetup("Crossbow", ItemGroup.Weapon, 16,
-                "Bắn chậm, sát thương lớn, tỉ lệ chí mạng cao. Hiệu quả với Elite và Boss.",
+                "Slow, heavy bolts with a high critical chance. Great against Elites and Bosses.",
                 ItemIcon.Crossbow, 1f);
             crossbow.EditorSetupCombat(16f, 2.4f, DamageType.Physical);
 
             var cannon = GetOrCreateAsset<CannonDefinition>(DataRoot + "/Items/Cannon.asset");
             cannon.EditorSetup("Cannon", ItemGroup.Weapon, 18,
-                "Đạn nổ diện rộng, hiệu quả với nhóm quái đông.",
+                "Explosive shells with area damage - great against crowds.",
                 ItemIcon.Cannon, 1f);
             cannon.EditorSetupCombat(10f, 3f, DamageType.Physical);
 
             var fireBook = GetOrCreateAsset<FireBookDefinition>(DataRoot + "/Items/FireBook.asset");
             fireBook.EditorSetup("Fire Book", ItemGroup.Magic, 18,
-                "Gọi thiên thạch nổ diện rộng và gây đốt cháy theo thời gian.",
+                "Summons meteors that explode and burn monsters over time.",
                 ItemIcon.FireBook, 1f);
             fireBook.EditorSetupCombat(12f, 4f, DamageType.Magic);
 
             var frost = GetOrCreateAsset<FrostStoneDefinition>(DataRoot + "/Items/FrostStone.asset");
             frost.EditorSetup("Frost Stone", ItemGroup.Magic, 14,
-                "Sát thương thấp, làm chậm quái. Epic trở lên có cơ hội đóng băng.",
+                "Low damage but slows monsters. Epic and above can freeze.",
                 ItemIcon.FrostStone, 1f);
             frost.EditorSetupCombat(4f, 2.5f, DamageType.Magic);
 
             var lightning = GetOrCreateAsset<LightningOrbDefinition>(DataRoot + "/Items/LightningOrb.asset");
             lightning.EditorSetup("Lightning Orb", ItemGroup.Magic, 16,
-                "Sét lan giữa nhiều mục tiêu đứng gần nhau.",
+                "Chain lightning that arcs between nearby monsters.",
                 ItemIcon.LightningOrb, 1f);
             lightning.EditorSetupCombat(8f, 3f, DamageType.Magic);
 
             var anvil = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Anvil.asset");
             anvil.EditorSetup("Anvil", ItemGroup.Support, 15,
-                "Không tấn công. Tăng sát thương vật lý cho toàn đội hình.",
+                "Does not attack. Boosts physical damage for the whole board.",
                 ItemIcon.Anvil, 1f);
             anvil.EditorSetupSupport(0.15f, 0f);
 
             var hourglass = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Hourglass.asset");
             hourglass.EditorSetup("Hourglass", ItemGroup.Support, 15,
-                "Không tấn công. Tăng tốc độ đánh của item và tốc độ roll của Dice.",
+                "Does not attack. Speeds up item attacks and dice rolls.",
                 ItemIcon.Hourglass, 1f);
             hourglass.EditorSetupSupport(0f, 0.1f);
 
             var shield = GetOrCreateAsset<ShieldDefinition>(DataRoot + "/Items/Shield.asset");
             shield.EditorSetup("Shield", ItemGroup.Defense, 12,
-                "Tạo khiên cho tường thành vào đầu mỗi wave, hấp thụ sát thương trước máu.",
+                "Grants the wall a shield at the start of each wave, absorbed before HP.",
                 ItemIcon.Shield, 1f);
             shield.EditorSetupShield(15);
 
@@ -308,7 +306,7 @@ namespace DiceDiceDice.EditorTools
                 Wave("Wave 2", false, S("Basic", 8, 1.7f, 1f), S("Runner", 2, 3f, 14f)),
                 Wave("Wave 3", false, S("Runner", 6, 1.4f, 1f), S("Basic", 6, 2f, 4f)),
                 Wave("Wave 4", false, S("Swarm", 12, 0.5f, 1f), S("Basic", 6, 2f, 8f), S("Runner", 4, 1.5f, 15f)),
-                Wave("Wave 5 — MINI-BOSS", true, S("Basic", 6, 1.8f, 1f), S("Tank", 2, 5f, 6f), S("Elite", 1, 0f, 20f)),
+                Wave("Wave 5 - MINI-BOSS", true, S("Basic", 6, 1.8f, 1f), S("Tank", 2, 5f, 6f), S("Elite", 1, 0f, 20f)),
                 Wave("Wave 6", false, S("Armored", 5, 3f, 1f), S("Basic", 8, 1.5f, 3f), S("Runner", 4, 1.2f, 16f)),
                 Wave("Wave 7", false, S("MagicResist", 5, 3f, 1f), S("Swarm", 14, 0.45f, 5f), S("Tank", 2, 6f, 12f)),
                 Wave("Wave 8", false, S("Healer", 2, 8f, 4f), S("Armored", 4, 3.2f, 1f), S("MagicResist", 4, 3.2f, 2.5f), S("Basic", 10, 1.4f, 6f)),
@@ -332,28 +330,28 @@ namespace DiceDiceDice.EditorTools
 
         private static void InstallUpgrades()
         {
-            CreateUpgrade("DiceSpeed", "Dice tăng tốc", "Dice roll nhanh hơn 20%.", ItemGroup.Economy, UpgradeStat.DiceSpeed, UpgradeOperation.Multiply, 1.2f, false);
-            CreateUpgrade("DiceMinFace", "Mặt số may mắn", "Giá trị roll tối thiểu của Dice +1.", ItemGroup.Economy, UpgradeStat.DiceMinFace, UpgradeOperation.Add, 1f, false);
-            CreateUpgrade("SixBonus", "Lộc lá", "Roll ra 6 nhận thêm 5 vàng.", ItemGroup.Economy, UpgradeStat.SixBonusGold, UpgradeOperation.Add, 5f, false);
-            CreateUpgrade("DoubleRoll", "Roll kép", "Dice có 25% cơ hội roll hai lần.", ItemGroup.Economy, UpgradeStat.DoubleRollChance, UpgradeOperation.Add, 0.25f, false);
-            CreateUpgrade("MergeDiceGold", "Tinh hoa hợp nhất", "Mỗi lần merge Dice nhận ngay 10 vàng.", ItemGroup.Economy, UpgradeStat.MergeDiceGold, UpgradeOperation.Add, 10f, false);
-            CreateUpgrade("Interest", "Lãi kép", "Cuối wave nhận lãi 10% số vàng đang giữ (tối đa 15).", ItemGroup.Economy, UpgradeStat.Interest, UpgradeOperation.Add, 0.1f, false);
-            CreateUpgrade("WaveGold", "Thưởng wave", "Nhận thêm 10 vàng khi kết thúc mỗi wave.", ItemGroup.Economy, UpgradeStat.WaveEndGold, UpgradeOperation.Add, 10f, false);
-            CreateUpgrade("FreeReroll", "Khách quen", "Reroll đầu tiên mỗi wave miễn phí.", ItemGroup.Economy, UpgradeStat.FreeRerollPerWave, UpgradeOperation.Add, 1f, false);
-            CreateUpgrade("SellRate", "Thương lượng", "Bán item nhận 75% giá trị thay vì 50%.", ItemGroup.Economy, UpgradeStat.SellRate, UpgradeOperation.Set, 0.75f, true);
-            CreateUpgrade("PhysDamage", "Mài sắc", "Sát thương vật lý +25%.", ItemGroup.Weapon, UpgradeStat.PhysicalDamage, UpgradeOperation.Multiply, 1.25f, false);
-            CreateUpgrade("AttackSpeed", "Tay nhanh", "Tốc độ đánh của Weapon +20%.", ItemGroup.Weapon, UpgradeStat.AttackSpeed, UpgradeOperation.Multiply, 1.2f, false);
-            CreateUpgrade("CritChance", "Điểm yếu", "Tỉ lệ chí mạng +15%.", ItemGroup.Weapon, UpgradeStat.CritChance, UpgradeOperation.Add, 0.15f, false);
-            CreateUpgrade("Pierce", "Xuyên phá", "Projectile xuyên thêm 1 mục tiêu.", ItemGroup.Weapon, UpgradeStat.Pierce, UpgradeOperation.Add, 1f, false);
-            CreateUpgrade("CritExplode", "Nổ chí mạng", "Đòn chí mạng gây nổ nhỏ diện rộng.", ItemGroup.Weapon, UpgradeStat.CritExplode, UpgradeOperation.Set, 1f, true);
-            CreateUpgrade("MagicDamage", "Cường phép", "Sát thương phép +25%.", ItemGroup.Magic, UpgradeStat.MagicDamage, UpgradeOperation.Multiply, 1.25f, false);
-            CreateUpgrade("MagicCooldown", "Niệm nhanh", "Cooldown phép -20%.", ItemGroup.Magic, UpgradeStat.MagicCooldown, UpgradeOperation.Multiply, 0.8f, false);
-            CreateUpgrade("DotDuration", "Dư chấn nguyên tố", "Thời gian đốt / làm chậm / đóng băng +50%.", ItemGroup.Magic, UpgradeStat.DotDuration, UpgradeOperation.Multiply, 1.5f, false);
-            CreateUpgrade("DoubleCast", "Vọng âm", "Phép có 25% cơ hội cast hai lần.", ItemGroup.Magic, UpgradeStat.DoubleCastChance, UpgradeOperation.Add, 0.25f, false);
-            CreateUpgrade("SupportPower", "Cộng hưởng", "Hiệu quả item Hỗ trợ (Anvil, Hourglass) +50%.", ItemGroup.Support, UpgradeStat.SupportPower, UpgradeOperation.Multiply, 1.5f, false);
-            CreateUpgrade("WallMaxHp", "Gia cố tường", "Máu tường tối đa +25 và hồi phần cộng thêm.", ItemGroup.Defense, UpgradeStat.WallMaxHp, UpgradeOperation.Add, 25f, false);
-            CreateUpgrade("HealPerWave", "Tu sửa", "Hồi 10 máu tường sau mỗi wave.", ItemGroup.Defense, UpgradeStat.HealPerWave, UpgradeOperation.Add, 10f, false);
-            CreateUpgrade("WaveShield", "Khiên khởi động", "Nhận 20 khiên vào đầu mỗi wave.", ItemGroup.Defense, UpgradeStat.WaveShield, UpgradeOperation.Add, 20f, false);
+            CreateUpgrade("DiceSpeed", "Quick Dice", "Dice roll 20% faster.", ItemGroup.Economy, UpgradeStat.DiceSpeed, UpgradeOperation.Multiply, 1.2f, false);
+            CreateUpgrade("DiceMinFace", "Lucky Faces", "Minimum dice roll +1.", ItemGroup.Economy, UpgradeStat.DiceMinFace, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("SixBonus", "Jackpot", "Rolling a 6 grants 5 bonus gold.", ItemGroup.Economy, UpgradeStat.SixBonusGold, UpgradeOperation.Add, 5f, false);
+            CreateUpgrade("DoubleRoll", "Double Roll", "Dice have a 25% chance to roll twice.", ItemGroup.Economy, UpgradeStat.DoubleRollChance, UpgradeOperation.Add, 0.25f, false);
+            CreateUpgrade("MergeDiceGold", "Merge Essence", "Gain 10 gold whenever you merge Dice.", ItemGroup.Economy, UpgradeStat.MergeDiceGold, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("Interest", "Compound Interest", "End of wave: earn 10% interest on held gold (max 15).", ItemGroup.Economy, UpgradeStat.Interest, UpgradeOperation.Add, 0.1f, false);
+            CreateUpgrade("WaveGold", "Wave Bounty", "Gain 10 extra gold after each wave.", ItemGroup.Economy, UpgradeStat.WaveEndGold, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("FreeReroll", "Regular Customer", "First reroll each wave is free.", ItemGroup.Economy, UpgradeStat.FreeRerollPerWave, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("SellRate", "Haggler", "Sell items for 75% of their value instead of 50%.", ItemGroup.Economy, UpgradeStat.SellRate, UpgradeOperation.Set, 0.75f, true);
+            CreateUpgrade("PhysDamage", "Sharpened Edges", "Physical damage +25%.", ItemGroup.Weapon, UpgradeStat.PhysicalDamage, UpgradeOperation.Multiply, 1.25f, false);
+            CreateUpgrade("AttackSpeed", "Quick Hands", "Weapon attack speed +20%.", ItemGroup.Weapon, UpgradeStat.AttackSpeed, UpgradeOperation.Multiply, 1.2f, false);
+            CreateUpgrade("CritChance", "Weak Spot", "Critical chance +15%.", ItemGroup.Weapon, UpgradeStat.CritChance, UpgradeOperation.Add, 0.15f, false);
+            CreateUpgrade("Pierce", "Piercing Shots", "Projectiles pierce 1 extra target.", ItemGroup.Weapon, UpgradeStat.Pierce, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("CritExplode", "Critical Blast", "Critical hits cause a small explosion.", ItemGroup.Weapon, UpgradeStat.CritExplode, UpgradeOperation.Set, 1f, true);
+            CreateUpgrade("MagicDamage", "Arcane Power", "Magic damage +25%.", ItemGroup.Magic, UpgradeStat.MagicDamage, UpgradeOperation.Multiply, 1.25f, false);
+            CreateUpgrade("MagicCooldown", "Fast Casting", "Spell cooldowns -20%.", ItemGroup.Magic, UpgradeStat.MagicCooldown, UpgradeOperation.Multiply, 0.8f, false);
+            CreateUpgrade("DotDuration", "Elemental Echo", "Burn / slow / freeze duration +50%.", ItemGroup.Magic, UpgradeStat.DotDuration, UpgradeOperation.Multiply, 1.5f, false);
+            CreateUpgrade("DoubleCast", "Echo Cast", "Spells have a 25% chance to cast twice.", ItemGroup.Magic, UpgradeStat.DoubleCastChance, UpgradeOperation.Add, 0.25f, false);
+            CreateUpgrade("SupportPower", "Resonance", "Support items (Anvil, Hourglass) are 50% more effective.", ItemGroup.Support, UpgradeStat.SupportPower, UpgradeOperation.Multiply, 1.5f, false);
+            CreateUpgrade("WallMaxHp", "Reinforced Wall", "Wall max HP +25, healed on pickup.", ItemGroup.Defense, UpgradeStat.WallMaxHp, UpgradeOperation.Add, 25f, false);
+            CreateUpgrade("HealPerWave", "Repairs", "Restore 10 wall HP after each wave.", ItemGroup.Defense, UpgradeStat.HealPerWave, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("WaveShield", "Opening Shield", "Gain a 20-point shield at the start of each wave.", ItemGroup.Defense, UpgradeStat.WaveShield, UpgradeOperation.Add, 20f, false);
         }
 
         private static void CreateUpgrade(string assetName, string displayName, string description, ItemGroup group,
@@ -462,7 +460,6 @@ namespace DiceDiceDice.EditorTools
                 var rect = root.GetComponent<RectTransform>();
                 rect.sizeDelta = new Vector2(220f, 60f);
                 var label = CreateTmp(root.transform, "Label", string.Empty, 30f, TMPro.TextAlignmentOptions.Center, true);
-                label.font = DisplayFontOutlined;
                 Stretch(label.rectTransform);
 
                 var so = new SerializedObject(root.GetComponent<FloatingText>());

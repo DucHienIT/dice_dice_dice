@@ -70,7 +70,7 @@ namespace DiceDiceDice
         {
             if (_game.Phase != GamePhase.Shopping)
             {
-                Reject("Chỉ mua được giữa các wave!");
+                Reject("You can only buy between waves!");
                 return;
             }
             ShopOffer offer = _offers[index];
@@ -80,12 +80,12 @@ namespace DiceDiceDice
             }
             if (_economy.Gold < offer.Definition.Price)
             {
-                Reject("Không đủ vàng!");
+                Reject("Not enough gold!");
                 return;
             }
             if (_board.Model.IsFull)
             {
-                Reject("Bảng đã đầy 8 ô! Hãy merge hoặc bán bớt item.");
+                Reject("Board is full (8 slots)! Merge or sell items first.");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace DiceDiceDice
             int cost = CurrentRerollCost;
             if (_economy.Gold < cost)
             {
-                Reject("Không đủ vàng để reroll!");
+                Reject("Not enough gold to reroll!");
                 return;
             }
             if (FreeRerollsLeft > 0)

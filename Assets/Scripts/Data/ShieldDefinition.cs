@@ -15,7 +15,7 @@ namespace DiceDiceDice
 
         public override string DescribeStats(ItemRarity rarity, CombatContext ctx)
         {
-            return string.Format("Khiên đầu wave: {0}", ShieldFor(rarity));
+            return string.Format("Wave-start shield: {0}", ShieldFor(rarity));
         }
 
 #if UNITY_EDITOR

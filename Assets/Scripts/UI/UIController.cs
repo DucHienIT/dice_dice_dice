@@ -22,13 +22,13 @@ namespace DiceDiceDice
         [SerializeField] private FloatingTextManager _floatingText;
         [SerializeField] private Image _dragGhost;
 
-        private static readonly string[] GroupNames = { "Kinh tế", "Vũ khí", "Phép thuật", "Hỗ trợ", "Phòng thủ" };
+        private static readonly string[] GroupNames = { "Economy", "Weapon", "Magic", "Support", "Defense" };
 
         private const string DefaultInfoText =
-            "<b>Dice tạo vàng</b> — vũ khí và phép thuật tiêu diệt quái!\n\n" +
-            "· Kéo item vào ô trống để di chuyển.\n" +
-            "· Kéo 2 item <b>cùng loại + cùng phẩm cấp</b> vào nhau để <b>merge</b>.\n" +
-            "· Mua sắm giữa các wave, sẵn sàng rồi bấm <b>Bắt đầu Wave</b>.";
+            "<b>Dice make gold</b> - weapons and magic kill monsters!\n\n" +
+            "- Drag an item onto an empty slot to move it.\n" +
+            "- Drag two items of the <b>same type and rarity</b> together to <b>merge</b>.\n" +
+            "- Shop between waves, then press <b>Start Wave</b>.";
 
         private GameManager _game;
         private int _selectedSlot = -1;
@@ -109,13 +109,13 @@ namespace DiceDiceDice
         public void ShowIntro(Action onStart)
         {
             _modal.ShowInfo("DICE DICE DICE!", "Tower Defense + Merge + Roguelite",
-                "Bảo vệ <b>tường thành</b> — quái tiến vào từ bên phải.\n\n" +
-                "<b>Dice tạo vàng</b> (tự roll trong wave) — <b>vũ khí và phép thuật tiêu diệt quái</b>.\n\n" +
-                "<b>Mua sắm giữa các wave</b> — sẵn sàng rồi bấm <b>Bắt đầu Wave</b>. Bảng chỉ có <b>8 ô</b>!\n\n" +
-                "Kéo 2 item giống nhau + cùng phẩm cấp vào nhau để <b>merge</b> lên phẩm cấp cao hơn.\n\n" +
-                "Diệt quái nhận XP — lên cấp chọn 1 trong 3 nâng cấp roguelike.\n\n" +
-                "Sống sót 10 wave và hạ Boss <b>Loaded Golem</b> để chiến thắng!",
-                "Vào game", () =>
+                "Defend the <b>wall</b> - monsters march in from the right.\n\n" +
+                "<b>Dice make gold</b> (they roll during waves) - <b>weapons and magic kill monsters</b>.\n\n" +
+                "<b>Shop between waves</b> - press <b>Start Wave</b> when ready. The board has only <b>8 slots</b>!\n\n" +
+                "Drag two identical items of the same rarity together to <b>merge</b> them into a higher rarity.\n\n" +
+                "Kills grant XP - each level up offers 1 of 3 roguelike upgrades.\n\n" +
+                "Survive all 10 waves and defeat the <b>Loaded Golem</b> to win!",
+                "Play", () =>
                 {
                     _modal.Hide();
                     onStart();
@@ -124,7 +124,7 @@ namespace DiceDiceDice
 
         public void ShowLevelUp(int level, List<UpgradeDefinition> choices, Action<UpgradeDefinition> onPicked)
         {
-            _modal.ShowChoices("LÊN CẤP " + level + "!", "Chọn một nâng cấp roguelike — hiệu lực đến hết run.");
+            _modal.ShowChoices("LEVEL " + level + "!", "Pick one roguelike upgrade - it lasts for the rest of the run.");
             UpgradeChoiceView[] views = _modal.Choices;
             for (int i = 0; i < views.Length; i++)
             {
@@ -149,25 +149,25 @@ namespace DiceDiceDice
             string topSource = stats.TopDamageSource(out topAmount);
 
             _stringBuilder.Length = 0;
-            _stringBuilder.Append("Wave đạt được: <b>").Append(_game.Wave).Append('/').Append(_game.Config.WaveCount).Append("</b>\n");
-            _stringBuilder.Append("Quái tiêu diệt: <b>").Append(stats.Kills).Append("</b>\n");
-            _stringBuilder.Append("Vàng từ Dice: <b>").Append(stats.DiceGold).Append("</b>\n");
-            _stringBuilder.Append("Số lần roll / roll ra 6: <b>").Append(stats.Rolls).Append(" / ").Append(stats.Sixes).Append("</b>\n");
-            _stringBuilder.Append("Item đã mua / merge: <b>").Append(stats.ItemsBought).Append(" / ").Append(stats.Merges).Append("</b>\n");
-            _stringBuilder.Append("Sát thương cao nhất: <b>")
-                .Append(topSource ?? "—");
+            _stringBuilder.Append("Wave reached: <b>").Append(_game.Wave).Append('/').Append(_game.Config.WaveCount).Append("</b>\n");
+            _stringBuilder.Append("Monsters killed: <b>").Append(stats.Kills).Append("</b>\n");
+            _stringBuilder.Append("Gold from Dice: <b>").Append(stats.DiceGold).Append("</b>\n");
+            _stringBuilder.Append("Rolls / sixes rolled: <b>").Append(stats.Rolls).Append(" / ").Append(stats.Sixes).Append("</b>\n");
+            _stringBuilder.Append("Items bought / merges: <b>").Append(stats.ItemsBought).Append(" / ").Append(stats.Merges).Append("</b>\n");
+            _stringBuilder.Append("Top damage dealer: <b>")
+                .Append(topSource ?? "-");
             if (topSource != null)
             {
                 _stringBuilder.Append(" (").Append(Mathf.RoundToInt(topAmount)).Append(')');
             }
             _stringBuilder.Append("</b>\n");
-            _stringBuilder.Append("Nâng cấp đã chọn: ").Append(stats.ChosenUpgrades.Count == 0 ? "—" : string.Join(", ", stats.ChosenUpgrades));
+            _stringBuilder.Append("Upgrades chosen: ").Append(stats.ChosenUpgrades.Count == 0 ? "-" : string.Join(", ", stats.ChosenUpgrades));
 
             _modal.ShowInfo(
-                win ? "CHIẾN THẮNG!" : "TƯỜNG THÀNH THẤT THỦ",
-                win ? "Bạn đã hạ gục Loaded Golem và sống sót qua 10 wave!" : "Máu tường thành đã về 0.",
+                win ? "VICTORY!" : "THE WALL HAS FALLEN",
+                win ? "You defeated the Loaded Golem and survived all 10 waves!" : "The wall's HP dropped to 0.",
                 _stringBuilder.ToString(),
-                "Chơi lại", _game.Restart);
+                "Play Again", _game.Restart);
         }
 
         // ---------- Board interaction ----------
@@ -227,7 +227,7 @@ namespace DiceDiceDice
             if (result == BoardMoveResult.MaxRarity)
             {
                 _game.Audio.Play(Sfx.Error);
-                _toast.Show("Đã đạt phẩm cấp tối đa (Legendary)");
+                _toast.Show("Already at max rarity (Legendary)");
             }
             _selectedSlot = -1;
             RenderBoard();
@@ -290,7 +290,7 @@ namespace DiceDiceDice
             }
             if (_game.Board.TrySell(_selectedSlot))
             {
-                _toast.Show("Đã bán item, ô được giải phóng");
+                _toast.Show("Item sold - slot freed");
                 _selectedSlot = -1;
                 RenderBoard();
             }
@@ -348,7 +348,7 @@ namespace DiceDiceDice
         private void OnMerged(int slot, ItemInstance merged)
         {
             _slots[slot].PlayMergeFlash();
-            _toast.Show("Merge! " + merged.Definition.DisplayName + " → " + merged.Rarity);
+            _toast.Show("Merge! " + merged.Definition.DisplayName + " -> " + merged.Rarity);
         }
 
         private void OnDiceRollStarted(int slot)
@@ -411,7 +411,7 @@ namespace DiceDiceDice
             }
             ItemInstance item = _game.Board.Model.Get(_selectedSlot);
             bool canSell = _game.Phase == GamePhase.Shopping;
-            string sellLabel = "Bán (" + item.Definition.SellPrice(item.Rarity, _game.Mods) + " vàng)";
+            string sellLabel = "Sell (" + item.Definition.SellPrice(item.Rarity, _game.Mods) + "g)";
             _infoPanel.ShowText(BuildItemText(item.Definition, item.Rarity), canSell, sellLabel);
         }
 
@@ -420,7 +420,7 @@ namespace DiceDiceDice
             PaletteConfig palette = _game.Palette;
             _stringBuilder.Length = 0;
             _stringBuilder.Append("<b><color=#").Append(ColorUtility.ToHtmlStringRGB(palette.GroupColor(definition.Group)))
-                .Append('>').Append(definition.DisplayName).Append("</color></b> — <color=#")
+                .Append('>').Append(definition.DisplayName).Append("</color></b> - <color=#")
                 .Append(ColorUtility.ToHtmlStringRGB(palette.RarityColor(rarity))).Append('>').Append(rarity).Append("</color>\n");
             _stringBuilder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(palette.TextDim)).Append('>')
                 .Append(GroupName(definition.Group)).Append("</color>\n\n");

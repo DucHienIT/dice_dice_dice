@@ -31,11 +31,11 @@ namespace DiceDiceDice
 
         public void RefreshButtons(int rerollCost, bool locked, int nextWave, int totalWaves, PaletteConfig palette)
         {
-            _rerollLabel.text = "Reroll (" + rerollCost + " vàng)";
-            _lockLabel.text = locked ? "Đã khóa" : "Khóa";
+            _rerollLabel.text = "Reroll (" + rerollCost + "g)";
+            _lockLabel.text = locked ? "Locked" : "Lock";
             _lockBackground.color = locked ? new Color(1f, 0.8f, 0.35f) : Color.white;
             _startWaveButton.interactable = nextWave <= totalWaves;
-            _startWaveLabel.text = "Bắt đầu Wave " + Mathf.Min(nextWave, totalWaves);
+            _startWaveLabel.text = "Start Wave " + Mathf.Min(nextWave, totalWaves);
         }
     }
 }

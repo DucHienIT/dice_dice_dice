@@ -35,7 +35,7 @@ namespace DiceDiceDice
         {
             float interval = RollInterval(rarity, ctx.Mods, ctx.Auras.SpeedMultiplier);
             int min = MinFace(rarity, ctx.Mods);
-            return string.Format("Roll mỗi {0:0.0}s · Mặt số {1}–6 · Vàng = mặt số × {2}", interval, min, (int)rarity + 1);
+            return string.Format("Rolls every {0:0.0}s | Faces {1}-6 | Gold = face x {2}", interval, min, (int)rarity + 1);
         }
 
 #if UNITY_EDITOR

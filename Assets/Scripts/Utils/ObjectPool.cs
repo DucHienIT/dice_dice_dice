@@ -32,7 +32,7 @@ namespace DiceDiceDice
             }
             else
             {
-                Debug.LogWarning("[Pool] Expanding pool for " + _prefab.name + " — consider raising its prewarm size.");
+                Debug.LogWarning("[Pool] Expanding pool for " + _prefab.name + " - consider raising its prewarm size.");
                 instance = Object.Instantiate(_prefab, _parent);
             }
             instance.gameObject.SetActive(true);

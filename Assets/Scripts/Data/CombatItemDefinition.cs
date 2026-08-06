@@ -39,7 +39,7 @@ namespace DiceDiceDice
 
         public override string DescribeStats(ItemRarity rarity, CombatContext ctx)
         {
-            return string.Format("Sát thương {0:0} · Hồi chiêu {1:0.00}s",
+            return string.Format("Damage {0:0} | Cooldown {1:0.00}s",
                 EffectiveDamage(rarity, ctx), EffectiveCooldown(rarity, ctx));
         }
 

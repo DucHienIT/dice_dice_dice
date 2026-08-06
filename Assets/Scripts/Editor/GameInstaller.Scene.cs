@@ -250,7 +250,6 @@ namespace DiceDiceDice.EditorTools
                 icon.preserveAspect = true;
                 TMP_Text rarity = CreateTmp(rect, "Rarity", string.Empty, 12f, TextAlignmentOptions.TopLeft, true);
                 SetRect(rarity.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(10f, -7f), new Vector2(84f, 16f));
-                rarity.font = DisplayFont;
                 rarity.fontStyle = FontStyles.Bold;
                 Image dot = CreateImage(rect, "GroupDot", Color.white, false);
                 SetRect(dot.rectTransform, TopRight, TopRight, TopRight, new Vector2(-10f, -10f), new Vector2(12f, 12f));
@@ -261,7 +260,6 @@ namespace DiceDiceDice.EditorTools
                 MakeFilled(progressFill);
                 TMP_Text face = CreateTmp(rect, "Face", string.Empty, 44f, TextAlignmentOptions.Center, true);
                 Stretch(face.rectTransform);
-                face.font = DisplayFontOutlined;
                 face.fontStyle = FontStyles.Bold;
                 face.color = Color.white;
                 Image selection = CreateSpriteImage(rect, "Selection", skin.ItemFrameFocus, false, false);
@@ -303,11 +301,10 @@ namespace DiceDiceDice.EditorTools
             SetRect(titleFlag.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, 24f), new Vector2(280f, 62f));
             TMP_Text title = CreateTmp(titleFlag.rectTransform, "Title", "SHOP", 27f, TextAlignmentOptions.Center, true);
             SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 5f), new Vector2(240f, 34f));
-            title.font = DisplayFont;
             title.fontStyle = FontStyles.Bold;
             title.color = Color.white;
 
-            TMP_Text subtitle = CreateTmp(rect, "Subtitle", "Mua sắm trước khi vào wave", 13f, TextAlignmentOptions.Center, true);
+            TMP_Text subtitle = CreateTmp(rect, "Subtitle", "Buy before starting the wave", 13f, TextAlignmentOptions.Center, true);
             SetRect(subtitle.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -40f), new Vector2(360f, 18f));
             subtitle.color = new Color(0.62f, 0.58f, 0.52f);
 
@@ -329,7 +326,6 @@ namespace DiceDiceDice.EditorTools
                 icon.preserveAspect = true;
                 TMP_Text name = CreateTmp(itemRect, "Name", string.Empty, 18f, TextAlignmentOptions.TopLeft, true);
                 SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(84f, -10f), new Vector2(200f, 24f));
-                name.font = DisplayFont;
                 name.fontStyle = FontStyles.Bold;
                 TMP_Text tag = CreateTmp(itemRect, "Tag", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
                 SetRect(tag.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(84f, -33f), new Vector2(220f, 16f));
@@ -342,7 +338,6 @@ namespace DiceDiceDice.EditorTools
                 priceCoin.preserveAspect = true;
                 TMP_Text price = CreateTmp(itemRect, "Price", string.Empty, 19f, TextAlignmentOptions.TopRight, true);
                 SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-12f, -9f), new Vector2(50f, 24f));
-                price.font = DisplayFont;
                 price.fontStyle = FontStyles.Bold;
                 price.color = new Color(1f, 0.85f, 0.4f);
 
@@ -360,13 +355,13 @@ namespace DiceDiceDice.EditorTools
                 refs.ShopItems[i] = view;
             }
 
-            Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2 vàng)", 15f);
+            Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2g)", 15f);
             SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(20f, -420f), new Vector2(188f, 50f));
             ApplySprite(rerollBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Sky.Png"), true);
-            Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Khóa", 15f);
+            Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Lock", 15f);
             SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-20f, -420f), new Vector2(188f, 50f));
             ApplySprite(lockBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Dark.Png"), true);
-            Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Bắt đầu Wave 1", 20f);
+            Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Start Wave 1", 20f);
             SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -482f), new Vector2(392f, 64f));
             ApplySprite(startBg, LoadSprite(FhComponents + "Button/Button_01_Mian_l_Bg_Green.png"), true);
 
@@ -395,7 +390,7 @@ namespace DiceDiceDice.EditorTools
             Image border = CreateSpriteImage(rect, "Border", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Border.png"), false, true);
             Stretch(border.rectTransform);
 
-            TMP_Text title = CreateTmp(rect, "Title", "THÔNG TIN", 12f, TextAlignmentOptions.TopLeft, true);
+            TMP_Text title = CreateTmp(rect, "Title", "INFO", 12f, TextAlignmentOptions.TopLeft, true);
             SetRect(title.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(18f, -14f), new Vector2(200f, 18f));
             title.fontStyle = FontStyles.Bold;
             title.color = new Color(0.62f, 0.58f, 0.52f);
@@ -404,7 +399,7 @@ namespace DiceDiceDice.EditorTools
             SetRect(body.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(18f, -38f), new Vector2(324f, 212f));
             body.richText = true;
 
-            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Bán", 15f);
+            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Sell", 15f);
             SetRect(((RectTransform)sell.transform), BottomCenter, BottomCenter, BottomCenter, new Vector2(0f, 14f), new Vector2(320f, 48f));
             ApplySprite(sellBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Orange.Png"), true);
 
@@ -439,7 +434,6 @@ namespace DiceDiceDice.EditorTools
             goldCoin.preserveAspect = true;
             TMP_Text gold = CreateTmp(goldPill.rectTransform, "GoldLabel", "0", 24f, TextAlignmentOptions.Left, true);
             SetRect(gold.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(44f, 0f), new Vector2(100f, 36f));
-            gold.font = DisplayFont;
             gold.fontStyle = FontStyles.Bold;
             gold.color = new Color(1f, 0.87f, 0.45f);
 
@@ -457,13 +451,11 @@ namespace DiceDiceDice.EditorTools
             Stretch(hpBorder.rectTransform);
             TMP_Text hpText = CreateTmp(hpBack.rectTransform, "HpText", string.Empty, 13f, TextAlignmentOptions.Center, true);
             Stretch(hpText.rectTransform);
-            hpText.font = DisplayFontOutlined;
             hpText.fontStyle = FontStyles.Bold;
             hpText.color = Color.white;
 
             TMP_Text level = CreateTmp(bar, "LevelLabel", "Lv.1", 20f, TextAlignmentOptions.Left, true);
             SetRect(level.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(438f, -3f), new Vector2(74f, 40f));
-            level.font = DisplayFont;
             level.fontStyle = FontStyles.Bold;
 
             Image xpBack = CreateSpriteImage(bar, "XpBarBack", barBg, false, true);
@@ -475,16 +467,14 @@ namespace DiceDiceDice.EditorTools
             Stretch(xpBorder.rectTransform);
             TMP_Text xpText = CreateTmp(xpBack.rectTransform, "XpText", string.Empty, 12f, TextAlignmentOptions.Center, true);
             Stretch(xpText.rectTransform);
-            xpText.font = DisplayFontOutlined;
             xpText.fontStyle = FontStyles.Bold;
             xpText.color = Color.white;
 
             TMP_Text wave = CreateTmp(bar, "WaveLabel", "Wave 0/10", 24f, TextAlignmentOptions.Left, true);
             SetRect(wave.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(716f, -3f), new Vector2(190f, 40f));
-            wave.font = DisplayFont;
             wave.fontStyle = FontStyles.Bold;
 
-            TMP_Text phase = CreateTmp(bar, "PhaseLabel", "GIAI ĐOẠN MUA SẮM", 15f, TextAlignmentOptions.Left, true);
+            TMP_Text phase = CreateTmp(bar, "PhaseLabel", "SHOPPING PHASE", 15f, TextAlignmentOptions.Left, true);
             SetRect(phase.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(920f, -3f), new Vector2(300f, 40f));
             phase.fontStyle = FontStyles.Bold;
 
@@ -907,6 +897,7 @@ namespace DiceDiceDice.EditorTools
             var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
             go.transform.SetParent(parent, false);
             var tmp = go.GetComponent<TextMeshProUGUI>();
+            tmp.font = DisplayFont; // single font for every text in the game
             tmp.text = text;
             tmp.fontSize = size;
             tmp.alignment = alignment;

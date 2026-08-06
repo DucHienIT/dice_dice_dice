@@ -61,7 +61,7 @@ namespace DiceDiceDice
                 if (dotDamage > 0f)
                 {
                     enemy.ApplyDirectDamage(dotDamage);
-                    _stats.TrackDamage("Thiêu đốt", dotDamage);
+                    _stats.TrackDamage("Burn", dotDamage);
                     if (enemy.Hp <= 0f)
                     {
                         Kill(enemy);
