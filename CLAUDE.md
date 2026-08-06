@@ -11,8 +11,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **DICE DICE DICE!** — a single-screen (1920x1080, side-view) Tower Defense + Merge + Roguelite game being built in Unity. Enemies march right-to-left toward a wall; the player manages an 8-slot item board (2 columns × 4 rows) where Dice generate gold economy and combat items auto-attack.
 
 - **Unity version:** 6000.3.9f1 (Unity 6) — URP, new Input System, uGUI
-- **Current state:** template stage — third-party assets are imported but there is **no first-party game code yet**. Game scripts should be created under a new `Assets/Scripts/` (or similar first-party folder), not inside third-party folders.
-- **Main scene:** `Assets/Scenes/SampleScene.unity`
+- **Current state:** MVP implemented and playable — full 10-wave run (shop → wave → level-up → boss → win/lose), 11 items, 9 enemy types, 22 roguelike upgrades. Verified end-to-end via Unity MCP play-test (win reached, 0 console errors).
+- **Main scene:** `Assets/Scenes/SampleScene.unity` (in Build Settings)
+
+## Code Map (first-party)
+
+All runtime code is in `Assets/Scripts/` under namespace `DiceDiceDice`, following `docs/CODE_RULES.md`:
+
+- `Core/` — `GameManager` (central phase state machine + the single `Update()` that ticks every system in fixed order), `BaseWall` (HP/shield), `WallView` (world visuals + shake), `GamePhase`, `RunStats`.
+- `Board/` — `BoardModel` (pure logic, 8 slots as `const`), `BoardController` (move/merge/sell with phase rules), `BoardMoveResult`.
+- `Items/` — `ItemInstance`, `ItemTicker` (dice roll timers — wave-only, progress carries over — and combat cooldowns; fires events for UI), enums.
+- `Combat/` — `CombatContext` (bundle passed to item `Fire`), `ProjectileManager`/`Projectile` (pooled, list-based hit tests, no physics), `EffectManager`/`VisualEffect`/`LightningBolt` (pooled), `AuraService` (Anvil/Hourglass auras, recomputed on board change).
+- `Enemies/` — `Enemy` (pooled, no own Update), `EnemyManager` (single tick loop, targeting API, damage/resist/armor/DoT), `WaveSpawner`.
+- `Economy/` — `EconomyController` (gold/XP/level events). `Shop/` — `ShopController` (buy/reroll/lock, weighted dice frequency). `Roguelike/` — `UpgradeSystem` (applies `UpgradeDefinition` stat+op+value to `RunModifiers`).
+- `Data/` — ScriptableObject classes: `GameConfig` (all balance knobs + world layout), `PaletteConfig` (all colors), `ItemDefinition` hierarchy (each combat item = own class with `Fire()` override — add item #12 by adding a class + asset, never a switch), `EnemyDefinition`, `WaveSet`, `UpgradeDefinition`.
+- `UI/` — `UIController` (sole glue: subscribes to system events, feeds dumb views), `HUDView`, `BoardSlotView` (uGUI drag/drop + DOTween roll/merge feedback), `ShopPanelView`/`ShopItemView`, `InfoPanelView`, `ModalView` (intro/level-up/game-over), `BannerView`, `ToastView`, `FloatingTextManager`/`FloatingText` (pooled gold/CRIT popups).
+- `Utils/` — `ObjectPool<T>`, `SpriteFactory` (ALL sprites procedural, white + tinted, 64px = 1 world unit), `AudioSynth`+`AudioManager` (all SFX/ambient synthesized in memory), `SaveSystem` (PlayerPrefs, `DDD_` prefix), `RarityMath` (2^tier).
+- `Editor/` — `GameInstaller` (partial, 2 files): menu **Tools ▸ DICE DICE DICE ▸ Install All** rebuilds `Assets/Data/*` balance assets, `Assets/Prefabs/*` and the whole scene idempotently (assets updated in place, GUIDs stable; scene roots `GameSystems`/`WorldVisuals`/`UICanvas`/`EventSystem` are deleted and rebuilt; wiring is verified and logs errors for any null ref).
+
+Key conventions established:
+- Balance data lives in `Assets/Data/` assets; edit values there (or via `GameInstaller` for bulk changes — it overwrites data assets on re-run).
+- World↔UI mapping: camera ortho size 5.4 at (0,0), canvas 1920x1080 ⇒ 1 world unit = 100 canvas px; board slot world positions come from `GameConfig.SlotWorldPosition`.
+- Visuals/audio are 100% procedural (`SpriteFactory`/`AudioSynth`) — palette/mood changes go through `PaletteConfig`; sprites are white and tinted at the call site.
+- Play-test drivers via `mcp__UnityMCP__execute_code`: set `Application.runInBackground = true` before Play; UI buttons can be invoked through `SerializedObject` lookups (see git history of this build for examples).
 
 ## The Design Spec Is Authoritative
 
