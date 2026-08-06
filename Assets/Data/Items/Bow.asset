@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90b17d4f5082555488f927169e777164, type: 3}
+  m_Name: Bow
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.BowDefinition
+  _displayName: Bow
+  _group: 1
+  _price: 12
+  _description: "B\u1EAFn nhanh, s\xE1t th\u01B0\u01A1ng th\u1EA5p. Epic: xuy\xEAn
+    m\u1EE5c ti\xEAu. Legendary: th\u1EC9nh tho\u1EA3ng t\u1EA1o m\u01B0a t\xEAn."
+  _icon: 1
+  _shopWeight: 1
+  _baseDamage: 4
+  _baseCooldown: 0.8
+  _damageType: 0
+  _projectileSpeed: 5.2
+  _arrowRainChance: 0.15
+  _arrowRainCount: 5
+  _arrowRainDamageFactor: 0.6
+  _arrowRainSpeed: 6

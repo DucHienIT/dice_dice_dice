@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5970781ef9b4b8747bcc0c88c5c88d76, type: 3}
+  m_Name: Cannon
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.CannonDefinition
+  _displayName: Cannon
+  _group: 1
+  _price: 18
+  _description: "\u0110\u1EA1n n\u1ED5 di\u1EC7n r\u1ED9ng, hi\u1EC7u qu\u1EA3 v\u1EDBi
+    nh\xF3m qu\xE1i \u0111\xF4ng."
+  _icon: 4
+  _shopWeight: 1
+  _baseDamage: 10
+  _baseCooldown: 3
+  _damageType: 0
+  _projectileSpeed: 3.8
+  _baseAoeRadius: 0.7
+  _aoeRadiusPerRarity: 0.12

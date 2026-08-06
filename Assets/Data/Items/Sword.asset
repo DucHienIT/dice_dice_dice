@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a19b0b36adb81a84bab88ff31fd0cc30, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.SwordDefinition
+  _displayName: Sword
+  _group: 1
+  _price: 14
+  _description: "Ki\u1EBFm kh\xED ch\xE9m qu\xE1i g\u1EA7n t\u01B0\u1EDDng th\xE0nh
+    nh\u1EA5t, ch\xE9m tr\xFAng nhi\u1EC1u m\u1EE5c ti\xEAu theo ph\u1EA9m c\u1EA5p."
+  _icon: 2
+  _shopWeight: 1
+  _baseDamage: 9
+  _baseCooldown: 1.6
+  _damageType: 0
+  _baseTargets: 1
+  _baseCritChance: 0.05
+  _critMultiplier: 2
+  _critExplodeRadius: 0.5
+  _critExplodeDamageFactor: 0.5

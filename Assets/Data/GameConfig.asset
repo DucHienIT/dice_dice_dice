@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4d6ea626698555409fc2c2e2dd63ed2, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.GameConfig
+  _startGold: 10
+  _wallMaxHp: 100
+  _waveCount: 10
+  _xpBase: 10
+  _xpPerLevel: 10
+  _shopSlotCount: 3
+  _rerollBaseCost: 2
+  _rerollCostIncrement: 1
+  _earlyDiceWaveThreshold: 3
+  _diceWeightEarly: 3
+  _diceWeightLate: 1.2
+  _waveEndGold: 5
+  _interestCap: 15
+  _rollAnimDuration: 0.55
+  _hpGrowthPerWave: 0.28
+  _eliteHpGrowthPerWave: 0.15
+  _speedGrowthPerWave: 0.03
+  _slowSpeedFactor: 0.55
+  _healerPulseInterval: 1
+  _healerRadius: 1.1
+  _healerHpPerPulse: 3
+  _boardOrigin: {x: -8.86, y: 1.68}
+  _slotStep: 1.12
+  _wallCenterX: -7
+  _wallWidth: 0.3
+  _wallStopX: -6.85
+  _spawnX: 10.3
+  _enemyYMin: -4.1
+  _enemyYMax: 3.5
+  _fieldRightX: 9.9
+  _skySpawnY: 6
+  _targetFrameRate: 60
+  _enemyPoolSize: 48
+  _projectilePoolSize: 128
+  _effectPoolSize: 48
+  _lightningPoolSize: 8
+  _floatingTextPoolSize: 32

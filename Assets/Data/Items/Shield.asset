@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4054a6ad06af7ab4ba1e83a45986621d, type: 3}
+  m_Name: Shield
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.ShieldDefinition
+  _displayName: Shield
+  _group: 4
+  _price: 12
+  _description: "T\u1EA1o khi\xEAn cho t\u01B0\u1EDDng th\xE0nh v\xE0o \u0111\u1EA7u
+    m\u1ED7i wave, h\u1EA5p th\u1EE5 s\xE1t th\u01B0\u01A1ng tr\u01B0\u1EDBc m\xE1u."
+  _icon: 10
+  _shopWeight: 1
+  _shieldPerRarity: 15

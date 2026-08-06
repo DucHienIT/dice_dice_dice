@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3428a858d1c95cf47ae641e1d50a36f0, type: 3}
+  m_Name: LightningOrb
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.LightningOrbDefinition
+  _displayName: Lightning Orb
+  _group: 2
+  _price: 16
+  _description: "S\xE9t lan gi\u1EEFa nhi\u1EC1u m\u1EE5c ti\xEAu \u0111\u1EE9ng
+    g\u1EA7n nhau."
+  _icon: 7
+  _shopWeight: 1
+  _baseDamage: 8
+  _baseCooldown: 3
+  _damageType: 1
+  _baseChainCount: 3
+  _chainRadius: 1.3

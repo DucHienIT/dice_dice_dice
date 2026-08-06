@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee71bdb34c03f49488ed10b33e64410b, type: 3}
+  m_Name: WaveSet
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.WaveSet
+  _waves:
+  - _label: Wave 1
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 5
+      _interval: 2.2
+      _startTime: 1
+  - _label: Wave 2
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 8
+      _interval: 1.7
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 2
+      _interval: 3
+      _startTime: 14
+  - _label: Wave 3
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 6
+      _interval: 1.4
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 6
+      _interval: 2
+      _startTime: 4
+  - _label: Wave 4
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: dd3127a518ebab8419bd1e0d96cc28b9, type: 2}
+      _count: 12
+      _interval: 0.5
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 6
+      _interval: 2
+      _startTime: 8
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 4
+      _interval: 1.5
+      _startTime: 15
+  - _label: "Wave 5 \u2014 MINI-BOSS"
+    _bossAlarm: 1
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 6
+      _interval: 1.8
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 9270ed92dfb4e8549a7b9705f49bb108, type: 2}
+      _count: 2
+      _interval: 5
+      _startTime: 6
+    - _enemy: {fileID: 11400000, guid: 8c359d0ed62a4ab4fb94dad436fa2235, type: 2}
+      _count: 1
+      _interval: 0
+      _startTime: 20
+  - _label: Wave 6
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: c1ba4ed9dbfc5fe499f3345a39e82278, type: 2}
+      _count: 5
+      _interval: 3
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 8
+      _interval: 1.5
+      _startTime: 3
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 4
+      _interval: 1.2
+      _startTime: 16
+  - _label: Wave 7
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 4137095517c7e124d8d9dc1ba5aa8e6e, type: 2}
+      _count: 5
+      _interval: 3
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: dd3127a518ebab8419bd1e0d96cc28b9, type: 2}
+      _count: 14
+      _interval: 0.45
+      _startTime: 5
+    - _enemy: {fileID: 11400000, guid: 9270ed92dfb4e8549a7b9705f49bb108, type: 2}
+      _count: 2
+      _interval: 6
+      _startTime: 12
+  - _label: Wave 8
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 8754001a21c3b144a86768f50b8d99e4, type: 2}
+      _count: 2
+      _interval: 8
+      _startTime: 4
+    - _enemy: {fileID: 11400000, guid: c1ba4ed9dbfc5fe499f3345a39e82278, type: 2}
+      _count: 4
+      _interval: 3.2
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 4137095517c7e124d8d9dc1ba5aa8e6e, type: 2}
+      _count: 4
+      _interval: 3.2
+      _startTime: 2.5
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 10
+      _interval: 1.4
+      _startTime: 6
+  - _label: Wave 9
+    _bossAlarm: 0
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: 9270ed92dfb4e8549a7b9705f49bb108, type: 2}
+      _count: 4
+      _interval: 4
+      _startTime: 1
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 8
+      _interval: 1
+      _startTime: 3
+    - _enemy: {fileID: 11400000, guid: 8754001a21c3b144a86768f50b8d99e4, type: 2}
+      _count: 2
+      _interval: 7
+      _startTime: 8
+    - _enemy: {fileID: 11400000, guid: dd3127a518ebab8419bd1e0d96cc28b9, type: 2}
+      _count: 12
+      _interval: 0.5
+      _startTime: 12
+    - _enemy: {fileID: 11400000, guid: 8c359d0ed62a4ab4fb94dad436fa2235, type: 2}
+      _count: 1
+      _interval: 0
+      _startTime: 24
+  - _label: 'BOSS: LOADED GOLEM'
+    _bossAlarm: 1
+    _spawns:
+    - _enemy: {fileID: 11400000, guid: dd3127a518ebab8419bd1e0d96cc28b9, type: 2}
+      _count: 8
+      _interval: 0.6
+      _startTime: 2
+    - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
+      _count: 6
+      _interval: 2.5
+      _startTime: 6
+    - _enemy: {fileID: 11400000, guid: d60370e577168eb47b0f4eab5087b556, type: 2}
+      _count: 1
+      _interval: 0
+      _startTime: 10
+    - _enemy: {fileID: 11400000, guid: 87cb6aeb75985d3428fcf4e75d83a500, type: 2}
+      _count: 6
+      _interval: 1.5
+      _startTime: 26

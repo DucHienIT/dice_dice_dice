@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c0b6b797dcc61b40854a6c5c55cc6fb, type: 3}
+  m_Name: Hourglass
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.SupportDefinition
+  _displayName: Hourglass
+  _group: 3
+  _price: 15
+  _description: "Kh\xF4ng t\u1EA5n c\xF4ng. T\u0103ng t\u1ED1c \u0111\u1ED9 \u0111\xE1nh
+    c\u1EE7a item v\xE0 t\u1ED1c \u0111\u1ED9 roll c\u1EE7a Dice."
+  _icon: 9
+  _shopWeight: 1
+  _physicalAuraPerRarity: 0
+  _speedAuraPerRarity: 0.1

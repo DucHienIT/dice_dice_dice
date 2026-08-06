@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84e3b0f04eb211a46a7ad01d85347b97, type: 3}
+  m_Name: Crossbow
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.CrossbowDefinition
+  _displayName: Crossbow
+  _group: 1
+  _price: 16
+  _description: "B\u1EAFn ch\u1EADm, s\xE1t th\u01B0\u01A1ng l\u1EDBn, t\u1EC9 l\u1EC7
+    ch\xED m\u1EA1ng cao. Hi\u1EC7u qu\u1EA3 v\u1EDBi Elite v\xE0 Boss."
+  _icon: 3
+  _shopWeight: 1
+  _baseDamage: 16
+  _baseCooldown: 2.4
+  _damageType: 0
+  _projectileSpeed: 6.8
+  _baseCritChance: 0.3
+  _critChancePerRarity: 0.05
+  _critMultiplier: 2.5
+  _legendaryPierce: 2

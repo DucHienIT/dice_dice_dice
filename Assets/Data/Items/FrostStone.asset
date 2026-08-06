@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6098ef0707d05024a8ece962873f3845, type: 3}
+  m_Name: FrostStone
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.FrostStoneDefinition
+  _displayName: Frost Stone
+  _group: 2
+  _price: 14
+  _description: "S\xE1t th\u01B0\u01A1ng th\u1EA5p, l\xE0m ch\u1EADm qu\xE1i. Epic
+    tr\u1EDF l\xEAn c\xF3 c\u01A1 h\u1ED9i \u0111\xF3ng b\u0103ng."
+  _icon: 6
+  _shopWeight: 1
+  _baseDamage: 4
+  _baseCooldown: 2.5
+  _damageType: 1
+  _projectileSpeed: 4.6
+  _slowDuration: 2
+  _freezeChance: 0.2
+  _freezeDuration: 1
+  _freezeMinRarity: 2
