@@ -23,6 +23,9 @@ namespace DiceDiceDice
         private int _index;
         private float _lastProgress = -1f;
         private RectTransform _iconRect;
+        private Image _iconShadow;
+        private Image _iconGlow;
+        private Vector3 _renderScale = Vector3.one;
 
         public RectTransform Rect => _rect;
 
@@ -31,6 +34,7 @@ namespace DiceDiceDice
             _index = index;
             _controller = controller;
             _iconRect = _icon.rectTransform;
+            EnsureIconDepthLayers();
             _groupDot.sprite = SpriteFactory.Circle;
             _faceLabel.alpha = 0f;
             SetSelected(false);
@@ -42,6 +46,8 @@ namespace DiceDiceDice
             {
                 _frame.sprite = skin.ItemFrameEmpty;
                 _icon.enabled = false;
+                _iconShadow.enabled = false;
+                _iconGlow.enabled = false;
                 _groupDot.enabled = false;
                 _progressBack.enabled = false;
                 _progressFill.enabled = false;
@@ -54,7 +60,17 @@ namespace DiceDiceDice
             _icon.enabled = true;
             _icon.sprite = definition.IconSprite;
             _icon.color = Color.white;
-            _iconRect.localScale = Vector3.one * (1f + 0.06f * item.RarityIndex);
+            _icon.preserveAspect = true;
+            _renderScale = Vector3.one * (1f + 0.055f * item.RarityIndex);
+            _iconRect.localScale = _renderScale;
+
+            _iconShadow.enabled = true;
+            _iconShadow.sprite = definition.IconSprite;
+            _iconShadow.preserveAspect = true;
+            _iconGlow.enabled = true;
+            _iconGlow.sprite = SpriteFactory.SoftCircle;
+            _iconGlow.color = RarityGlow(item.Rarity);
+
             _groupDot.enabled = true;
             _groupDot.color = palette.GroupColor(definition.Group);
             bool showsProgress = definition is DiceDefinition || definition is CombatItemDefinition;
@@ -100,7 +116,7 @@ namespace DiceDiceDice
         public void PlayFireAnim()
         {
             _iconRect.DOKill();
-            _iconRect.localScale = Vector3.one;
+            _iconRect.localScale = _renderScale;
             _iconRect.DOPunchScale(Vector3.one * 0.18f, 0.18f, 6).SetLink(gameObject);
         }
 
@@ -109,9 +125,47 @@ namespace DiceDiceDice
             _rect.DOKill(true);
             _rect.DOPunchScale(Vector3.one * 0.22f, 0.35f, 5).SetLink(gameObject);
             _iconRect.DOKill();
-            _iconRect.localScale = Vector3.one * 1.35f;
-            _iconRect.DOScale(1f, 0.3f).SetEase(Ease.OutBack).SetLink(gameObject);
+            _iconRect.localScale = _renderScale * 1.35f;
+            _iconRect.DOScale(_renderScale, 0.3f).SetEase(Ease.OutBack).SetLink(gameObject);
         }
+
+        private void EnsureIconDepthLayers()
+        {
+            _iconGlow = CreateIconLayer("Rarity Glow", _iconRect.GetSiblingIndex());
+            _iconGlow.rectTransform.sizeDelta = _iconRect.sizeDelta * 1.18f;
+            _iconShadow = CreateIconLayer("Item Shadow", _iconRect.GetSiblingIndex());
+            _iconShadow.color = new Color(0.06f, 0.035f, 0.09f, 0.62f);
+            _iconShadow.rectTransform.anchoredPosition = _iconRect.anchoredPosition + new Vector2(4f, -6f);
+        }
+
+        private Image CreateIconLayer(string layerName, int siblingIndex)
+        {
+            var layer = new GameObject(layerName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var rect = (RectTransform)layer.transform;
+            rect.SetParent(_iconRect.parent, false);
+            rect.anchorMin = _iconRect.anchorMin;
+            rect.anchorMax = _iconRect.anchorMax;
+            rect.pivot = _iconRect.pivot;
+            rect.sizeDelta = _iconRect.sizeDelta;
+            rect.anchoredPosition = _iconRect.anchoredPosition;
+            rect.localRotation = _iconRect.localRotation;
+            rect.SetSiblingIndex(siblingIndex);
+            var image = layer.GetComponent<Image>();
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private static Color RarityGlow(ItemRarity rarity)
+        {
+            switch (rarity)
+            {
+                case ItemRarity.Rare: return new Color(0.16f, 0.55f, 1f, 0.18f);
+                case ItemRarity.Epic: return new Color(0.72f, 0.28f, 1f, 0.22f);
+                case ItemRarity.Legendary: return new Color(1f, 0.66f, 0.12f, 0.28f);
+                default: return new Color(0.72f, 0.80f, 0.90f, 0.10f);
+            }
+        }
+
 
         public void OnPointerClick(PointerEventData eventData)
         {

@@ -18,12 +18,14 @@ namespace DiceDiceDice
 
         private UIController _controller;
         private int _index;
+        private Image _iconShadow;
 
         public void Init(int index, UIController controller)
         {
             _index = index;
             _controller = controller;
             _button.onClick.AddListener(OnClicked);
+            _iconShadow = CreateIconShadow();
         }
 
         public void Render(ShopController.ShopOffer offer, UiSkin skin)
@@ -33,6 +35,9 @@ namespace DiceDiceDice
             _border.sprite = skin.CardBorder(definition.Group);
             _icon.sprite = definition.IconSprite;
             _icon.color = Color.white;
+            _icon.preserveAspect = true;
+            _iconShadow.sprite = definition.IconSprite;
+            _iconShadow.preserveAspect = true;
             _nameLabel.text = definition.DisplayName;
             _descriptionLabel.text = definition.Description;
             _priceLabel.text = definition.Price.ToString();
@@ -45,5 +50,25 @@ namespace DiceDiceDice
         {
             _controller.OnShopItemClicked(_index);
         }
+
+        private Image CreateIconShadow()
+        {
+            RectTransform source = _icon.rectTransform;
+            var shadow = new GameObject("Item Shadow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var rect = (RectTransform)shadow.transform;
+            rect.SetParent(source.parent, false);
+            rect.anchorMin = source.anchorMin;
+            rect.anchorMax = source.anchorMax;
+            rect.pivot = source.pivot;
+            rect.sizeDelta = source.sizeDelta;
+            rect.anchoredPosition = source.anchoredPosition + new Vector2(5f, -7f);
+            rect.localRotation = source.localRotation;
+            rect.SetSiblingIndex(source.GetSiblingIndex());
+            var image = shadow.GetComponent<Image>();
+            image.color = new Color(0.05f, 0.025f, 0.08f, 0.58f);
+            image.raycastTarget = false;
+            return image;
+        }
+
     }
 }

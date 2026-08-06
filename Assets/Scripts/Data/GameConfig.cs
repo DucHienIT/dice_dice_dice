@@ -84,6 +84,12 @@ namespace DiceDiceDice
         public float EnemyYMax => _enemyYMax;
         public float FieldRightX => _fieldRightX;
         public float SkySpawnY => _skySpawnY;
+
+        /// <summary>
+        /// Left cull line for projectiles. They are fired from board slots, which sit LEFT of the wall,
+        /// so the cull must clear the whole board - culling at the wall kills every arrow on its first frame.
+        /// </summary>
+        public float ProjectileLeftX => Mathf.Min(_boardOrigin.x, _wallStopX) - 1f;
         public int TargetFrameRate => _targetFrameRate;
         public int EnemyPoolSize => _enemyPoolSize;
         public int ProjectilePoolSize => _projectilePoolSize;

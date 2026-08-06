@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 15
   _description: Boosts physical damage.
   _icon: 8
-  _iconSprite: {fileID: 21300000, guid: f1a486ff4d4294b4087deb7a3442a9f0, type: 3}
+  _iconSprite: {fileID: 21300000, guid: fbd3462b164df3d44ae8436a5d230fb3, type: 3}
   _shopWeight: 1
   _physicalAuraPerRarity: 0.15
   _speedAuraPerRarity: 0

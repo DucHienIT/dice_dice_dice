@@ -91,7 +91,7 @@ namespace DiceDiceDice
             }
 
             Vector2 position = projectile.Position;
-            if (position.x > _config.FieldRightX + 0.6f || position.x < _config.WallStopX - 1f ||
+            if (position.x > _config.FieldRightX + 0.6f || position.x < _config.ProjectileLeftX ||
                 position.y > _config.SkySpawnY + 1f || position.y < _config.EnemyYMin - 1f)
             {
                 return true;

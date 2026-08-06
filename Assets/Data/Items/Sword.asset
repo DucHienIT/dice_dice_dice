@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 14
   _description: Slashes monsters near the wall.
   _icon: 2
-  _iconSprite: {fileID: 21300000, guid: 0556552df2e304f23b60de8c1a528f1b, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 3f10c8784736f1c4d91ec51e020a4794, type: 3}
   _shopWeight: 1
   _baseDamage: 9
   _baseCooldown: 1.6

@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 12
   _description: Fast arrows, low damage.
   _icon: 1
-  _iconSprite: {fileID: 21300000, guid: 407ec35d7e13641709c3cdad1a0796f7, type: 3}
+  _iconSprite: {fileID: 21300000, guid: aa6c42c0486965c44b8ac4f8106358a0, type: 3}
   _shopWeight: 1
   _baseDamage: 4
   _baseCooldown: 0.8

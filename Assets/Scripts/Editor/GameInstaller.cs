@@ -19,7 +19,7 @@ namespace DiceDiceDice.EditorTools
         private const string FhItemIcons = FhComponents + "Icon_ItemIcons/128/";
         private const string FhPictoIcons = FhComponents + "Icon_PictoIcons/128/";
         private const string GameFont = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular SDF.asset";
-        private const string CgDiceIcon = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Dice_Yellow.png";
+        private const string GeneratedItemIcons = "Assets/Art/ItemIcons/Generated/";
 
         private static Sprite LoadSprite(string path)
         {
@@ -234,18 +234,43 @@ namespace DiceDiceDice.EditorTools
         /// <summary>Layer Lab icon sprites per item (Dice icon comes from the CasualGame pack — same vendor).</summary>
         private static void AssignItemIcons()
         {
-            SetItemIcon("Dice", CgDiceIcon);
-            SetItemIcon("Bow", FhItemIcons + "ItemIcon_Gear_Bow.png");
-            SetItemIcon("Sword", FhItemIcons + "ItemIcon_Gear_Sword.png");
-            SetItemIcon("Crossbow", FhItemIcons + "ItemIcon_Skill_Critical.png");
-            SetItemIcon("Cannon", FhItemIcons + "ItemIcon_Bomb.png");
-            SetItemIcon("FireBook", FhPictoIcons + "PictoIcon_Fire.Png");
-            SetItemIcon("FrostStone", FhItemIcons + "ItemIcon_Gem_Diamond_Blue.png");
-            SetItemIcon("LightningOrb", FhItemIcons + "ItemIcon_Energy_Blue.png");
-            SetItemIcon("Anvil", FhItemIcons + "ItemIcon_Gear_Hammer.png");
-            SetItemIcon("Hourglass", FhPictoIcons + "PictoIcon_Timer.Png");
-            SetItemIcon("Shield", FhItemIcons + "ItemIcon_Gear_Shield_Metal.png");
+            string[] names = { "Dice", "Bow", "Sword", "Crossbow", "Cannon", "FireBook", "FrostStone", "LightningOrb", "Anvil", "Hourglass", "Shield" };
+            foreach (string name in names)
+            {
+                string path = GeneratedItemIcons + name + ".png";
+                ConfigureItemIcon(path);
+                SetItemIcon(name, path);
+            }
         }
+
+        private static void ConfigureItemIcon(string path)
+        {
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+            {
+                Debug.LogError("[Installer] Missing generated item icon: " + path);
+                return;
+            }
+
+            bool dirty = importer.textureType != TextureImporterType.Sprite
+                || importer.spriteImportMode != SpriteImportMode.Single
+                || importer.mipmapEnabled
+                || !importer.alphaIsTransparency
+                || importer.wrapMode != TextureWrapMode.Clamp;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 256f;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.maxTextureSize = 256;
+            if (dirty)
+            {
+                importer.SaveAndReimport();
+            }
+        }
+
 
         private static void SetItemIcon(string assetName, string spritePath)
         {

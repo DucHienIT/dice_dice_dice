@@ -17,6 +17,6 @@ MonoBehaviour:
   _price: 12
   _description: Shields the wall each wave.
   _icon: 10
-  _iconSprite: {fileID: 21300000, guid: f569ddd85d34045b1b68f2df0d0c56b0, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 15c6026d56bdeb9429931c56d702fb60, type: 3}
   _shopWeight: 1
   _shieldPerRarity: 15

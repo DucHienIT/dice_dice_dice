@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 10
   _description: Rolls for gold during waves.
   _icon: 0
-  _iconSprite: {fileID: 21300000, guid: 9e1d77e107b614ae9be157429a65de67, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 1e47e90aab7240b4b9a089997ce56628, type: 3}
   _shopWeight: 1
   _baseInterval: 5
   _intervalReductionPerRarity: 0.7

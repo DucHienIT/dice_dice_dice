@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 16
   _description: Slow bolts, high crit chance.
   _icon: 3
-  _iconSprite: {fileID: 21300000, guid: ceeb0587c5bf34afa97f3b996a0d2e99, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 02ae36890fe431642a4082fc82d81db8, type: 3}
   _shopWeight: 1
   _baseDamage: 16
   _baseCooldown: 2.4

@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 14
   _description: Slows monsters, can freeze.
   _icon: 6
-  _iconSprite: {fileID: 21300000, guid: f0e586bb433934ae2830a01f147d8230, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 703dfec72009b1f418042a7ba678c24a, type: 3}
   _shopWeight: 1
   _baseDamage: 4
   _baseCooldown: 2.5

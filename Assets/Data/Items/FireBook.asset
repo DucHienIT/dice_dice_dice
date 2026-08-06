@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 18
   _description: Meteors that burn over time.
   _icon: 5
-  _iconSprite: {fileID: 21300000, guid: a5edbb1acb3234a5db0f0daa141eb77b, type: 3}
+  _iconSprite: {fileID: 21300000, guid: f15816b63f2690d4d898b64d4283d8f4, type: 3}
   _shopWeight: 1
   _baseDamage: 12
   _baseCooldown: 4

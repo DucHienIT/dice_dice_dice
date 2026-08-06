@@ -17,7 +17,7 @@ MonoBehaviour:
   _price: 15
   _description: Speeds up attacks and rolls.
   _icon: 9
-  _iconSprite: {fileID: 21300000, guid: f6a40be6de2b14eed9b73a02f6f818ce, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 950c6cad22d3e8d47a7df3916f5c3f69, type: 3}
   _shopWeight: 1
   _physicalAuraPerRarity: 0
   _speedAuraPerRarity: 0.1
