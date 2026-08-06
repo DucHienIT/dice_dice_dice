@@ -14,6 +14,39 @@ namespace DiceDiceDice.EditorTools
         private const string PrefabRoot = "Assets/Prefabs";
         private const string ScenePath = "Assets/Scenes/SampleScene.unity";
 
+        // Layer Lab GUI Pro skin sources (read-only third-party assets)
+        private const string FhComponents = "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Sptites/Components/";
+        private const string FhItemIcons = FhComponents + "Icon_ItemIcons/128/";
+        private const string FhPictoIcons = FhComponents + "Icon_PictoIcons/128/";
+        private const string FhFonts = "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Fonts/";
+        private const string CgDiceIcon = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Dice_Yellow.png";
+
+        private static Sprite LoadSprite(string path)
+        {
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite == null)
+            {
+                Debug.LogError("[Installer] Missing sprite: " + path);
+            }
+            return sprite;
+        }
+
+        private static TMPro.TMP_FontAsset LoadFont(string fileName)
+        {
+            var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(FhFonts + fileName);
+            if (font == null)
+            {
+                Debug.LogError("[Installer] Missing font: " + fileName);
+            }
+            return font;
+        }
+
+        /// <summary>Display font for ASCII-only text (numbers, "Wave", "SHOP"). It has no Vietnamese glyphs —
+        /// Vietnamese strings must stay on the TMP default font.</summary>
+        private static TMPro.TMP_FontAsset DisplayFont => LoadFont("GermaniaOne-Regular SDF.asset");
+
+        private static TMPro.TMP_FontAsset DisplayFontOutlined => LoadFont("GermaniaOne-Regular SDF_OutlineDark.asset");
+
         [MenuItem("Tools/DICE DICE DICE/Install All")]
         public static void InstallAll()
         {
@@ -78,11 +111,50 @@ namespace DiceDiceDice.EditorTools
         private static void InstallConfigs()
         {
             GetOrCreateAsset<GameConfig>(DataRoot + "/GameConfig.asset");
-            GetOrCreateAsset<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
+            var palette = GetOrCreateAsset<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
+            // Layer Lab panels are light parchment — body text must be dark to stay readable.
+            palette.EditorSetTextColors(new Color(0.30f, 0.25f, 0.20f), new Color(0.52f, 0.46f, 0.38f));
+            InstallUiSkin();
+        }
+
+        private static void InstallUiSkin()
+        {
+            var skin = GetOrCreateAsset<UiSkin>(DataRoot + "/UiSkin.asset");
+            var frameByRarity = new[]
+            {
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_01_Gray.png"),    // Common
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_01_Blue.png"),    // Rare
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_01_Purple.png"),  // Epic
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_01_Yellow.png")   // Legendary
+            };
+            var cardBgByGroup = new[]
+            {
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Yellow_Bg.png"),  // Economy
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Red_Bg.png"),     // Weapon
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Purple_Bg.png"),  // Magic
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Green_Bg.png"),   // Support
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Blue_Bg.png")     // Defense
+            };
+            var cardBorderByGroup = new[]
+            {
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Yellow_Border.png"),
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Red_Border.png"),
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Purple_Border.png"),
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Green_Border.png"),
+                LoadSprite(FhComponents + "Frame/CardFrame_Rectangle_01_Blue_Border.png")
+            };
+            skin.EditorSetup(frameByRarity,
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_01_Dim.png"),
+                LoadSprite(FhComponents + "Frame/ItemFrame_Square_02_Single_Focus.png"),
+                cardBgByGroup, cardBorderByGroup,
+                LoadSprite(FhPictoIcons + "PictoIcon_Sound.Png"),
+                LoadSprite(FhPictoIcons + "PictoIcon_Sound_Mute.Png"),
+                LoadSprite(FhItemIcons + "ItemIcon_Coin_Gold.png"));
         }
 
         private static GameConfig Config => AssetDatabase.LoadAssetAtPath<GameConfig>(DataRoot + "/GameConfig.asset");
         private static PaletteConfig Palette => AssetDatabase.LoadAssetAtPath<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
+        private static UiSkin Skin => AssetDatabase.LoadAssetAtPath<UiSkin>(DataRoot + "/UiSkin.asset");
 
         // ---------- Items (spec 27.2) ----------
 
@@ -153,6 +225,31 @@ namespace DiceDiceDice.EditorTools
                 "Tạo khiên cho tường thành vào đầu mỗi wave, hấp thụ sát thương trước máu.",
                 ItemIcon.Shield, 1f);
             shield.EditorSetupShield(15);
+
+            AssignItemIcons();
+        }
+
+        /// <summary>Layer Lab icon sprites per item (Dice icon comes from the CasualGame pack — same vendor).</summary>
+        private static void AssignItemIcons()
+        {
+            SetItemIcon("Dice", CgDiceIcon);
+            SetItemIcon("Bow", FhItemIcons + "ItemIcon_Gear_Bow.png");
+            SetItemIcon("Sword", FhItemIcons + "ItemIcon_Gear_Sword.png");
+            SetItemIcon("Crossbow", FhItemIcons + "ItemIcon_Skill_Critical.png");
+            SetItemIcon("Cannon", FhItemIcons + "ItemIcon_Bomb.png");
+            SetItemIcon("FireBook", FhPictoIcons + "PictoIcon_Fire.Png");
+            SetItemIcon("FrostStone", FhItemIcons + "ItemIcon_Gem_Diamond_Blue.png");
+            SetItemIcon("LightningOrb", FhItemIcons + "ItemIcon_Energy_Blue.png");
+            SetItemIcon("Anvil", FhItemIcons + "ItemIcon_Gear_Hammer.png");
+            SetItemIcon("Hourglass", FhPictoIcons + "PictoIcon_Timer.Png");
+            SetItemIcon("Shield", FhItemIcons + "ItemIcon_Gear_Shield_Metal.png");
+        }
+
+        private static void SetItemIcon(string assetName, string spritePath)
+        {
+            var item = AssetDatabase.LoadAssetAtPath<ItemDefinition>(DataRoot + "/Items/" + assetName + ".asset");
+            item.EditorSetIconSprite(LoadSprite(spritePath));
+            EditorUtility.SetDirty(item);
         }
 
         private static ItemDefinition[] LoadItemPool()
@@ -365,6 +462,7 @@ namespace DiceDiceDice.EditorTools
                 var rect = root.GetComponent<RectTransform>();
                 rect.sizeDelta = new Vector2(220f, 60f);
                 var label = CreateTmp(root.transform, "Label", string.Empty, 30f, TMPro.TextAlignmentOptions.Center, true);
+                label.font = DisplayFontOutlined;
                 Stretch(label.rectTransform);
 
                 var so = new SerializedObject(root.GetComponent<FloatingText>());
