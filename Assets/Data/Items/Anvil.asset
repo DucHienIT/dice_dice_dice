@@ -15,7 +15,7 @@ MonoBehaviour:
   _displayName: Anvil
   _group: 3
   _price: 15
-  _description: Does not attack. Boosts physical damage for the whole board.
+  _description: Boosts physical damage.
   _icon: 8
   _iconSprite: {fileID: 21300000, guid: f1a486ff4d4294b4087deb7a3442a9f0, type: 3}
   _shopWeight: 1

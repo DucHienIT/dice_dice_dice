@@ -15,7 +15,7 @@ MonoBehaviour:
   _displayName: Hourglass
   _group: 3
   _price: 15
-  _description: Does not attack. Speeds up item attacks and dice rolls.
+  _description: Speeds up attacks and rolls.
   _icon: 9
   _iconSprite: {fileID: 21300000, guid: f6a40be6de2b14eed9b73a02f6f818ce, type: 3}
   _shopWeight: 1

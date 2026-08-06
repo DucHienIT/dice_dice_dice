@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Crossbow
   _group: 1
   _price: 16
-  _description: Slow, heavy bolts with a high critical chance. Great against Elites
-    and Bosses.
+  _description: Slow bolts, high crit chance.
   _icon: 3
   _iconSprite: {fileID: 21300000, guid: ceeb0587c5bf34afa97f3b996a0d2e99, type: 3}
   _shopWeight: 1

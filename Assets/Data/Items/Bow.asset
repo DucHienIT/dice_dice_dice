@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Bow
   _group: 1
   _price: 12
-  _description: 'Fast, low-damage arrows. Epic: pierces targets. Legendary: sometimes
-    unleashes an arrow rain.'
+  _description: Fast arrows, low damage.
   _icon: 1
   _iconSprite: {fileID: 21300000, guid: 407ec35d7e13641709c3cdad1a0796f7, type: 3}
   _shopWeight: 1

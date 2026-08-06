@@ -15,7 +15,7 @@ MonoBehaviour:
   _displayName: Cannon
   _group: 1
   _price: 18
-  _description: Explosive shells with area damage - great against crowds.
+  _description: Explosive area damage.
   _icon: 4
   _iconSprite: {fileID: 21300000, guid: 7dc620ac2691444648230abad6d94d1f, type: 3}
   _shopWeight: 1

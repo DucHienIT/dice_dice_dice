@@ -1,18 +1,16 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace DiceDiceDice
 {
-    /// <summary>One shop row: icon, name, description, price. Click buys, hover previews in the info panel.</summary>
-    public class ShopItemView : MonoBehaviour, IPointerEnterHandler
+    /// <summary>One shop row: icon, name, one-line description, price. Click buys.</summary>
+    public class ShopItemView : MonoBehaviour
     {
         [SerializeField] private Button _button;
         [SerializeField] private Image _background;
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _nameLabel;
-        [SerializeField] private TMP_Text _tagLabel;
         [SerializeField] private TMP_Text _descriptionLabel;
         [SerializeField] private TMP_Text _priceLabel;
         [SerializeField] private CanvasGroup _group;
@@ -27,14 +25,13 @@ namespace DiceDiceDice
             _button.onClick.AddListener(OnClicked);
         }
 
-        public void Render(ShopController.ShopOffer offer, PaletteConfig palette, string groupName)
+        public void Render(ShopController.ShopOffer offer, PaletteConfig palette)
         {
             ItemDefinition definition = offer.Definition;
             _icon.sprite = definition.IconSprite;
             _icon.color = Color.white;
             _nameLabel.text = definition.DisplayName;
             _nameLabel.color = palette.GroupColor(definition.Group);
-            _tagLabel.text = "Common - " + groupName;
             _descriptionLabel.text = definition.Description;
             _priceLabel.text = definition.Price.ToString();
             _group.alpha = offer.Sold ? 0.35f : 1f;
@@ -45,11 +42,6 @@ namespace DiceDiceDice
         private void OnClicked()
         {
             _controller.OnShopItemClicked(_index);
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            _controller.OnShopItemHovered(_index);
         }
     }
 }

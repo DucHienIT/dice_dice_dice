@@ -13,7 +13,6 @@ namespace DiceDiceDice
         [SerializeField] private RectTransform _rect;
         [SerializeField] private Image _frame;
         [SerializeField] private Image _icon;
-        [SerializeField] private TMP_Text _rarityLabel;
         [SerializeField] private Image _groupDot;
         [SerializeField] private Image _progressBack;
         [SerializeField] private Image _progressFill;
@@ -43,7 +42,6 @@ namespace DiceDiceDice
             {
                 _frame.sprite = skin.ItemFrameEmpty;
                 _icon.enabled = false;
-                _rarityLabel.text = string.Empty;
                 _groupDot.enabled = false;
                 _progressBack.enabled = false;
                 _progressFill.enabled = false;
@@ -57,8 +55,6 @@ namespace DiceDiceDice
             _icon.sprite = definition.IconSprite;
             _icon.color = Color.white;
             _iconRect.localScale = Vector3.one * (1f + 0.06f * item.RarityIndex);
-            _rarityLabel.text = item.Rarity.ToString();
-            _rarityLabel.color = palette.RarityColor(item.Rarity);
             _groupDot.enabled = true;
             _groupDot.color = palette.GroupColor(definition.Group);
             bool showsProgress = definition is DiceDefinition || definition is CombatItemDefinition;

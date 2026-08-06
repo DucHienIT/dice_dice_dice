@@ -42,7 +42,6 @@ namespace DiceDiceDice.EditorTools
             public BoardSlotView[] Slots = new BoardSlotView[8];
             public ShopPanelView ShopPanel;
             public ShopItemView[] ShopItems = new ShopItemView[3];
-            public InfoPanelView InfoPanel;
             public ModalView Modal;
             public UpgradeChoiceView[] Choices = new UpgradeChoiceView[3];
             public BannerView Banner;
@@ -234,7 +233,6 @@ namespace DiceDiceDice.EditorTools
 
             BuildBoardUi(refs, boardCanvas);
             BuildShopUi(refs, refs.SafeAreaRects[0]);
-            BuildInfoPanel(refs, refs.SafeAreaRects[0]);
             BuildHud(refs, refs.SafeAreaRects[1]);
             BuildPopupUi(refs, popupCanvas);
             BuildModal(refs, modalCanvas, refs.SafeAreaRects[2]);
@@ -285,9 +283,7 @@ namespace DiceDiceDice.EditorTools
                 Image icon = CreateImage(rect, "Icon", Color.white, false);
                 SetRect(icon.rectTransform, Half, Half, Half, new Vector2(0f, 3f), new Vector2(80f, 80f));
                 icon.preserveAspect = true;
-                TMP_Text rarity = CreateTmp(rect, "Rarity", string.Empty, 15f, TextAlignmentOptions.TopLeft, true);
-                SetRect(rarity.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(12f, -8f), new Vector2(100f, 20f));
-                rarity.fontStyle = FontStyles.Bold;
+                // No rarity caption: the frame sprite already colours the slot by rarity.
                 Image dot = CreateImage(rect, "GroupDot", Color.white, false);
                 SetRect(dot.rectTransform, TopRight, TopRight, TopRight, new Vector2(-12f, -12f), new Vector2(16f, 16f));
                 Image progressBack = CreateSpriteImage(rect, "ProgressBack", progressBackSprite, false, true);
@@ -307,7 +303,6 @@ namespace DiceDiceDice.EditorTools
                 SetRefProp(so, "_rect", rect);
                 SetRefProp(so, "_frame", frame);
                 SetRefProp(so, "_icon", icon);
-                SetRefProp(so, "_rarityLabel", rarity);
                 SetRefProp(so, "_groupDot", dot);
                 SetRefProp(so, "_progressBack", progressBack);
                 SetRefProp(so, "_progressFill", progressFill);
@@ -328,7 +323,7 @@ namespace DiceDiceDice.EditorTools
             var panelGo = new GameObject("ShopPanel", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(ShopPanelView));
             panelGo.transform.SetParent(parent, false);
             var rect = panelGo.GetComponent<RectTransform>();
-            SetRect(rect, TopRight, TopRight, TopRight, new Vector2(-32f, -124f), new Vector2(520f, 880f));
+            SetRect(rect, TopRight, TopRight, TopRight, new Vector2(-32f, -124f), new Vector2(520f, 750f));
             Image panelBg = panelGo.GetComponent<Image>();
             ApplySprite(panelBg, popupBg, true);
             Image panelBorder = CreateSpriteImage(rect, "Border", popupBorder, false, true);
@@ -342,16 +337,12 @@ namespace DiceDiceDice.EditorTools
             title.fontStyle = FontStyles.Bold;
             title.color = Color.white;
 
-            TMP_Text subtitle = CreateTmp(rect, "Subtitle", "Buy before starting the wave", Ui.BodyText, TextAlignmentOptions.Center, true);
-            SetRect(subtitle.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -84f), new Vector2(460f, 26f));
-            subtitle.color = new Color(0.62f, 0.58f, 0.52f);
-
             for (int i = 0; i < 3; i++)
             {
                 var itemGo = new GameObject("ShopItem" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(ShopItemView));
                 itemGo.transform.SetParent(rect, false);
                 var itemRect = itemGo.GetComponent<RectTransform>();
-                SetRect(itemRect, TopCenter, TopCenter, TopCenter, new Vector2(0f, -118f - i * 158f), new Vector2(476f, 150f));
+                SetRect(itemRect, TopCenter, TopCenter, TopCenter, new Vector2(0f, -92f - i * 130f), new Vector2(476f, 120f));
                 Image itemBg = itemGo.GetComponent<Image>();
                 ApplySprite(itemBg, rowBg, true);
                 var button = itemGo.GetComponent<Button>();
@@ -363,19 +354,16 @@ namespace DiceDiceDice.EditorTools
                 SetRect(icon.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(18f, 0f), new Vector2(84f, 84f));
                 icon.preserveAspect = true;
                 TMP_Text name = CreateTmp(itemRect, "Name", string.Empty, 26f, TextAlignmentOptions.TopLeft, true);
-                SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -14f), new Vector2(250f, 32f));
+                SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -16f), new Vector2(250f, 32f));
                 name.fontStyle = FontStyles.Bold;
-                TMP_Text tag = CreateTmp(itemRect, "Tag", string.Empty, Ui.LabelText, TextAlignmentOptions.TopLeft, true);
-                SetRect(tag.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -48f), new Vector2(280f, 22f));
-                tag.color = new Color(0.62f, 0.58f, 0.52f);
                 TMP_Text desc = CreateTmp(itemRect, "Desc", string.Empty, Ui.LabelText, TextAlignmentOptions.TopLeft, true);
-                SetRect(desc.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -72f), new Vector2(348f, 68f));
+                SetRect(desc.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -52f), new Vector2(348f, 52f));
                 desc.color = new Color(0.42f, 0.36f, 0.30f);
                 Image priceCoin = CreateSpriteImage(itemRect, "PriceCoin", Skin.CoinIcon, false, false);
-                SetRect(priceCoin.rectTransform, TopRight, TopRight, TopRight, new Vector2(-84f, -14f), new Vector2(30f, 30f));
+                SetRect(priceCoin.rectTransform, TopRight, TopRight, TopRight, new Vector2(-84f, -16f), new Vector2(30f, 30f));
                 priceCoin.preserveAspect = true;
                 TMP_Text price = CreateTmp(itemRect, "Price", string.Empty, 27f, TextAlignmentOptions.TopRight, true);
-                SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-16f, -12f), new Vector2(66f, 32f));
+                SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-16f, -14f), new Vector2(66f, 32f));
                 price.fontStyle = FontStyles.Bold;
                 price.color = new Color(1f, 0.85f, 0.4f);
 
@@ -385,7 +373,6 @@ namespace DiceDiceDice.EditorTools
                 SetRefProp(so, "_background", itemBg);
                 SetRefProp(so, "_icon", icon);
                 SetRefProp(so, "_nameLabel", name);
-                SetRefProp(so, "_tagLabel", tag);
                 SetRefProp(so, "_descriptionLabel", desc);
                 SetRefProp(so, "_priceLabel", price);
                 SetRefProp(so, "_group", itemGo.GetComponent<CanvasGroup>());
@@ -394,14 +381,20 @@ namespace DiceDiceDice.EditorTools
             }
 
             Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2g)", 22f);
-            SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(24f, -600f), new Vector2(228f, Ui.ButtonSmall));
+            SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(24f, -492f), new Vector2(228f, Ui.ButtonSmall));
             ApplySprite(rerollBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Sky.Png"), true);
             Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Lock", 22f);
-            SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-24f, -600f), new Vector2(228f, Ui.ButtonSmall));
+            SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-24f, -492f), new Vector2(228f, Ui.ButtonSmall));
             ApplySprite(lockBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Dark.Png"), true);
             Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Start Wave 1", 30f);
-            SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -716f), new Vector2(468f, Ui.ButtonLarge));
+            SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -608f), new Vector2(468f, Ui.ButtonLarge));
             ApplySprite(startBg, LoadSprite(FhComponents + "Button/Button_01_Mian_l_Bg_Green.png"), true);
+
+            // Sell sits next to the board (outside the panel body) and only appears for a selected item.
+            Button sell = CreateButton(parent, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Sell", 24f);
+            SetRect(((RectTransform)sell.transform), BottomLeft, BottomLeft, BottomLeft, new Vector2(300f, 40f), new Vector2(300f, Ui.ButtonSmall));
+            ApplySprite(sellBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Orange.Png"), true);
+            sell.gameObject.SetActive(false);
 
             refs.ShopPanel = panelGo.GetComponent<ShopPanelView>();
             var panelSo = new SerializedObject(refs.ShopPanel);
@@ -414,40 +407,9 @@ namespace DiceDiceDice.EditorTools
             SetRefProp(panelSo, "_lockBackground", lockBg);
             SetRefProp(panelSo, "_startWaveButton", start);
             SetRefProp(panelSo, "_startWaveLabel", startLabel);
+            SetRefProp(panelSo, "_sellButton", sell);
+            SetRefProp(panelSo, "_sellLabel", sellLabel);
             panelSo.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        private static void BuildInfoPanel(SceneRefs refs, RectTransform parent)
-        {
-            var panelGo = new GameObject("InfoPanel", typeof(RectTransform), typeof(Image), typeof(InfoPanelView));
-            panelGo.transform.SetParent(parent, false);
-            var rect = panelGo.GetComponent<RectTransform>();
-            // Sits right of the (wider) board column so it never covers a slot.
-            SetRect(rect, BottomLeft, BottomLeft, BottomLeft, new Vector2(300f, 28f), new Vector2(470f, 400f));
-            Image bg = panelGo.GetComponent<Image>();
-            ApplySprite(bg, LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Bg.png"), true);
-            Image border = CreateSpriteImage(rect, "Border", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Border.png"), false, true);
-            Stretch(border.rectTransform);
-
-            TMP_Text title = CreateTmp(rect, "Title", "INFO", Ui.LabelText, TextAlignmentOptions.TopLeft, true);
-            SetRect(title.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(24f, -18f), new Vector2(240f, 24f));
-            title.fontStyle = FontStyles.Bold;
-            title.color = new Color(0.62f, 0.58f, 0.52f);
-
-            TMP_Text body = CreateTmp(rect, "Body", string.Empty, Ui.BodyText, TextAlignmentOptions.TopLeft, true);
-            SetRect(body.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(24f, -50f), new Vector2(422f, 232f));
-            body.richText = true;
-
-            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Sell", 24f);
-            SetRect(((RectTransform)sell.transform), BottomCenter, BottomCenter, BottomCenter, new Vector2(0f, 20f), new Vector2(410f, Ui.ButtonSmall));
-            ApplySprite(sellBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Orange.Png"), true);
-
-            refs.InfoPanel = panelGo.GetComponent<InfoPanelView>();
-            var so = new SerializedObject(refs.InfoPanel);
-            SetRefProp(so, "_body", body);
-            SetRefProp(so, "_sellButton", sell);
-            SetRefProp(so, "_sellLabel", sellLabel);
-            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void BuildHud(SceneRefs refs, RectTransform parent)
@@ -754,7 +716,7 @@ namespace DiceDiceDice.EditorTools
                 ("_config", config), ("_palette", palette), ("_prefab", floatingTextPrefab),
                 ("_poolParent", refs.WorldUiRoot), ("_goldTarget", refs.GoldLabel.rectTransform));
             Wire(refs.Ui,
-                ("_hud", refs.Hud), ("_shopPanel", refs.ShopPanel), ("_infoPanel", refs.InfoPanel),
+                ("_hud", refs.Hud), ("_shopPanel", refs.ShopPanel),
                 ("_modal", refs.Modal), ("_banner", refs.Banner), ("_toast", refs.Toast),
                 ("_floatingText", refs.FloatingText), ("_dragGhost", refs.DragGhost));
             WireArray(refs.Ui, "_slots", refs.Slots);
@@ -822,7 +784,7 @@ namespace DiceDiceDice.EditorTools
             {
                 refs.Game, refs.Board, refs.Economy, refs.Shop, refs.Enemies, refs.Projectiles, refs.Effects,
                 refs.Spawner, refs.Ticker, refs.Auras, refs.Upgrades, refs.Wall, refs.Audio, refs.WallView,
-                refs.Ui, refs.Hud, refs.ShopPanel, refs.InfoPanel, refs.Modal, refs.Banner, refs.Toast,
+                refs.Ui, refs.Hud, refs.ShopPanel, refs.Modal, refs.Banner, refs.Toast,
                 refs.FloatingText, refs.Fitter
             };
             for (int t = 0; t < targets.Length; t++)

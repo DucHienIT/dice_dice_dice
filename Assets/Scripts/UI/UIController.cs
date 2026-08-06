@@ -15,7 +15,6 @@ namespace DiceDiceDice
         [SerializeField] private HUDView _hud;
         [SerializeField] private BoardSlotView[] _slots;
         [SerializeField] private ShopPanelView _shopPanel;
-        [SerializeField] private InfoPanelView _infoPanel;
         [SerializeField] private ModalView _modal;
         [SerializeField] private BannerView _banner;
         [SerializeField] private ToastView _toast;
@@ -26,12 +25,6 @@ namespace DiceDiceDice
 
         /// <summary>Drag ghost offset above the touch point, as a fraction of screen height.</summary>
         private const float DragGhostLift = 0.07f;
-
-        private const string DefaultInfoText =
-            "<b>Dice make gold</b> - weapons and magic kill monsters!\n\n" +
-            "- Drag an item onto an empty slot to move it.\n" +
-            "- Drag two items of the <b>same type and rarity</b> together to <b>merge</b>.\n" +
-            "- Shop between waves, then press <b>Start Wave</b>.";
 
         private GameManager _game;
         private int _selectedSlot = -1;
@@ -65,7 +58,7 @@ namespace DiceDiceDice
             _shopPanel.RerollButton.onClick.AddListener(OnRerollClicked);
             _shopPanel.LockButton.onClick.AddListener(OnLockClicked);
             _shopPanel.StartWaveButton.onClick.AddListener(OnStartWaveClicked);
-            _infoPanel.SellButton.onClick.AddListener(OnSellClicked);
+            _shopPanel.SellButton.onClick.AddListener(OnSellClicked);
             _hud.MuteButton.onClick.AddListener(OnMuteClicked);
 
             EconomyController economy = game.Economy;
@@ -112,12 +105,10 @@ namespace DiceDiceDice
         public void ShowIntro(Action onStart)
         {
             _modal.ShowInfo("DICE DICE DICE!", "Tower Defense + Merge + Roguelite",
-                "Defend the <b>wall</b> - monsters march in from the right.\n\n" +
-                "<b>Dice make gold</b> (they roll during waves) - <b>weapons and magic kill monsters</b>.\n\n" +
-                "<b>Shop between waves</b> - press <b>Start Wave</b> when ready. The board has only <b>8 slots</b>!\n\n" +
-                "Drag two identical items of the same rarity together to <b>merge</b> them into a higher rarity.\n\n" +
-                "Kills grant XP - each level up offers 1 of 3 roguelike upgrades.\n\n" +
-                "Survive all 10 waves and defeat the <b>Loaded Golem</b> to win!",
+                "<b>Dice</b> make gold. <b>Weapons and magic</b> kill monsters.\n\n" +
+                "Drag two identical items together to <b>merge</b>.\n\n" +
+                "Buy in the shop, then press <b>Start Wave</b>.\n\n" +
+                "Survive 10 waves to win.",
                 "Play", () =>
                 {
                     _modal.Hide();
@@ -261,20 +252,6 @@ namespace DiceDiceDice
             _game.Shop.Buy(index);
         }
 
-        public void OnShopItemHovered(int index)
-        {
-            if (_selectedSlot >= 0)
-            {
-                return;
-            }
-            ShopController.ShopOffer offer = _game.Shop.GetOffer(index);
-            if (offer.Definition == null || offer.Sold)
-            {
-                return;
-            }
-            _infoPanel.ShowText(BuildItemText(offer.Definition, ItemRarity.Common), false, string.Empty);
-        }
-
         private void OnRerollClicked()
         {
             _game.Shop.Reroll();
@@ -387,7 +364,7 @@ namespace DiceDiceDice
                 _slots[i].Render(model.Get(i), _game.Palette, _game.Skin);
                 _slots[i].SetSelected(i == _selectedSlot);
             }
-            RefreshInfo();
+            RefreshSell();
         }
 
         private void RenderShop()
@@ -399,7 +376,7 @@ namespace DiceDiceDice
                 ShopController.ShopOffer offer = shop.GetOffer(i);
                 if (offer.Definition != null)
                 {
-                    views[i].Render(offer, _game.Palette, GroupName(offer.Definition.Group));
+                    views[i].Render(offer, _game.Palette);
                 }
             }
             RefreshShopButtons();
@@ -411,31 +388,14 @@ namespace DiceDiceDice
                 _game.Wave + 1, _game.Config.WaveCount, _game.Palette);
         }
 
-        private void RefreshInfo()
+        /// <summary>Selling is the only per-item action left on screen: one button, only when it applies.</summary>
+        private void RefreshSell()
         {
-            if (_selectedSlot < 0 || _game.Board.Model.Get(_selectedSlot) == null)
-            {
-                _infoPanel.ShowText(DefaultInfoText, false, string.Empty);
-                return;
-            }
-            ItemInstance item = _game.Board.Model.Get(_selectedSlot);
-            bool canSell = _game.Phase == GamePhase.Shopping;
-            string sellLabel = "Sell (" + item.Definition.SellPrice(item.Rarity, _game.Mods) + "g)";
-            _infoPanel.ShowText(BuildItemText(item.Definition, item.Rarity), canSell, sellLabel);
-        }
-
-        private string BuildItemText(ItemDefinition definition, ItemRarity rarity)
-        {
-            PaletteConfig palette = _game.Palette;
-            _stringBuilder.Length = 0;
-            _stringBuilder.Append("<b><color=#").Append(ColorUtility.ToHtmlStringRGB(palette.GroupColor(definition.Group)))
-                .Append('>').Append(definition.DisplayName).Append("</color></b> - <color=#")
-                .Append(ColorUtility.ToHtmlStringRGB(palette.RarityColor(rarity))).Append('>').Append(rarity).Append("</color>\n");
-            _stringBuilder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(palette.TextDim)).Append('>')
-                .Append(GroupName(definition.Group)).Append("</color>\n\n");
-            _stringBuilder.Append(definition.Description).Append("\n\n");
-            _stringBuilder.Append(definition.DescribeStats(rarity, _game.Ctx));
-            return _stringBuilder.ToString();
+            ItemInstance item = _selectedSlot < 0 ? null : _game.Board.Model.Get(_selectedSlot);
+            bool canSell = item != null && _game.Phase == GamePhase.Shopping;
+            _shopPanel.SetSell(canSell, canSell
+                ? "Sell (" + item.Definition.SellPrice(item.Rarity, _game.Mods) + "g)"
+                : string.Empty);
         }
     }
 }

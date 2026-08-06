@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Shield
   _group: 4
   _price: 12
-  _description: Grants the wall a shield at the start of each wave, absorbed before
-    HP.
+  _description: Shields the wall each wave.
   _icon: 10
   _iconSprite: {fileID: 21300000, guid: f569ddd85d34045b1b68f2df0d0c56b0, type: 3}
   _shopWeight: 1

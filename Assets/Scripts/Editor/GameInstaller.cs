@@ -163,67 +163,67 @@ namespace DiceDiceDice.EditorTools
         {
             var dice = GetOrCreateAsset<DiceDefinition>(DataRoot + "/Items/Dice.asset");
             dice.EditorSetup("Dice", ItemGroup.Economy, 10,
-                "Rolls 1-6 over time during waves, making gold equal to the face. Merge for faster rolls, higher minimum faces and multiplied gold.",
+                "Rolls for gold during waves.",
                 ItemIcon.Dice, 1f);
             dice.EditorSetupDice(5f, 0.7f, 1.2f);
 
             var bow = GetOrCreateAsset<BowDefinition>(DataRoot + "/Items/Bow.asset");
             bow.EditorSetup("Bow", ItemGroup.Weapon, 12,
-                "Fast, low-damage arrows. Epic: pierces targets. Legendary: sometimes unleashes an arrow rain.",
+                "Fast arrows, low damage.",
                 ItemIcon.Bow, 1f);
             bow.EditorSetupCombat(4f, 0.8f, DamageType.Physical);
 
             var sword = GetOrCreateAsset<SwordDefinition>(DataRoot + "/Items/Sword.asset");
             sword.EditorSetup("Sword", ItemGroup.Weapon, 14,
-                "Sword wave that slashes the monsters closest to the wall; hits more targets per rarity.",
+                "Slashes monsters near the wall.",
                 ItemIcon.Sword, 1f);
             sword.EditorSetupCombat(9f, 1.6f, DamageType.Physical);
 
             var crossbow = GetOrCreateAsset<CrossbowDefinition>(DataRoot + "/Items/Crossbow.asset");
             crossbow.EditorSetup("Crossbow", ItemGroup.Weapon, 16,
-                "Slow, heavy bolts with a high critical chance. Great against Elites and Bosses.",
+                "Slow bolts, high crit chance.",
                 ItemIcon.Crossbow, 1f);
             crossbow.EditorSetupCombat(16f, 2.4f, DamageType.Physical);
 
             var cannon = GetOrCreateAsset<CannonDefinition>(DataRoot + "/Items/Cannon.asset");
             cannon.EditorSetup("Cannon", ItemGroup.Weapon, 18,
-                "Explosive shells with area damage - great against crowds.",
+                "Explosive area damage.",
                 ItemIcon.Cannon, 1f);
             cannon.EditorSetupCombat(10f, 3f, DamageType.Physical);
 
             var fireBook = GetOrCreateAsset<FireBookDefinition>(DataRoot + "/Items/FireBook.asset");
             fireBook.EditorSetup("Fire Book", ItemGroup.Magic, 18,
-                "Summons meteors that explode and burn monsters over time.",
+                "Meteors that burn over time.",
                 ItemIcon.FireBook, 1f);
             fireBook.EditorSetupCombat(12f, 4f, DamageType.Magic);
 
             var frost = GetOrCreateAsset<FrostStoneDefinition>(DataRoot + "/Items/FrostStone.asset");
             frost.EditorSetup("Frost Stone", ItemGroup.Magic, 14,
-                "Low damage but slows monsters. Epic and above can freeze.",
+                "Slows monsters, can freeze.",
                 ItemIcon.FrostStone, 1f);
             frost.EditorSetupCombat(4f, 2.5f, DamageType.Magic);
 
             var lightning = GetOrCreateAsset<LightningOrbDefinition>(DataRoot + "/Items/LightningOrb.asset");
             lightning.EditorSetup("Lightning Orb", ItemGroup.Magic, 16,
-                "Chain lightning that arcs between nearby monsters.",
+                "Chain lightning between monsters.",
                 ItemIcon.LightningOrb, 1f);
             lightning.EditorSetupCombat(8f, 3f, DamageType.Magic);
 
             var anvil = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Anvil.asset");
             anvil.EditorSetup("Anvil", ItemGroup.Support, 15,
-                "Does not attack. Boosts physical damage for the whole board.",
+                "Boosts physical damage.",
                 ItemIcon.Anvil, 1f);
             anvil.EditorSetupSupport(0.15f, 0f);
 
             var hourglass = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Hourglass.asset");
             hourglass.EditorSetup("Hourglass", ItemGroup.Support, 15,
-                "Does not attack. Speeds up item attacks and dice rolls.",
+                "Speeds up attacks and rolls.",
                 ItemIcon.Hourglass, 1f);
             hourglass.EditorSetupSupport(0f, 0.1f);
 
             var shield = GetOrCreateAsset<ShieldDefinition>(DataRoot + "/Items/Shield.asset");
             shield.EditorSetup("Shield", ItemGroup.Defense, 12,
-                "Grants the wall a shield at the start of each wave, absorbed before HP.",
+                "Shields the wall each wave.",
                 ItemIcon.Shield, 1f);
             shield.EditorSetupShield(15);
 

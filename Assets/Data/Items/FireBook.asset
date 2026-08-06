@@ -15,7 +15,7 @@ MonoBehaviour:
   _displayName: Fire Book
   _group: 2
   _price: 18
-  _description: Summons meteors that explode and burn monsters over time.
+  _description: Meteors that burn over time.
   _icon: 5
   _iconSprite: {fileID: 21300000, guid: a5edbb1acb3234a5db0f0daa141eb77b, type: 3}
   _shopWeight: 1

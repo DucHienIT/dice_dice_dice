@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Dice
   _group: 0
   _price: 10
-  _description: Rolls 1-6 over time during waves, making gold equal to the face.
-    Merge for faster rolls, higher minimum faces and multiplied gold.
+  _description: Rolls for gold during waves.
   _icon: 0
   _iconSprite: {fileID: 21300000, guid: 9e1d77e107b614ae9be157429a65de67, type: 3}
   _shopWeight: 1

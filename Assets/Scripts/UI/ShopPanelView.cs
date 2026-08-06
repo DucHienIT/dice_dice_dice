@@ -16,11 +16,24 @@ namespace DiceDiceDice
         [SerializeField] private Image _lockBackground;
         [SerializeField] private Button _startWaveButton;
         [SerializeField] private TMP_Text _startWaveLabel;
+        [SerializeField] private Button _sellButton;
+        [SerializeField] private TMP_Text _sellLabel;
 
         public ShopItemView[] Items => _items;
         public Button RerollButton => _rerollButton;
         public Button LockButton => _lockButton;
         public Button StartWaveButton => _startWaveButton;
+        public Button SellButton => _sellButton;
+
+        /// <summary>Sell lives outside the panel body (next to the board) so it stays reachable by thumb.</summary>
+        public void SetSell(bool visible, string label)
+        {
+            _sellButton.gameObject.SetActive(visible);
+            if (visible)
+            {
+                _sellLabel.text = label;
+            }
+        }
 
         public void SetVisible(bool visible)
         {

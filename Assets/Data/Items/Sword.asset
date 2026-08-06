@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Sword
   _group: 1
   _price: 14
-  _description: Sword wave that slashes the monsters closest to the wall; hits more
-    targets per rarity.
+  _description: Slashes monsters near the wall.
   _icon: 2
   _iconSprite: {fileID: 21300000, guid: 0556552df2e304f23b60de8c1a528f1b, type: 3}
   _shopWeight: 1
