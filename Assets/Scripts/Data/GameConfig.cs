@@ -75,6 +75,7 @@ namespace DiceDiceDice
         public float HealerPulseInterval => _healerPulseInterval;
         public float HealerRadius => _healerRadius;
         public float HealerHpPerPulse => _healerHpPerPulse;
+        public float SlotStep => _slotStep;
         public float WallCenterX => _wallCenterX;
         public float WallWidth => _wallWidth;
         public float WallStopX => _wallStopX;
@@ -114,5 +115,16 @@ namespace DiceDiceDice
             int row = index / BoardModel.Columns;
             return new Vector2(_boardOrigin.x + col * _slotStep, _boardOrigin.y - row * _slotStep);
         }
+
+#if UNITY_EDITOR
+        /// <summary>Installer-only: the world layout is authored in GameInstaller so a re-run rebalances it.</summary>
+        public void EditorSetLayout(Vector2 boardOrigin, float slotStep, float wallCenterX, float wallStopX)
+        {
+            _boardOrigin = boardOrigin;
+            _slotStep = slotStep;
+            _wallCenterX = wallCenterX;
+            _wallStopX = wallStopX;
+        }
+#endif
     }
 }

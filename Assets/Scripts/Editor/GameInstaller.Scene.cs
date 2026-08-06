@@ -50,6 +50,23 @@ namespace DiceDiceDice.EditorTools
             public FloatingTextManager FloatingText;
             public RectTransform WorldUiRoot;
             public Image DragGhost;
+            public Camera Camera;
+            public ScreenFitter Fitter;
+            public RectTransform[] SafeAreaRects = new RectTransform[3];
+        }
+
+        /// <summary>
+        /// Mobile-first layout numbers for the 1920x1080 landscape design box. Touch targets are >= 88px
+        /// tall here, which is ~5mm on a 5.5" phone held sideways - the smallest comfortable tap size.
+        /// </summary>
+        private static class Ui
+        {
+            public const float SlotSize = 128f;          // board slot art; pitch = GameConfig.SlotStep * 100
+            public const float TopBarHeight = 108f;
+            public const float ButtonSmall = 96f;        // reroll / lock / sell
+            public const float ButtonLarge = 112f;       // start wave / modal action
+            public const float BodyText = 20f;
+            public const float LabelText = 17f;
         }
 
         [MenuItem("Tools/DICE DICE DICE/Build Scene Only")]
@@ -57,9 +74,9 @@ namespace DiceDiceDice.EditorTools
         {
             Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             RemoveOldRoots(scene, "GameSystems", "WorldVisuals", "UICanvas", "EventSystem");
-            SetupCamera(scene);
 
             var refs = new SceneRefs();
+            refs.Camera = SetupCamera(scene);
             BuildSystems(refs);
             BuildWorldVisuals(refs);
             BuildUi(refs);
@@ -88,7 +105,7 @@ namespace DiceDiceDice.EditorTools
             }
         }
 
-        private static void SetupCamera(Scene scene)
+        private static Camera SetupCamera(Scene scene)
         {
             Camera camera = null;
             GameObject[] roots = scene.GetRootGameObjects();
@@ -107,10 +124,11 @@ namespace DiceDiceDice.EditorTools
                 camera = go.GetComponent<Camera>();
             }
             camera.orthographic = true;
-            camera.orthographicSize = 5.4f;
+            camera.orthographicSize = ScreenFitter.DesignHalfHeight; // ScreenFitter widens it on tall phones
             camera.transform.position = new Vector3(0f, 0f, -10f);
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = Palette != null ? Palette.BackgroundTop : new Color(0.09f, 0.11f, 0.18f);
+            return camera;
         }
 
         // ---------- Systems ----------
@@ -134,6 +152,7 @@ namespace DiceDiceDice.EditorTools
             refs.Auras = NewSystem<AuraService>(root, "Auras");
             refs.Upgrades = NewSystem<UpgradeSystem>(root, "Upgrades");
             refs.Wall = NewSystem<BaseWall>(root, "Wall");
+            refs.Fitter = NewSystem<ScreenFitter>(root, "ScreenFitter");
 
             GameObject audioGo = NewChild(root.transform, "Audio");
             refs.Audio = audioGo.AddComponent<AudioManager>();
@@ -195,7 +214,9 @@ namespace DiceDiceDice.EditorTools
             var scaler = canvasGo.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
+            // Expand mirrors ScreenFitter's camera rule: the design box always fits whole, so
+            // 1 world unit stays exactly 100 canvas px on every phone aspect (board slots depend on it).
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
             refs.Ui = canvasGo.AddComponent<UIController>();
 
@@ -205,12 +226,19 @@ namespace DiceDiceDice.EditorTools
             RectTransform popupCanvas = NestedCanvas(canvasGo.transform, "PopupCanvas", 40);
             RectTransform modalCanvas = NestedCanvas(canvasGo.transform, "ModalCanvas", 50);
 
+            // Edge-anchored chrome lives inside a safe-area rect so notches and rounded corners
+            // never cover it. The board is NOT inset - it must stay aligned with the world.
+            refs.SafeAreaRects[0] = SafeAreaRect(shopCanvas);
+            refs.SafeAreaRects[1] = SafeAreaRect(hudCanvas);
+            refs.SafeAreaRects[2] = SafeAreaRect(modalCanvas);
+
             BuildBoardUi(refs, boardCanvas);
-            BuildShopUi(refs, shopCanvas);
-            BuildInfoPanel(refs, shopCanvas);
-            BuildHud(refs, hudCanvas);
+            BuildShopUi(refs, refs.SafeAreaRects[0]);
+            BuildInfoPanel(refs, refs.SafeAreaRects[0]);
+            BuildHud(refs, refs.SafeAreaRects[1]);
             BuildPopupUi(refs, popupCanvas);
-            BuildModal(refs, modalCanvas);
+            BuildModal(refs, modalCanvas, refs.SafeAreaRects[2]);
+            BalanceSlicedBorders(canvasGo.transform, 1f);
 
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             _ = eventSystem;
@@ -228,6 +256,15 @@ namespace DiceDiceDice.EditorTools
             return rect;
         }
 
+        private static RectTransform SafeAreaRect(RectTransform parent)
+        {
+            var go = new GameObject("SafeArea", typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rect = (RectTransform)go.transform;
+            Stretch(rect);
+            return rect;
+        }
+
         private static void BuildBoardUi(SceneRefs refs, RectTransform parent)
         {
             UiSkin skin = Skin;
@@ -241,29 +278,29 @@ namespace DiceDiceDice.EditorTools
                 var slotGo = new GameObject("Slot" + i, typeof(RectTransform), typeof(Image), typeof(BoardSlotView));
                 slotGo.transform.SetParent(boardRoot, false);
                 var rect = slotGo.GetComponent<RectTransform>();
-                SetRect(rect, Half, Half, Half, world * 100f, new Vector2(104f, 104f));
+                SetRect(rect, Half, Half, Half, world * 100f, new Vector2(Ui.SlotSize, Ui.SlotSize));
 
                 Image frame = slotGo.GetComponent<Image>();
                 frame.sprite = skin.ItemFrameEmpty;
                 Image icon = CreateImage(rect, "Icon", Color.white, false);
-                SetRect(icon.rectTransform, Half, Half, Half, new Vector2(0f, 2f), new Vector2(62f, 62f));
+                SetRect(icon.rectTransform, Half, Half, Half, new Vector2(0f, 3f), new Vector2(80f, 80f));
                 icon.preserveAspect = true;
-                TMP_Text rarity = CreateTmp(rect, "Rarity", string.Empty, 12f, TextAlignmentOptions.TopLeft, true);
-                SetRect(rarity.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(10f, -7f), new Vector2(84f, 16f));
+                TMP_Text rarity = CreateTmp(rect, "Rarity", string.Empty, 15f, TextAlignmentOptions.TopLeft, true);
+                SetRect(rarity.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(12f, -8f), new Vector2(100f, 20f));
                 rarity.fontStyle = FontStyles.Bold;
                 Image dot = CreateImage(rect, "GroupDot", Color.white, false);
-                SetRect(dot.rectTransform, TopRight, TopRight, TopRight, new Vector2(-10f, -10f), new Vector2(12f, 12f));
+                SetRect(dot.rectTransform, TopRight, TopRight, TopRight, new Vector2(-12f, -12f), new Vector2(16f, 16f));
                 Image progressBack = CreateSpriteImage(rect, "ProgressBack", progressBackSprite, false, true);
-                SetRect(progressBack.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(-22f, 10f));
+                SetRect(progressBack.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 11f), new Vector2(-26f, 14f));
                 Image progressFill = CreateSpriteImage(progressBack.rectTransform, "ProgressFill", progressFillSprite, false, true);
-                SetInset(progressFill.rectTransform, 2f);
+                SetInset(progressFill.rectTransform, 3f);
                 MakeFilled(progressFill);
-                TMP_Text face = CreateTmp(rect, "Face", string.Empty, 44f, TextAlignmentOptions.Center, true);
+                TMP_Text face = CreateTmp(rect, "Face", string.Empty, 56f, TextAlignmentOptions.Center, true);
                 Stretch(face.rectTransform);
                 face.fontStyle = FontStyles.Bold;
                 face.color = Color.white;
                 Image selection = CreateSpriteImage(rect, "Selection", skin.ItemFrameFocus, false, false);
-                SetInset(selection.rectTransform, -7f);
+                SetInset(selection.rectTransform, -9f);
 
                 var view = slotGo.GetComponent<BoardSlotView>();
                 var so = new SerializedObject(view);
@@ -291,21 +328,22 @@ namespace DiceDiceDice.EditorTools
             var panelGo = new GameObject("ShopPanel", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(ShopPanelView));
             panelGo.transform.SetParent(parent, false);
             var rect = panelGo.GetComponent<RectTransform>();
-            SetRect(rect, TopRight, TopRight, TopRight, new Vector2(-28f, -100f), new Vector2(430f, 570f));
+            SetRect(rect, TopRight, TopRight, TopRight, new Vector2(-32f, -124f), new Vector2(520f, 880f));
             Image panelBg = panelGo.GetComponent<Image>();
             ApplySprite(panelBg, popupBg, true);
             Image panelBorder = CreateSpriteImage(rect, "Border", popupBorder, false, true);
             Stretch(panelBorder.rectTransform);
 
-            Image titleFlag = CreateSpriteImage(rect, "TitleFlag", LoadSprite(FhComponents + "Title/Title_Flag_01_Red.Png"), false, true);
-            SetRect(titleFlag.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, 24f), new Vector2(280f, 62f));
-            TMP_Text title = CreateTmp(titleFlag.rectTransform, "Title", "SHOP", 27f, TextAlignmentOptions.Center, true);
-            SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 5f), new Vector2(240f, 34f));
+            Image titleFlag = TitleFlag(rect, LoadSprite(FhComponents + "Title/Title_Flag_01_Red.Png"), 340f);
+            // Sits inside the panel: overhanging the top would tuck it behind the HUD bar.
+            SetRect(titleFlag.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -4f), titleFlag.rectTransform.sizeDelta);
+            TMP_Text title = CreateTmp(titleFlag.rectTransform, "Title", "SHOP", 30f, TextAlignmentOptions.Center, true);
+            SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 6f), new Vector2(280f, 38f));
             title.fontStyle = FontStyles.Bold;
             title.color = Color.white;
 
-            TMP_Text subtitle = CreateTmp(rect, "Subtitle", "Buy before starting the wave", 13f, TextAlignmentOptions.Center, true);
-            SetRect(subtitle.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -40f), new Vector2(360f, 18f));
+            TMP_Text subtitle = CreateTmp(rect, "Subtitle", "Buy before starting the wave", Ui.BodyText, TextAlignmentOptions.Center, true);
+            SetRect(subtitle.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -84f), new Vector2(460f, 26f));
             subtitle.color = new Color(0.62f, 0.58f, 0.52f);
 
             for (int i = 0; i < 3; i++)
@@ -313,7 +351,7 @@ namespace DiceDiceDice.EditorTools
                 var itemGo = new GameObject("ShopItem" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(ShopItemView));
                 itemGo.transform.SetParent(rect, false);
                 var itemRect = itemGo.GetComponent<RectTransform>();
-                SetRect(itemRect, TopCenter, TopCenter, TopCenter, new Vector2(0f, -70f - i * 114f), new Vector2(390f, 106f));
+                SetRect(itemRect, TopCenter, TopCenter, TopCenter, new Vector2(0f, -118f - i * 158f), new Vector2(476f, 150f));
                 Image itemBg = itemGo.GetComponent<Image>();
                 ApplySprite(itemBg, rowBg, true);
                 var button = itemGo.GetComponent<Button>();
@@ -322,22 +360,22 @@ namespace DiceDiceDice.EditorTools
                 Stretch(itemBorder.rectTransform);
 
                 Image icon = CreateImage(itemRect, "Icon", Color.white, false);
-                SetRect(icon.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(14f, 0f), new Vector2(58f, 58f));
+                SetRect(icon.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(18f, 0f), new Vector2(84f, 84f));
                 icon.preserveAspect = true;
-                TMP_Text name = CreateTmp(itemRect, "Name", string.Empty, 18f, TextAlignmentOptions.TopLeft, true);
-                SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(84f, -10f), new Vector2(200f, 24f));
+                TMP_Text name = CreateTmp(itemRect, "Name", string.Empty, 26f, TextAlignmentOptions.TopLeft, true);
+                SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -14f), new Vector2(250f, 32f));
                 name.fontStyle = FontStyles.Bold;
-                TMP_Text tag = CreateTmp(itemRect, "Tag", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
-                SetRect(tag.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(84f, -33f), new Vector2(220f, 16f));
+                TMP_Text tag = CreateTmp(itemRect, "Tag", string.Empty, Ui.LabelText, TextAlignmentOptions.TopLeft, true);
+                SetRect(tag.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -48f), new Vector2(280f, 22f));
                 tag.color = new Color(0.62f, 0.58f, 0.52f);
-                TMP_Text desc = CreateTmp(itemRect, "Desc", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
-                SetRect(desc.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(84f, -50f), new Vector2(296f, 52f));
+                TMP_Text desc = CreateTmp(itemRect, "Desc", string.Empty, Ui.LabelText, TextAlignmentOptions.TopLeft, true);
+                SetRect(desc.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(116f, -72f), new Vector2(348f, 68f));
                 desc.color = new Color(0.42f, 0.36f, 0.30f);
                 Image priceCoin = CreateSpriteImage(itemRect, "PriceCoin", Skin.CoinIcon, false, false);
-                SetRect(priceCoin.rectTransform, TopRight, TopRight, TopRight, new Vector2(-64f, -10f), new Vector2(22f, 22f));
+                SetRect(priceCoin.rectTransform, TopRight, TopRight, TopRight, new Vector2(-84f, -14f), new Vector2(30f, 30f));
                 priceCoin.preserveAspect = true;
-                TMP_Text price = CreateTmp(itemRect, "Price", string.Empty, 19f, TextAlignmentOptions.TopRight, true);
-                SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-12f, -9f), new Vector2(50f, 24f));
+                TMP_Text price = CreateTmp(itemRect, "Price", string.Empty, 27f, TextAlignmentOptions.TopRight, true);
+                SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-16f, -12f), new Vector2(66f, 32f));
                 price.fontStyle = FontStyles.Bold;
                 price.color = new Color(1f, 0.85f, 0.4f);
 
@@ -355,14 +393,14 @@ namespace DiceDiceDice.EditorTools
                 refs.ShopItems[i] = view;
             }
 
-            Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2g)", 15f);
-            SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(20f, -420f), new Vector2(188f, 50f));
+            Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2g)", 22f);
+            SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(24f, -600f), new Vector2(228f, Ui.ButtonSmall));
             ApplySprite(rerollBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Sky.Png"), true);
-            Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Lock", 15f);
-            SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-20f, -420f), new Vector2(188f, 50f));
+            Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Lock", 22f);
+            SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-24f, -600f), new Vector2(228f, Ui.ButtonSmall));
             ApplySprite(lockBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Dark.Png"), true);
-            Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Start Wave 1", 20f);
-            SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -482f), new Vector2(392f, 64f));
+            Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Start Wave 1", 30f);
+            SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -716f), new Vector2(468f, Ui.ButtonLarge));
             ApplySprite(startBg, LoadSprite(FhComponents + "Button/Button_01_Mian_l_Bg_Green.png"), true);
 
             refs.ShopPanel = panelGo.GetComponent<ShopPanelView>();
@@ -384,23 +422,24 @@ namespace DiceDiceDice.EditorTools
             var panelGo = new GameObject("InfoPanel", typeof(RectTransform), typeof(Image), typeof(InfoPanelView));
             panelGo.transform.SetParent(parent, false);
             var rect = panelGo.GetComponent<RectTransform>();
-            SetRect(rect, BottomLeft, BottomLeft, BottomLeft, new Vector2(24f, 20f), new Vector2(360f, 320f));
+            // Sits right of the (wider) board column so it never covers a slot.
+            SetRect(rect, BottomLeft, BottomLeft, BottomLeft, new Vector2(300f, 28f), new Vector2(470f, 400f));
             Image bg = panelGo.GetComponent<Image>();
             ApplySprite(bg, LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Bg.png"), true);
             Image border = CreateSpriteImage(rect, "Border", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Border.png"), false, true);
             Stretch(border.rectTransform);
 
-            TMP_Text title = CreateTmp(rect, "Title", "INFO", 12f, TextAlignmentOptions.TopLeft, true);
-            SetRect(title.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(18f, -14f), new Vector2(200f, 18f));
+            TMP_Text title = CreateTmp(rect, "Title", "INFO", Ui.LabelText, TextAlignmentOptions.TopLeft, true);
+            SetRect(title.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(24f, -18f), new Vector2(240f, 24f));
             title.fontStyle = FontStyles.Bold;
             title.color = new Color(0.62f, 0.58f, 0.52f);
 
-            TMP_Text body = CreateTmp(rect, "Body", string.Empty, 13f, TextAlignmentOptions.TopLeft, true);
-            SetRect(body.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(18f, -38f), new Vector2(324f, 212f));
+            TMP_Text body = CreateTmp(rect, "Body", string.Empty, Ui.BodyText, TextAlignmentOptions.TopLeft, true);
+            SetRect(body.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(24f, -50f), new Vector2(422f, 232f));
             body.richText = true;
 
-            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Sell", 15f);
-            SetRect(((RectTransform)sell.transform), BottomCenter, BottomCenter, BottomCenter, new Vector2(0f, 14f), new Vector2(320f, 48f));
+            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Sell", 24f);
+            SetRect(((RectTransform)sell.transform), BottomCenter, BottomCenter, BottomCenter, new Vector2(0f, 20f), new Vector2(410f, Ui.ButtonSmall));
             ApplySprite(sellBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Orange.Png"), true);
 
             refs.InfoPanel = panelGo.GetComponent<InfoPanelView>();
@@ -422,23 +461,23 @@ namespace DiceDiceDice.EditorTools
 
             Image topBar = CreateSpriteImage((RectTransform)hudGo.transform, "TopBar",
                 LoadSprite(FhComponents + "Frame/BaseFrame_Border_Rectangle_H60_Bg.png"), false, true);
-            SetRect(topBar.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), new Vector2(12f, 70f));
+            SetRect(topBar.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, Ui.TopBarHeight));
             RectTransform bar = topBar.rectTransform;
             Image topBarBorder = CreateSpriteImage(bar, "Border", LoadSprite(FhComponents + "Frame/BaseFrame_Border_Rectangle_H60_Border.png"), false, true);
             Stretch(topBarBorder.rectTransform);
 
             Image goldPill = CreateSpriteImage(bar, "GoldPill", LoadSprite(FhComponents + "Frame/BaseFrame_Basic_Rectangle_H40_Bg.png"), false, true);
-            SetRect(goldPill.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(20f, -3f), new Vector2(150f, 40f));
+            SetRect(goldPill.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(24f, 0f), new Vector2(212f, 64f));
             Image goldCoin = CreateSpriteImage(goldPill.rectTransform, "Coin", Skin.CoinIcon, false, false);
-            SetRect(goldCoin.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(8f, 0f), new Vector2(28f, 28f));
+            SetRect(goldCoin.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(12f, 0f), new Vector2(40f, 40f));
             goldCoin.preserveAspect = true;
-            TMP_Text gold = CreateTmp(goldPill.rectTransform, "GoldLabel", "0", 24f, TextAlignmentOptions.Left, true);
-            SetRect(gold.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(44f, 0f), new Vector2(100f, 36f));
+            TMP_Text gold = CreateTmp(goldPill.rectTransform, "GoldLabel", "0", 32f, TextAlignmentOptions.Left, true);
+            SetRect(gold.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(60f, 0f), new Vector2(140f, 46f));
             gold.fontStyle = FontStyles.Bold;
             gold.color = new Color(1f, 0.87f, 0.45f);
 
             Image hpBack = CreateSpriteImage(bar, "HpBarBack", barBg, false, true);
-            SetRect(hpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(190f, -3f), new Vector2(230f, 26f));
+            SetRect(hpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(258f, 0f), new Vector2(300f, 40f));
             Image hpFill = CreateSpriteImage(hpBack.rectTransform, "HpFill", LoadSprite(FhComponents + "Slider/Slider_Border_Tapered_01_Fill_Red.png"), false, true);
             SetInset(hpFill.rectTransform, 3f);
             MakeFilled(hpFill);
@@ -449,41 +488,41 @@ namespace DiceDiceDice.EditorTools
             shieldFill.color = new Color(1f, 1f, 1f, 0.85f);
             Image hpBorder = CreateSpriteImage(hpBack.rectTransform, "BarBorder", barBorder, false, true);
             Stretch(hpBorder.rectTransform);
-            TMP_Text hpText = CreateTmp(hpBack.rectTransform, "HpText", string.Empty, 13f, TextAlignmentOptions.Center, true);
+            TMP_Text hpText = CreateTmp(hpBack.rectTransform, "HpText", string.Empty, Ui.BodyText, TextAlignmentOptions.Center, true);
             Stretch(hpText.rectTransform);
             hpText.fontStyle = FontStyles.Bold;
             hpText.color = Color.white;
 
-            TMP_Text level = CreateTmp(bar, "LevelLabel", "Lv.1", 20f, TextAlignmentOptions.Left, true);
-            SetRect(level.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(438f, -3f), new Vector2(74f, 40f));
+            TMP_Text level = CreateTmp(bar, "LevelLabel", "Lv.1", 28f, TextAlignmentOptions.Left, true);
+            SetRect(level.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(582f, 0f), new Vector2(96f, 46f));
             level.fontStyle = FontStyles.Bold;
 
             Image xpBack = CreateSpriteImage(bar, "XpBarBack", barBg, false, true);
-            SetRect(xpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(516f, -3f), new Vector2(170f, 22f));
+            SetRect(xpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(682f, 0f), new Vector2(224f, 34f));
             Image xpFill = CreateSpriteImage(xpBack.rectTransform, "XpFill", LoadSprite(FhComponents + "Slider/Slider_Border_Tapered_01_Fill_Purple.png"), false, true);
             SetInset(xpFill.rectTransform, 3f);
             MakeFilled(xpFill);
             Image xpBorder = CreateSpriteImage(xpBack.rectTransform, "BarBorder", barBorder, false, true);
             Stretch(xpBorder.rectTransform);
-            TMP_Text xpText = CreateTmp(xpBack.rectTransform, "XpText", string.Empty, 12f, TextAlignmentOptions.Center, true);
+            TMP_Text xpText = CreateTmp(xpBack.rectTransform, "XpText", string.Empty, Ui.LabelText, TextAlignmentOptions.Center, true);
             Stretch(xpText.rectTransform);
             xpText.fontStyle = FontStyles.Bold;
             xpText.color = Color.white;
 
-            TMP_Text wave = CreateTmp(bar, "WaveLabel", "Wave 0/10", 24f, TextAlignmentOptions.Left, true);
-            SetRect(wave.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(716f, -3f), new Vector2(190f, 40f));
+            TMP_Text wave = CreateTmp(bar, "WaveLabel", "Wave 0/10", 30f, TextAlignmentOptions.Left, true);
+            SetRect(wave.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(940f, 0f), new Vector2(240f, 46f));
             wave.fontStyle = FontStyles.Bold;
 
-            TMP_Text phase = CreateTmp(bar, "PhaseLabel", "SHOPPING PHASE", 15f, TextAlignmentOptions.Left, true);
-            SetRect(phase.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(920f, -3f), new Vector2(300f, 40f));
+            TMP_Text phase = CreateTmp(bar, "PhaseLabel", "SHOPPING PHASE", 22f, TextAlignmentOptions.Left, true);
+            SetRect(phase.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(1190f, 0f), new Vector2(340f, 46f));
             phase.fontStyle = FontStyles.Bold;
 
-            Button mute = CreateButton(bar, "MuteButton", out TMP_Text muteLabel, out Image muteBg, string.Empty, 13f);
-            SetRect(((RectTransform)mute.transform), RightCenter, RightCenter, RightCenter, new Vector2(-22f, -3f), new Vector2(58f, 44f));
+            Button mute = CreateButton(bar, "MuteButton", out TMP_Text muteLabel, out Image muteBg, string.Empty, Ui.LabelText);
+            SetRect(((RectTransform)mute.transform), RightCenter, RightCenter, RightCenter, new Vector2(-24f, 0f), new Vector2(88f, 88f));
             ApplySprite(muteBg, LoadSprite(FhComponents + "Button/Button_01_Mian_s_Bg_Dark.Png"), true);
             Object.DestroyImmediate(muteLabel.gameObject);
             Image muteIcon = CreateSpriteImage((RectTransform)mute.transform, "Icon", Skin.SoundOnIcon, false, false);
-            SetRect(muteIcon.rectTransform, Half, Half, Half, new Vector2(0f, 2f), new Vector2(26f, 26f));
+            SetRect(muteIcon.rectTransform, Half, Half, Half, new Vector2(0f, 2f), new Vector2(42f, 42f));
             muteIcon.preserveAspect = true;
 
             refs.Hud = hudGo.GetComponent<HUDView>();
@@ -521,8 +560,8 @@ namespace DiceDiceDice.EditorTools
 
             var bannerGo = new GameObject("Banner", typeof(RectTransform), typeof(BannerView));
             bannerGo.transform.SetParent(parent, false);
-            TMP_Text bannerLabel = CreateTmp((RectTransform)bannerGo.transform, "Label", string.Empty, 48f, TextAlignmentOptions.Center, true);
-            SetRect(((RectTransform)bannerGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -150f), new Vector2(1200f, 80f));
+            TMP_Text bannerLabel = CreateTmp((RectTransform)bannerGo.transform, "Label", string.Empty, 60f, TextAlignmentOptions.Center, true);
+            SetRect(((RectTransform)bannerGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -230f), new Vector2(1200f, 100f));
             Stretch(bannerLabel.rectTransform);
             bannerLabel.fontStyle = FontStyles.Bold;
             bannerLabel.color = new Color(1f, 1f, 1f, 0f);
@@ -533,12 +572,13 @@ namespace DiceDiceDice.EditorTools
 
             var toastGo = new GameObject("Toast", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(ToastView));
             toastGo.transform.SetParent(parent, false);
-            SetRect(((RectTransform)toastGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -86f), new Vector2(640f, 52f));
+            SetRect(((RectTransform)toastGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -132f), new Vector2(760f, 84f));
             Image toastBg = toastGo.GetComponent<Image>();
-            ApplySprite(toastBg, LoadSprite(FhComponents + "Frame/BubbleFrame_03_Bg.png"), true);
+            // A clean 9-slice frame - BubbleFrame's borders are taller than any toast, so it always squashed.
+            ApplySprite(toastBg, LoadSprite(FhComponents + "Frame/BaseFrame_Border_Rectangle_H60_Bg.png"), true);
             toastBg.color = new Color(0.35f, 0.3f, 0.26f, 0.97f);
             toastBg.raycastTarget = false;
-            TMP_Text toastLabel = CreateTmp((RectTransform)toastGo.transform, "Label", string.Empty, 15f, TextAlignmentOptions.Center, true);
+            TMP_Text toastLabel = CreateTmp((RectTransform)toastGo.transform, "Label", string.Empty, 24f, TextAlignmentOptions.Center, true);
             Stretch(toastLabel.rectTransform);
             toastLabel.fontStyle = FontStyles.Bold;
             toastLabel.color = Color.white;
@@ -552,12 +592,12 @@ namespace DiceDiceDice.EditorTools
             toastSo.ApplyModifiedPropertiesWithoutUndo();
 
             refs.DragGhost = CreateImage(parent, "DragGhost", Color.white, false);
-            SetRect(refs.DragGhost.rectTransform, Half, Half, Half, Vector2.zero, new Vector2(64f, 64f));
+            SetRect(refs.DragGhost.rectTransform, Half, Half, Half, Vector2.zero, new Vector2(96f, 96f));
             refs.DragGhost.preserveAspect = true;
             refs.DragGhost.enabled = false;
         }
 
-        private static void BuildModal(SceneRefs refs, RectTransform parent)
+        private static void BuildModal(SceneRefs refs, RectTransform parent, RectTransform safeArea)
         {
             refs.Modal = parent.gameObject.AddComponent<ModalView>();
             UiSkin skin = Skin;
@@ -567,28 +607,31 @@ namespace DiceDiceDice.EditorTools
             var root = (RectTransform)rootGo.transform;
             Stretch(root);
 
+            // The dim covers the whole screen (outside the safe area too); the content stays inside it.
             Image dim = CreateImage(root, "Dim", new Color(0.03f, 0.03f, 0.05f, 0.88f), true);
             Stretch(dim.rectTransform);
+            safeArea.SetParent(root, false);
+            RectTransform content = safeArea;
 
-            Image titleFlag = CreateSpriteImage(root, "TitleFlag", LoadSprite(FhComponents + "Title/Title_Flag_01_Purple.Png"), false, true);
-            SetRect(titleFlag.rectTransform, Half, Half, Half, new Vector2(0f, 330f), new Vector2(620f, 90f));
-            TMP_Text title = CreateTmp(titleFlag.rectTransform, "Title", string.Empty, 32f, TextAlignmentOptions.Center, true);
-            SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 8f), new Vector2(560f, 48f));
+            Image titleFlag = TitleFlag(content, LoadSprite(FhComponents + "Title/Title_Flag_01_Purple.Png"), 660f);
+            SetRect(titleFlag.rectTransform, Half, Half, Half, new Vector2(0f, 344f), titleFlag.rectTransform.sizeDelta);
+            TMP_Text title = CreateTmp(titleFlag.rectTransform, "Title", string.Empty, 42f, TextAlignmentOptions.Center, true);
+            SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 10f), new Vector2(580f, 56f));
             title.fontStyle = FontStyles.Bold;
             title.color = Color.white;
 
-            TMP_Text subtitle = CreateTmp(root, "Subtitle", string.Empty, 16f, TextAlignmentOptions.Center, true);
-            SetRect(subtitle.rectTransform, Half, Half, Half, new Vector2(0f, 268f), new Vector2(900f, 30f));
+            TMP_Text subtitle = CreateTmp(content, "Subtitle", string.Empty, 22f, TextAlignmentOptions.Center, true);
+            SetRect(subtitle.rectTransform, Half, Half, Half, new Vector2(0f, 248f), new Vector2(1000f, 34f));
             subtitle.color = new Color(0.78f, 0.74f, 0.68f);
 
-            RectTransform choicesRoot = CenterRect(root, "ChoicesRoot");
+            RectTransform choicesRoot = CenterRect(content, "ChoicesRoot");
             choicesRoot.anchoredPosition = new Vector2(0f, 10f);
             for (int i = 0; i < 3; i++)
             {
                 var choiceGo = new GameObject("Choice" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UpgradeChoiceView));
                 choiceGo.transform.SetParent(choicesRoot, false);
                 var rect = (RectTransform)choiceGo.transform;
-                SetRect(rect, Half, Half, Half, new Vector2((i - 1) * 310f, 0f), new Vector2(284f, 300f));
+                SetRect(rect, Half, Half, Half, new Vector2((i - 1) * 350f, 0f), new Vector2(330f, 420f));
                 Image bg = choiceGo.GetComponent<Image>();
                 ApplySprite(bg, skin.CardBg(ItemGroup.Economy), true);
                 var button = choiceGo.GetComponent<Button>();
@@ -596,16 +639,16 @@ namespace DiceDiceDice.EditorTools
                 Image cardBorder = CreateSpriteImage(rect, "CardBorder", skin.CardBorder(ItemGroup.Economy), false, true);
                 Stretch(cardBorder.rectTransform);
 
-                TMP_Text group = CreateTmp(rect, "Group", string.Empty, 13f, TextAlignmentOptions.Center, true);
-                SetRect(group.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -24f), new Vector2(240f, 20f));
+                TMP_Text group = CreateTmp(rect, "Group", string.Empty, 18f, TextAlignmentOptions.Center, true);
+                SetRect(group.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -30f), new Vector2(280f, 26f));
                 group.fontStyle = FontStyles.Bold;
                 group.color = new Color(1f, 1f, 1f, 0.85f);
-                TMP_Text name = CreateTmp(rect, "Name", string.Empty, 20f, TextAlignmentOptions.Center, true);
-                SetRect(name.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -52f), new Vector2(250f, 58f));
+                TMP_Text name = CreateTmp(rect, "Name", string.Empty, 28f, TextAlignmentOptions.Center, true);
+                SetRect(name.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -66f), new Vector2(292f, 76f));
                 name.fontStyle = FontStyles.Bold;
                 name.color = Color.white;
-                TMP_Text desc = CreateTmp(rect, "Desc", string.Empty, 15f, TextAlignmentOptions.Top, true);
-                SetRect(desc.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -120f), new Vector2(232f, 156f));
+                TMP_Text desc = CreateTmp(rect, "Desc", string.Empty, Ui.BodyText, TextAlignmentOptions.Top, true);
+                SetRect(desc.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -156f), new Vector2(272f, 226f));
                 desc.color = new Color(0.96f, 0.94f, 0.88f);
 
                 var view = choiceGo.GetComponent<UpgradeChoiceView>();
@@ -620,17 +663,21 @@ namespace DiceDiceDice.EditorTools
                 refs.Choices[i] = view;
             }
 
-            Image statsBg = CreateSpriteImage(root, "StatsPanel", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Bg.png"), false, true);
-            SetRect(statsBg.rectTransform, Half, Half, Half, new Vector2(0f, -10f), new Vector2(680f, 470f));
+            Image statsBg = CreateSpriteImage(content, "StatsPanel", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Bg.png"), false, true);
+            SetRect(statsBg.rectTransform, Half, Half, Half, new Vector2(0f, -30f), new Vector2(880f, 500f));
             Image statsBorder = CreateSpriteImage(statsBg.rectTransform, "Border", LoadSprite(FhComponents + "Popup/Popup_List_VerticalLayout_Border.png"), false, true);
             Stretch(statsBorder.rectTransform);
-            TMP_Text statsBody = CreateTmp(statsBg.rectTransform, "Body", string.Empty, 16f, TextAlignmentOptions.TopLeft, true);
-            SetInset(statsBody.rectTransform, 30f);
+            TMP_Text statsBody = CreateTmp(statsBg.rectTransform, "Body", string.Empty, 22f, TextAlignmentOptions.TopLeft, true);
+            SetInset(statsBody.rectTransform, 38f);
             statsBody.richText = true;
-            statsBody.lineSpacing = 14f;
+            statsBody.lineSpacing = 10f;
+            // The intro rules text and the end-of-run stats have very different lengths - let TMP fit them.
+            statsBody.enableAutoSizing = true;
+            statsBody.fontSizeMin = 15f;
+            statsBody.fontSizeMax = 22f;
 
-            Button action = CreateButton(root, "ActionButton", out TMP_Text actionLabel, out Image actionBg, string.Empty, 20f);
-            SetRect(((RectTransform)action.transform), Half, Half, Half, new Vector2(0f, -330f), new Vector2(320f, 66f));
+            Button action = CreateButton(content, "ActionButton", out TMP_Text actionLabel, out Image actionBg, string.Empty, 32f);
+            SetRect(((RectTransform)action.transform), Half, Half, Half, new Vector2(0f, -350f), new Vector2(440f, Ui.ButtonLarge));
             ApplySprite(actionBg, LoadSprite(FhComponents + "Button/Button_01_Mian_l_Bg_Yellow.png"), true);
             actionLabel.color = new Color(0.32f, 0.2f, 0.06f);
 
@@ -667,9 +714,12 @@ namespace DiceDiceDice.EditorTools
                 ("_shop", refs.Shop), ("_enemies", refs.Enemies), ("_projectiles", refs.Projectiles),
                 ("_effects", refs.Effects), ("_spawner", refs.Spawner), ("_ticker", refs.Ticker),
                 ("_auras", refs.Auras), ("_upgrades", refs.Upgrades), ("_wall", refs.Wall),
-                ("_audio", refs.Audio), ("_wallView", refs.WallView), ("_ui", refs.Ui));
+                ("_audio", refs.Audio), ("_wallView", refs.WallView), ("_ui", refs.Ui),
+                ("_screenFitter", refs.Fitter));
             WireArray(refs.Game, "_startingItems", new Object[] { FindItem(itemPool, "Dice"), FindItem(itemPool, "Bow") });
 
+            Wire(refs.Fitter, ("_camera", refs.Camera));
+            WireArray(refs.Fitter, "_safeAreaRects", refs.SafeAreaRects);
             Wire(refs.Board, ("_game", refs.Game), ("_economy", refs.Economy), ("_audio", refs.Audio));
             Wire(refs.Economy, ("_config", config));
             Wire(refs.Shop,
@@ -772,7 +822,8 @@ namespace DiceDiceDice.EditorTools
             {
                 refs.Game, refs.Board, refs.Economy, refs.Shop, refs.Enemies, refs.Projectiles, refs.Effects,
                 refs.Spawner, refs.Ticker, refs.Auras, refs.Upgrades, refs.Wall, refs.Audio, refs.WallView,
-                refs.Ui, refs.Hud, refs.ShopPanel, refs.InfoPanel, refs.Modal, refs.Banner, refs.Toast, refs.FloatingText
+                refs.Ui, refs.Hud, refs.ShopPanel, refs.InfoPanel, refs.Modal, refs.Banner, refs.Toast,
+                refs.FloatingText, refs.Fitter
             };
             for (int t = 0; t < targets.Length; t++)
             {
@@ -884,6 +935,65 @@ namespace DiceDiceDice.EditorTools
             return image;
         }
 
+        /// <summary>
+        /// Title ribbons are drawn as one piece (their 9-slice border spans the whole sprite height),
+        /// so they are scaled uniformly instead of stretched - stretching squashed the ribbon art.
+        /// </summary>
+        private static Image TitleFlag(RectTransform parent, Sprite sprite, float width)
+        {
+            Image image = CreateImage(parent, "TitleFlag", Color.white, false);
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            float aspect = sprite.rect.height / Mathf.Max(1f, sprite.rect.width);
+            image.rectTransform.sizeDelta = new Vector2(width, width * aspect);
+            return image;
+        }
+
+        /// <summary>
+        /// Layer Lab 9-slice art is authored for tall shapes (the main button sprite is 68x178 with an
+        /// 89px vertical border). Drawn 1:1 on a short widget, the caps eat the whole rect and Unity
+        /// squeezes them - the button reads as one fat bevel with no face. Raising
+        /// <see cref="Image.pixelsPerUnitMultiplier"/> shrinks the border so a real middle stays visible.
+        /// Fully stretched images (border overlays) inherit their frame's multiplier so the two still line up.
+        /// </summary>
+        private const float SliceBorderBudget = 0.62f;
+
+        private static void BalanceSlicedBorders(Transform node, float inherited)
+        {
+            float current = inherited;
+            var image = node.GetComponent<Image>();
+            if (image != null && image.sprite != null && image.type == Image.Type.Sliced)
+            {
+                current = SliceMultiplier(image, inherited);
+                image.pixelsPerUnitMultiplier = current;
+            }
+            for (int i = 0; i < node.childCount; i++)
+            {
+                BalanceSlicedBorders(node.GetChild(i), current);
+            }
+        }
+
+        private static float SliceMultiplier(Image image, float inherited)
+        {
+            Vector4 border = image.sprite.border;
+            RectTransform rect = image.rectTransform;
+            float multiplier = 1f;
+            bool measured = false;
+            // Only fixed-size axes can pinch the border; stretched axes follow the parent and are always wide.
+            if (Mathf.Approximately(rect.anchorMin.x, rect.anchorMax.x) && rect.sizeDelta.x > 1f && border.x + border.z > 0f)
+            {
+                multiplier = Mathf.Max(multiplier, (border.x + border.z) / (rect.sizeDelta.x * SliceBorderBudget));
+                measured = true;
+            }
+            if (Mathf.Approximately(rect.anchorMin.y, rect.anchorMax.y) && rect.sizeDelta.y > 1f && border.y + border.w > 0f)
+            {
+                multiplier = Mathf.Max(multiplier, (border.y + border.w) / (rect.sizeDelta.y * SliceBorderBudget));
+                measured = true;
+            }
+            return measured ? multiplier : inherited;
+        }
+
         private static void MakeFilled(Image image)
         {
             image.type = Image.Type.Filled;
@@ -924,3 +1034,4 @@ namespace DiceDiceDice.EditorTools
         }
     }
 }
+

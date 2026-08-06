@@ -19,6 +19,9 @@ namespace DiceDiceDice
 
         private const float FieldHalfHeight = 5.4f;
         private const float FieldHalfWidth = 9.6f;
+        /// <summary>Backdrop/ground overscan: phones are wider or taller than the 1920x1080 design box
+        /// (see ScreenFitter), so the flat fills must run past its edges.</summary>
+        private const float Overscan = 5f;
 
         private Transform _wallTransform;
         private Vector3 _wallHome;
@@ -32,29 +35,30 @@ namespace DiceDiceDice
 
             _wallBody.sprite = SpriteFactory.White;
             _wallBody.color = _palette.Wall;
-            _wallBody.transform.localScale = new Vector3(_config.WallWidth, FieldHalfHeight * 2f, 1f);
+            _wallBody.transform.localScale = new Vector3(_config.WallWidth, (FieldHalfHeight + Overscan) * 2f, 1f);
 
             _wallHitFlash.sprite = SpriteFactory.White;
             _wallHitFlash.color = new Color(1f, 0.35f, 0.35f, 0f);
-            _wallHitFlash.transform.localScale = new Vector3(_config.WallWidth + 0.08f, FieldHalfHeight * 2f, 1f);
+            _wallHitFlash.transform.localScale = new Vector3(_config.WallWidth + 0.08f, (FieldHalfHeight + Overscan) * 2f, 1f);
 
             _ground.sprite = SpriteFactory.White;
             _ground.color = _palette.Ground;
-            _ground.transform.position = new Vector3(0f, -FieldHalfHeight + 0.25f, 0f);
-            _ground.transform.localScale = new Vector3(FieldHalfWidth * 2f + 0.4f, 0.5f, 1f);
+            // Top edge stays on the design-box floor; the rest runs off-screen for taller viewports.
+            _ground.transform.position = new Vector3(0f, -FieldHalfHeight + 0.5f - Overscan * 0.5f, 0f);
+            _ground.transform.localScale = new Vector3((FieldHalfWidth + Overscan) * 2f, Overscan, 1f);
 
             _boardBackdrop.sprite = SpriteFactory.White;
             Color backdrop = _palette.BackgroundTop;
             backdrop.a = 0.55f;
             _boardBackdrop.color = backdrop;
-            float backdropWidth = wallLeft + FieldHalfWidth;
-            _boardBackdrop.transform.position = new Vector3((-FieldHalfWidth + wallLeft) * 0.5f, 0f, 0f);
-            _boardBackdrop.transform.localScale = new Vector3(backdropWidth, FieldHalfHeight * 2f, 1f);
+            float backdropWidth = wallLeft + FieldHalfWidth + Overscan;
+            _boardBackdrop.transform.position = new Vector3((-FieldHalfWidth - Overscan + wallLeft) * 0.5f, 0f, 0f);
+            _boardBackdrop.transform.localScale = new Vector3(backdropWidth, (FieldHalfHeight + Overscan) * 2f, 1f);
 
             _shieldGlow.sprite = SpriteFactory.White;
             _shieldGlow.color = new Color(_palette.Shield.r, _palette.Shield.g, _palette.Shield.b, 0.45f);
             _shieldGlow.transform.position = new Vector3(_config.WallStopX + 0.12f, 0f, 0f);
-            _shieldGlow.transform.localScale = new Vector3(0.12f, FieldHalfHeight * 2f, 1f);
+            _shieldGlow.transform.localScale = new Vector3(0.12f, (FieldHalfHeight + Overscan) * 2f, 1f);
 
             _crackLow.sprite = SpriteFactory.Slash;
             _crackHigh.sprite = SpriteFactory.Slash;

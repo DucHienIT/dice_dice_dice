@@ -24,6 +24,9 @@ namespace DiceDiceDice
 
         private static readonly string[] GroupNames = { "Economy", "Weapon", "Magic", "Support", "Defense" };
 
+        /// <summary>Drag ghost offset above the touch point, as a fraction of screen height.</summary>
+        private const float DragGhostLift = 0.07f;
+
         private const string DefaultInfoText =
             "<b>Dice make gold</b> - weapons and magic kill monsters!\n\n" +
             "- Drag an item onto an empty slot to move it.\n" +
@@ -197,7 +200,7 @@ namespace DiceDiceDice
             _dragGhost.sprite = item.Definition.IconSprite;
             _dragGhost.color = Color.white;
             _dragGhost.enabled = true;
-            _dragGhostRect.position = screenPosition;
+            _dragGhostRect.position = LiftedGhostPosition(screenPosition);
         }
 
         public void OnSlotDrag(Vector2 screenPosition)
@@ -206,7 +209,13 @@ namespace DiceDiceDice
             {
                 return;
             }
-            _dragGhostRect.position = screenPosition;
+            _dragGhostRect.position = LiftedGhostPosition(screenPosition);
+        }
+
+        /// <summary>Keeps the dragged icon above the finger instead of under it (touch-first UI).</summary>
+        private static Vector2 LiftedGhostPosition(Vector2 screenPosition)
+        {
+            return new Vector2(screenPosition.x, screenPosition.y + Screen.height * DragGhostLift);
         }
 
         public void OnSlotEndDrag(Vector2 screenPosition)

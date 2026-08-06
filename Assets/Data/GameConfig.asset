@@ -33,11 +33,11 @@ MonoBehaviour:
   _healerPulseInterval: 1
   _healerRadius: 1.1
   _healerHpPerPulse: 3
-  _boardOrigin: {x: -8.86, y: 1.68}
-  _slotStep: 1.12
-  _wallCenterX: -7
+  _boardOrigin: {x: -8.8, y: 1.84}
+  _slotStep: 1.4
+  _wallCenterX: -6.45
   _wallWidth: 0.3
-  _wallStopX: -6.85
+  _wallStopX: -6.3
   _spawnX: 10.3
   _enemyYMin: -4.1
   _enemyYMax: 3.5

@@ -33,6 +33,7 @@ namespace DiceDiceDice
         [SerializeField] private AudioManager _audio;
         [SerializeField] private WallView _wallView;
         [SerializeField] private UIController _ui;
+        [SerializeField] private ScreenFitter _screenFitter;
 
         [Header("Run start (spec 14.1)")]
         [SerializeField] private ItemDefinition[] _startingItems;
@@ -82,6 +83,7 @@ namespace DiceDiceDice
 
         private void Start()
         {
+            _screenFitter.Init();
             _wall.Init();
             _economy.Init();
             _board.Init(Stats, Mods);
@@ -112,6 +114,7 @@ namespace DiceDiceDice
 
         private void Update()
         {
+            _screenFitter.Tick(); // device rotation / notch changes must apply even while paused
             if (Paused || Phase == GamePhase.GameOver)
             {
                 return;

@@ -108,7 +108,10 @@ namespace DiceDiceDice.EditorTools
 
         private static void InstallConfigs()
         {
-            GetOrCreateAsset<GameConfig>(DataRoot + "/GameConfig.asset");
+            var config = GetOrCreateAsset<GameConfig>(DataRoot + "/GameConfig.asset");
+            // Touch-first layout: 140px slot pitch (was 112) so a finger can grab a slot; the wall
+            // moves right to make room for the wider board. See Ui.SlotSize below.
+            config.EditorSetLayout(new Vector2(-8.80f, 1.84f), 1.40f, -6.45f, -6.30f);
             var palette = GetOrCreateAsset<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
             // Layer Lab panels are light parchment — body text must be dark to stay readable.
             palette.EditorSetTextColors(new Color(0.30f, 0.25f, 0.20f), new Color(0.52f, 0.46f, 0.38f));
