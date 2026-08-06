@@ -10,6 +10,7 @@ namespace DiceDiceDice
     {
         [SerializeField] private Button _button;
         [SerializeField] private Image _background;
+        [SerializeField] private Image _border;
         [SerializeField] private TMP_Text _groupLabel;
         [SerializeField] private TMP_Text _nameLabel;
         [SerializeField] private TMP_Text _descriptionLabel;
@@ -17,20 +18,18 @@ namespace DiceDiceDice
         private UpgradeDefinition _upgrade;
         private Action<UpgradeDefinition> _onPicked;
 
-        public void Init(PaletteConfig palette)
+        public void Init()
         {
-            _background.sprite = SpriteFactory.UiRounded;
-            _background.type = Image.Type.Sliced;
-            _background.color = palette.Panel;
             _button.onClick.AddListener(OnClicked);
         }
 
-        public void Render(UpgradeDefinition upgrade, PaletteConfig palette, string groupName, Action<UpgradeDefinition> onPicked)
+        public void Render(UpgradeDefinition upgrade, UiSkin skin, string groupName, Action<UpgradeDefinition> onPicked)
         {
             _upgrade = upgrade;
             _onPicked = onPicked;
+            _background.sprite = skin.CardBg(upgrade.Group);
+            _border.sprite = skin.CardBorder(upgrade.Group);
             _groupLabel.text = groupName;
-            _groupLabel.color = palette.GroupColor(upgrade.Group);
             _nameLabel.text = upgrade.DisplayName;
             _descriptionLabel.text = upgrade.Description;
         }

@@ -12,7 +12,6 @@ namespace DiceDiceDice
     {
         [SerializeField] private RectTransform _rect;
         [SerializeField] private Image _frame;
-        [SerializeField] private Image _background;
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _rarityLabel;
         [SerializeField] private Image _groupDot;
@@ -28,34 +27,21 @@ namespace DiceDiceDice
 
         public RectTransform Rect => _rect;
 
-        public void Init(int index, UIController controller, PaletteConfig palette)
+        public void Init(int index, UIController controller)
         {
             _index = index;
             _controller = controller;
             _iconRect = _icon.rectTransform;
-
-            _frame.sprite = SpriteFactory.UiRounded;
-            _frame.type = Image.Type.Sliced;
-            _background.sprite = SpriteFactory.UiRounded;
-            _background.type = Image.Type.Sliced;
-            _selectionRing.sprite = SpriteFactory.UiRounded;
-            _selectionRing.type = Image.Type.Sliced;
-            _selectionRing.color = Color.white;
             _groupDot.sprite = SpriteFactory.Circle;
-            _progressBack.sprite = SpriteFactory.White;
-            _progressFill.sprite = SpriteFactory.White;
-            _progressFill.type = Image.Type.Filled;
-            _progressFill.fillMethod = Image.FillMethod.Horizontal;
             _faceLabel.alpha = 0f;
             SetSelected(false);
         }
 
-        public void Render(ItemInstance item, PaletteConfig palette)
+        public void Render(ItemInstance item, PaletteConfig palette, UiSkin skin)
         {
             if (item == null)
             {
-                _frame.color = palette.EmptySlotBorder;
-                _background.color = palette.EmptySlot;
+                _frame.sprite = skin.ItemFrameEmpty;
                 _icon.enabled = false;
                 _rarityLabel.text = string.Empty;
                 _groupDot.enabled = false;
@@ -66,15 +52,13 @@ namespace DiceDiceDice
             }
 
             ItemDefinition definition = item.Definition;
-            Color rarityColor = palette.RarityColor(item.Rarity);
-            _frame.color = rarityColor;
-            _background.color = palette.PanelLight;
+            _frame.sprite = skin.ItemFrame(item.Rarity);
             _icon.enabled = true;
-            _icon.sprite = SpriteFactory.Icon(definition.Icon);
-            _icon.color = palette.GroupColor(definition.Group);
-            _iconRect.localScale = Vector3.one * (1f + 0.08f * item.RarityIndex);
+            _icon.sprite = definition.IconSprite;
+            _icon.color = Color.white;
+            _iconRect.localScale = Vector3.one * (1f + 0.06f * item.RarityIndex);
             _rarityLabel.text = item.Rarity.ToString();
-            _rarityLabel.color = rarityColor;
+            _rarityLabel.color = palette.RarityColor(item.Rarity);
             _groupDot.enabled = true;
             _groupDot.color = palette.GroupColor(definition.Group);
             bool showsProgress = definition is DiceDefinition || definition is CombatItemDefinition;
@@ -126,10 +110,8 @@ namespace DiceDiceDice
 
         public void PlayMergeFlash()
         {
-            _frame.DOKill();
-            Color original = _frame.color;
-            _frame.color = Color.white;
-            _frame.DOColor(original, 0.45f).SetLink(gameObject);
+            _rect.DOKill(true);
+            _rect.DOPunchScale(Vector3.one * 0.22f, 0.35f, 5).SetLink(gameObject);
             _iconRect.DOKill();
             _iconRect.localScale = Vector3.one * 1.35f;
             _iconRect.DOScale(1f, 0.3f).SetEase(Ease.OutBack).SetLink(gameObject);

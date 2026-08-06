@@ -9,14 +9,10 @@ namespace DiceDiceDice
     public class ToastView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private Image _background;
         [SerializeField] private TMP_Text _label;
 
-        public void Init(PaletteConfig palette)
+        public void Init()
         {
-            _background.sprite = SpriteFactory.UiRounded;
-            _background.type = Image.Type.Sliced;
-            _background.color = new Color(0f, 0f, 0f, 0.8f);
             _group.alpha = 0f;
         }
 

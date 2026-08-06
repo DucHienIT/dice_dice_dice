@@ -44,22 +44,19 @@ namespace DiceDiceDice
         public void Init(GameManager game)
         {
             _game = game;
-            PaletteConfig palette = game.Palette;
             _dragGhostRect = _dragGhost.rectTransform;
             _dragGhost.enabled = false;
 
             for (int i = 0; i < _slots.Length; i++)
             {
-                _slots[i].Init(i, this, palette);
+                _slots[i].Init(i, this);
             }
-            _shopPanel.Init(palette);
             for (int i = 0; i < _shopPanel.Items.Length; i++)
             {
-                _shopPanel.Items[i].Init(i, this, palette);
+                _shopPanel.Items[i].Init(i, this);
             }
-            _infoPanel.Init(palette);
-            _modal.Init(palette);
-            _toast.Init(palette);
+            _modal.Init();
+            _toast.Init();
             _floatingText.Init();
 
             _shopPanel.RerollButton.onClick.AddListener(OnRerollClicked);
@@ -92,7 +89,7 @@ namespace DiceDiceDice
             RenderShop();
             OnWaveChanged();
             OnPhaseChanged();
-            _hud.RefreshMute(game.Audio.Muted);
+            _hud.RefreshMute(game.Audio.Muted, game.Skin);
         }
 
         private void Update()
@@ -136,7 +133,7 @@ namespace DiceDiceDice
                 if (used)
                 {
                     UpgradeDefinition upgrade = choices[i];
-                    views[i].Render(upgrade, _game.Palette, GroupName(upgrade.Group), picked =>
+                    views[i].Render(upgrade, _game.Skin, GroupName(upgrade.Group), picked =>
                     {
                         _modal.Hide();
                         onPicked(picked);
@@ -197,8 +194,8 @@ namespace DiceDiceDice
                 return;
             }
             _dragFrom = index;
-            _dragGhost.sprite = SpriteFactory.Icon(item.Definition.Icon);
-            _dragGhost.color = _game.Palette.GroupColor(item.Definition.Group);
+            _dragGhost.sprite = item.Definition.IconSprite;
+            _dragGhost.color = Color.white;
             _dragGhost.enabled = true;
             _dragGhostRect.position = screenPosition;
         }
@@ -302,7 +299,7 @@ namespace DiceDiceDice
         private void OnMuteClicked()
         {
             _game.Audio.ToggleMute();
-            _hud.RefreshMute(_game.Audio.Muted);
+            _hud.RefreshMute(_game.Audio.Muted, _game.Skin);
         }
 
         // ---------- Event handlers ----------
@@ -378,7 +375,7 @@ namespace DiceDiceDice
             BoardModel model = _game.Board.Model;
             for (int i = 0; i < _slots.Length; i++)
             {
-                _slots[i].Render(model.Get(i), _game.Palette);
+                _slots[i].Render(model.Get(i), _game.Palette, _game.Skin);
                 _slots[i].SetSelected(i == _selectedSlot);
             }
             RefreshInfo();

@@ -10,6 +10,7 @@ namespace DiceDiceDice
         [SerializeField] private int _price;
         [SerializeField, TextArea] private string _description;
         [SerializeField] private ItemIcon _icon;
+        [SerializeField] private Sprite _iconSprite;
         [SerializeField] private float _shopWeight = 1f;
 
         public string DisplayName => _displayName;
@@ -18,6 +19,9 @@ namespace DiceDiceDice
         public string Description => _description;
         public ItemIcon Icon => _icon;
         public float ShopWeight => _shopWeight;
+
+        /// <summary>Authored icon (Layer Lab); falls back to the procedural glyph when unassigned.</summary>
+        public Sprite IconSprite => _iconSprite != null ? _iconSprite : SpriteFactory.Icon(_icon);
 
         public int SellPrice(ItemRarity rarity, RunModifiers mods)
         {
@@ -36,6 +40,11 @@ namespace DiceDiceDice
             _description = description;
             _icon = icon;
             _shopWeight = shopWeight;
+        }
+
+        public void EditorSetIconSprite(Sprite iconSprite)
+        {
+            _iconSprite = iconSprite;
         }
 #endif
     }

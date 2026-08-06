@@ -17,7 +17,7 @@ namespace DiceDiceDice
         [SerializeField] private TMP_Text _waveLabel;
         [SerializeField] private TMP_Text _phaseLabel;
         [SerializeField] private Button _muteButton;
-        [SerializeField] private TMP_Text _muteLabel;
+        [SerializeField] private Image _muteIcon;
 
         public RectTransform GoldRect => _goldLabel.rectTransform;
         public Button MuteButton => _muteButton;
@@ -60,9 +60,9 @@ namespace DiceDiceDice
             }
         }
 
-        public void RefreshMute(bool muted)
+        public void RefreshMute(bool muted, UiSkin skin)
         {
-            _muteLabel.text = muted ? "TẮT" : "ÂM";
+            _muteIcon.sprite = muted ? skin.SoundOffIcon : skin.SoundOnIcon;
         }
     }
 }

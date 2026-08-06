@@ -8,7 +8,6 @@ namespace DiceDiceDice
     public class ShopPanelView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _group;
-        [SerializeField] private Image _background;
         [SerializeField] private ShopItemView[] _items;
         [SerializeField] private Button _rerollButton;
         [SerializeField] private TMP_Text _rerollLabel;
@@ -23,13 +22,6 @@ namespace DiceDiceDice
         public Button LockButton => _lockButton;
         public Button StartWaveButton => _startWaveButton;
 
-        public void Init(PaletteConfig palette)
-        {
-            _background.sprite = SpriteFactory.UiRounded;
-            _background.type = Image.Type.Sliced;
-            _background.color = palette.Panel;
-        }
-
         public void SetVisible(bool visible)
         {
             _group.alpha = visible ? 1f : 0f;
@@ -41,7 +33,7 @@ namespace DiceDiceDice
         {
             _rerollLabel.text = "Reroll (" + rerollCost + " vàng)";
             _lockLabel.text = locked ? "Đã khóa" : "Khóa";
-            _lockBackground.color = locked ? new Color(0.42f, 0.33f, 0.08f) : palette.PanelLight;
+            _lockBackground.color = locked ? new Color(1f, 0.8f, 0.35f) : Color.white;
             _startWaveButton.interactable = nextWave <= totalWaves;
             _startWaveLabel.text = "Bắt đầu Wave " + Mathf.Min(nextWave, totalWaves);
         }

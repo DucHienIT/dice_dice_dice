@@ -16,6 +16,7 @@ namespace DiceDiceDice
         [Header("Config")]
         [SerializeField] private GameConfig _config;
         [SerializeField] private PaletteConfig _palette;
+        [SerializeField] private UiSkin _uiSkin;
 
         [Header("Systems")]
         [SerializeField] private BoardController _board;
@@ -47,6 +48,7 @@ namespace DiceDiceDice
 
         public GameConfig Config => _config;
         public PaletteConfig Palette => _palette;
+        public UiSkin Skin => _uiSkin;
         public BoardController Board => _board;
         public EconomyController Economy => _economy;
         public ShopController Shop => _shop;

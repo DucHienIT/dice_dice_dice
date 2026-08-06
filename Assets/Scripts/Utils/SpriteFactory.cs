@@ -16,7 +16,6 @@ namespace DiceDiceDice
         private static Sprite _circle;
         private static Sprite _ring;
         private static Sprite _softCircle;
-        private static Sprite _uiRounded;
         private static Sprite _slash;
         private static Sprite _healCross;
         private static readonly Sprite[] DiceFaces = new Sprite[6];
@@ -32,9 +31,6 @@ namespace DiceDiceDice
         public static Sprite Ring => _ring != null ? _ring : (_ring = Build(c => c.Ring(32f, 32f, 29f, 4f, White1)));
 
         public static Sprite SoftCircle => _softCircle != null ? _softCircle : (_softCircle = BuildSoftCircle());
-
-        /// <summary>9-sliced rounded rect for UI panels/buttons (tint via Image.color).</summary>
-        public static Sprite UiRounded => _uiRounded != null ? _uiRounded : (_uiRounded = BuildUiRounded());
 
         public static Sprite Slash => _slash != null ? _slash : (_slash = Build(c =>
         {
@@ -114,13 +110,6 @@ namespace DiceDiceDice
                 }
             }
             return canvas.ToSprite(PixelsPerUnit);
-        }
-
-        private static Sprite BuildUiRounded()
-        {
-            var canvas = new PixelCanvas(Size);
-            canvas.RoundedRect(0f, 0f, Size, Size, 14f, White1);
-            return canvas.ToSprite(PixelsPerUnit, new Vector4(20f, 20f, 20f, 20f));
         }
 
         private static Sprite BuildDiceFace(int face)

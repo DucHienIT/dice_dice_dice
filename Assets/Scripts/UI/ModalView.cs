@@ -9,7 +9,6 @@ namespace DiceDiceDice
     public class ModalView : MonoBehaviour
     {
         [SerializeField] private GameObject _root;
-        [SerializeField] private Image _dim;
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _subtitle;
         [SerializeField] private GameObject _choicesRoot;
@@ -23,15 +22,11 @@ namespace DiceDiceDice
 
         public UpgradeChoiceView[] Choices => _choices;
 
-        public void Init(PaletteConfig palette)
+        public void Init()
         {
-            _dim.color = new Color(0.03f, 0.04f, 0.06f, 0.85f);
-            _statsBackground.sprite = SpriteFactory.UiRounded;
-            _statsBackground.type = Image.Type.Sliced;
-            _statsBackground.color = palette.Panel;
             for (int i = 0; i < _choices.Length; i++)
             {
-                _choices[i].Init(palette);
+                _choices[i].Init();
             }
             _actionButton.onClick.AddListener(OnActionClicked);
             _root.SetActive(false);

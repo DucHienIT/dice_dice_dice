@@ -69,5 +69,13 @@ namespace DiceDiceDice
         public Color EmptySlot => _emptySlot;
         public Color EmptySlotBorder => _emptySlotBorder;
         public Color ButtonPrimary => _buttonPrimary;
+
+#if UNITY_EDITOR
+        public void EditorSetTextColors(Color textMain, Color textDim)
+        {
+            _textMain = textMain;
+            _textDim = textDim;
+        }
+#endif
     }
 }
