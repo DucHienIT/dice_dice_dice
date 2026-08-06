@@ -1,0 +1,391 @@
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace DiceDiceDice.EditorTools
+{
+    /// <summary>
+    /// One-shot, idempotent project installer: creates all balance assets, prefabs and the playable scene.
+    /// Menu: Tools ▸ DICE DICE DICE ▸ Install All. Safe to re-run — assets are updated in place (GUIDs stable).
+    /// </summary>
+    public static partial class GameInstaller
+    {
+        private const string DataRoot = "Assets/Data";
+        private const string PrefabRoot = "Assets/Prefabs";
+        private const string ScenePath = "Assets/Scenes/SampleScene.unity";
+
+        [MenuItem("Tools/DICE DICE DICE/Install All")]
+        public static void InstallAll()
+        {
+            EnsureFolders();
+            InstallConfigs();
+            InstallItems();
+            InstallEnemies();
+            InstallWaves();
+            InstallUpgrades();
+            InstallPrefabs();
+            AssetDatabase.SaveAssets();
+            BuildScene();
+            Debug.Log("[Installer] DICE DICE DICE installed: data, prefabs and scene are ready. Press Play.");
+        }
+
+        [MenuItem("Tools/DICE DICE DICE/Install Data Only")]
+        public static void InstallDataOnly()
+        {
+            EnsureFolders();
+            InstallConfigs();
+            InstallItems();
+            InstallEnemies();
+            InstallWaves();
+            InstallUpgrades();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Installer] Data assets installed.");
+        }
+
+        private static void EnsureFolders()
+        {
+            EnsureFolder("Assets", "Data");
+            EnsureFolder(DataRoot, "Items");
+            EnsureFolder(DataRoot, "Enemies");
+            EnsureFolder(DataRoot, "Waves");
+            EnsureFolder(DataRoot, "Upgrades");
+            EnsureFolder("Assets", "Prefabs");
+        }
+
+        private static void EnsureFolder(string parent, string name)
+        {
+            string path = parent + "/" + name;
+            if (!AssetDatabase.IsValidFolder(path))
+            {
+                AssetDatabase.CreateFolder(parent, name);
+            }
+        }
+
+        private static T GetOrCreateAsset<T>(string path) where T : ScriptableObject
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (asset == null)
+            {
+                asset = ScriptableObject.CreateInstance<T>();
+                AssetDatabase.CreateAsset(asset, path);
+            }
+            EditorUtility.SetDirty(asset);
+            return asset;
+        }
+
+        // ---------- Configs ----------
+
+        private static void InstallConfigs()
+        {
+            GetOrCreateAsset<GameConfig>(DataRoot + "/GameConfig.asset");
+            GetOrCreateAsset<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
+        }
+
+        private static GameConfig Config => AssetDatabase.LoadAssetAtPath<GameConfig>(DataRoot + "/GameConfig.asset");
+        private static PaletteConfig Palette => AssetDatabase.LoadAssetAtPath<PaletteConfig>(DataRoot + "/PaletteConfig.asset");
+
+        // ---------- Items (spec 27.2) ----------
+
+        private static void InstallItems()
+        {
+            var dice = GetOrCreateAsset<DiceDefinition>(DataRoot + "/Items/Dice.asset");
+            dice.EditorSetup("Dice", ItemGroup.Economy, 10,
+                "Tự roll 1–6 theo thời gian trong wave, tạo vàng bằng mặt số. Merge để roll nhanh hơn, mặt số tối thiểu cao hơn, vàng nhân theo phẩm cấp.",
+                ItemIcon.Dice, 1f);
+            dice.EditorSetupDice(5f, 0.7f, 1.2f);
+
+            var bow = GetOrCreateAsset<BowDefinition>(DataRoot + "/Items/Bow.asset");
+            bow.EditorSetup("Bow", ItemGroup.Weapon, 12,
+                "Bắn nhanh, sát thương thấp. Epic: xuyên mục tiêu. Legendary: thỉnh thoảng tạo mưa tên.",
+                ItemIcon.Bow, 1f);
+            bow.EditorSetupCombat(4f, 0.8f, DamageType.Physical);
+
+            var sword = GetOrCreateAsset<SwordDefinition>(DataRoot + "/Items/Sword.asset");
+            sword.EditorSetup("Sword", ItemGroup.Weapon, 14,
+                "Kiếm khí chém quái gần tường thành nhất, chém trúng nhiều mục tiêu theo phẩm cấp.",
+                ItemIcon.Sword, 1f);
+            sword.EditorSetupCombat(9f, 1.6f, DamageType.Physical);
+
+            var crossbow = GetOrCreateAsset<CrossbowDefinition>(DataRoot + "/Items/Crossbow.asset");
+            crossbow.EditorSetup("Crossbow", ItemGroup.Weapon, 16,
+                "Bắn chậm, sát thương lớn, tỉ lệ chí mạng cao. Hiệu quả với Elite và Boss.",
+                ItemIcon.Crossbow, 1f);
+            crossbow.EditorSetupCombat(16f, 2.4f, DamageType.Physical);
+
+            var cannon = GetOrCreateAsset<CannonDefinition>(DataRoot + "/Items/Cannon.asset");
+            cannon.EditorSetup("Cannon", ItemGroup.Weapon, 18,
+                "Đạn nổ diện rộng, hiệu quả với nhóm quái đông.",
+                ItemIcon.Cannon, 1f);
+            cannon.EditorSetupCombat(10f, 3f, DamageType.Physical);
+
+            var fireBook = GetOrCreateAsset<FireBookDefinition>(DataRoot + "/Items/FireBook.asset");
+            fireBook.EditorSetup("Fire Book", ItemGroup.Magic, 18,
+                "Gọi thiên thạch nổ diện rộng và gây đốt cháy theo thời gian.",
+                ItemIcon.FireBook, 1f);
+            fireBook.EditorSetupCombat(12f, 4f, DamageType.Magic);
+
+            var frost = GetOrCreateAsset<FrostStoneDefinition>(DataRoot + "/Items/FrostStone.asset");
+            frost.EditorSetup("Frost Stone", ItemGroup.Magic, 14,
+                "Sát thương thấp, làm chậm quái. Epic trở lên có cơ hội đóng băng.",
+                ItemIcon.FrostStone, 1f);
+            frost.EditorSetupCombat(4f, 2.5f, DamageType.Magic);
+
+            var lightning = GetOrCreateAsset<LightningOrbDefinition>(DataRoot + "/Items/LightningOrb.asset");
+            lightning.EditorSetup("Lightning Orb", ItemGroup.Magic, 16,
+                "Sét lan giữa nhiều mục tiêu đứng gần nhau.",
+                ItemIcon.LightningOrb, 1f);
+            lightning.EditorSetupCombat(8f, 3f, DamageType.Magic);
+
+            var anvil = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Anvil.asset");
+            anvil.EditorSetup("Anvil", ItemGroup.Support, 15,
+                "Không tấn công. Tăng sát thương vật lý cho toàn đội hình.",
+                ItemIcon.Anvil, 1f);
+            anvil.EditorSetupSupport(0.15f, 0f);
+
+            var hourglass = GetOrCreateAsset<SupportDefinition>(DataRoot + "/Items/Hourglass.asset");
+            hourglass.EditorSetup("Hourglass", ItemGroup.Support, 15,
+                "Không tấn công. Tăng tốc độ đánh của item và tốc độ roll của Dice.",
+                ItemIcon.Hourglass, 1f);
+            hourglass.EditorSetupSupport(0f, 0.1f);
+
+            var shield = GetOrCreateAsset<ShieldDefinition>(DataRoot + "/Items/Shield.asset");
+            shield.EditorSetup("Shield", ItemGroup.Defense, 12,
+                "Tạo khiên cho tường thành vào đầu mỗi wave, hấp thụ sát thương trước máu.",
+                ItemIcon.Shield, 1f);
+            shield.EditorSetupShield(15);
+        }
+
+        private static ItemDefinition[] LoadItemPool()
+        {
+            string[] names = { "Dice", "Bow", "Sword", "Crossbow", "Cannon", "FireBook", "FrostStone", "LightningOrb", "Anvil", "Hourglass", "Shield" };
+            var pool = new ItemDefinition[names.Length];
+            for (int i = 0; i < names.Length; i++)
+            {
+                pool[i] = AssetDatabase.LoadAssetAtPath<ItemDefinition>(DataRoot + "/Items/" + names[i] + ".asset");
+            }
+            return pool;
+        }
+
+        // ---------- Enemies (spec 16-17) ----------
+
+        private static void InstallEnemies()
+        {
+            CreateEnemy("Basic", "Basic", 22f, 0.55f, 10, 3, 0.18f, Hex("c96a4a"), 0f, 0f, false, false, false, 0f);
+            CreateEnemy("Runner", "Runner", 12f, 1.15f, 8, 3, 0.14f, Hex("e0c74a"), 0f, 0f, false, false, false, 0f);
+            CreateEnemy("Tank", "Tank", 70f, 0.3f, 20, 6, 0.24f, Hex("8a5adf"), 0f, 0f, false, false, false, 0f);
+            CreateEnemy("Swarm", "Swarm", 8f, 0.82f, 5, 2, 0.11f, Hex("5ad08a"), 0f, 0f, false, false, false, 0f);
+            CreateEnemy("Armored", "Armored", 38f, 0.4f, 12, 5, 0.19f, Hex("9aa4bd"), 0.5f, 0f, false, false, false, 0f);
+            CreateEnemy("MagicResist", "M.Resist", 38f, 0.4f, 12, 5, 0.19f, Hex("5a8adf"), 0f, 0.5f, false, false, false, 0f);
+            CreateEnemy("Healer", "Healer", 26f, 0.46f, 8, 6, 0.16f, Hex("ff8ac8"), 0f, 0f, true, false, false, 0f);
+            CreateEnemy("Elite", "ELITE", 230f, 0.24f, 35, 25, 0.3f, Hex("ff4a6b"), 0f, 0f, false, true, false, 0f);
+            CreateEnemy("Boss", "LOADED GOLEM", 750f, 0.13f, 999, 60, 0.42f, Hex("ffb830"), 0f, 0f, false, false, true, 300f);
+        }
+
+        private static void CreateEnemy(string assetName, string displayName, float hp, float speed, int damage, int xp,
+            float radius, Color color, float physResist, float magicResist, bool healer, bool elite, bool boss, float armor)
+        {
+            var enemy = GetOrCreateAsset<EnemyDefinition>(DataRoot + "/Enemies/" + assetName + ".asset");
+            enemy.EditorSetup(displayName, hp, speed, damage, xp, radius, color, physResist, magicResist, healer, elite, boss, armor);
+        }
+
+        private static EnemyDefinition Enemy(string name)
+        {
+            return AssetDatabase.LoadAssetAtPath<EnemyDefinition>(DataRoot + "/Enemies/" + name + ".asset");
+        }
+
+        private static Color Hex(string hex)
+        {
+            Color color;
+            ColorUtility.TryParseHtmlString("#" + hex, out color);
+            return color;
+        }
+
+        // ---------- Waves (spec 15) ----------
+
+        private static void InstallWaves()
+        {
+            var waveSet = GetOrCreateAsset<WaveSet>(DataRoot + "/Waves/WaveSet.asset");
+            var waves = new List<WaveDefinition>
+            {
+                Wave("Wave 1", false, S("Basic", 5, 2.2f, 1f)),
+                Wave("Wave 2", false, S("Basic", 8, 1.7f, 1f), S("Runner", 2, 3f, 14f)),
+                Wave("Wave 3", false, S("Runner", 6, 1.4f, 1f), S("Basic", 6, 2f, 4f)),
+                Wave("Wave 4", false, S("Swarm", 12, 0.5f, 1f), S("Basic", 6, 2f, 8f), S("Runner", 4, 1.5f, 15f)),
+                Wave("Wave 5 — MINI-BOSS", true, S("Basic", 6, 1.8f, 1f), S("Tank", 2, 5f, 6f), S("Elite", 1, 0f, 20f)),
+                Wave("Wave 6", false, S("Armored", 5, 3f, 1f), S("Basic", 8, 1.5f, 3f), S("Runner", 4, 1.2f, 16f)),
+                Wave("Wave 7", false, S("MagicResist", 5, 3f, 1f), S("Swarm", 14, 0.45f, 5f), S("Tank", 2, 6f, 12f)),
+                Wave("Wave 8", false, S("Healer", 2, 8f, 4f), S("Armored", 4, 3.2f, 1f), S("MagicResist", 4, 3.2f, 2.5f), S("Basic", 10, 1.4f, 6f)),
+                Wave("Wave 9", false, S("Tank", 4, 4f, 1f), S("Runner", 8, 1f, 3f), S("Healer", 2, 7f, 8f), S("Swarm", 12, 0.5f, 12f), S("Elite", 1, 0f, 24f)),
+                Wave("BOSS: LOADED GOLEM", true, S("Swarm", 8, 0.6f, 2f), S("Basic", 6, 2.5f, 6f), S("Boss", 1, 0f, 10f), S("Runner", 6, 1.5f, 26f))
+            };
+            waveSet.EditorSetWaves(waves);
+        }
+
+        private static WaveDefinition Wave(string label, bool bossAlarm, params SpawnEntry[] entries)
+        {
+            return new WaveDefinition(label, bossAlarm, new List<SpawnEntry>(entries));
+        }
+
+        private static SpawnEntry S(string enemyName, int count, float interval, float startTime)
+        {
+            return new SpawnEntry(Enemy(enemyName), count, interval, startTime);
+        }
+
+        // ---------- Upgrades (spec 18) ----------
+
+        private static void InstallUpgrades()
+        {
+            CreateUpgrade("DiceSpeed", "Dice tăng tốc", "Dice roll nhanh hơn 20%.", ItemGroup.Economy, UpgradeStat.DiceSpeed, UpgradeOperation.Multiply, 1.2f, false);
+            CreateUpgrade("DiceMinFace", "Mặt số may mắn", "Giá trị roll tối thiểu của Dice +1.", ItemGroup.Economy, UpgradeStat.DiceMinFace, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("SixBonus", "Lộc lá", "Roll ra 6 nhận thêm 5 vàng.", ItemGroup.Economy, UpgradeStat.SixBonusGold, UpgradeOperation.Add, 5f, false);
+            CreateUpgrade("DoubleRoll", "Roll kép", "Dice có 25% cơ hội roll hai lần.", ItemGroup.Economy, UpgradeStat.DoubleRollChance, UpgradeOperation.Add, 0.25f, false);
+            CreateUpgrade("MergeDiceGold", "Tinh hoa hợp nhất", "Mỗi lần merge Dice nhận ngay 10 vàng.", ItemGroup.Economy, UpgradeStat.MergeDiceGold, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("Interest", "Lãi kép", "Cuối wave nhận lãi 10% số vàng đang giữ (tối đa 15).", ItemGroup.Economy, UpgradeStat.Interest, UpgradeOperation.Add, 0.1f, false);
+            CreateUpgrade("WaveGold", "Thưởng wave", "Nhận thêm 10 vàng khi kết thúc mỗi wave.", ItemGroup.Economy, UpgradeStat.WaveEndGold, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("FreeReroll", "Khách quen", "Reroll đầu tiên mỗi wave miễn phí.", ItemGroup.Economy, UpgradeStat.FreeRerollPerWave, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("SellRate", "Thương lượng", "Bán item nhận 75% giá trị thay vì 50%.", ItemGroup.Economy, UpgradeStat.SellRate, UpgradeOperation.Set, 0.75f, true);
+            CreateUpgrade("PhysDamage", "Mài sắc", "Sát thương vật lý +25%.", ItemGroup.Weapon, UpgradeStat.PhysicalDamage, UpgradeOperation.Multiply, 1.25f, false);
+            CreateUpgrade("AttackSpeed", "Tay nhanh", "Tốc độ đánh của Weapon +20%.", ItemGroup.Weapon, UpgradeStat.AttackSpeed, UpgradeOperation.Multiply, 1.2f, false);
+            CreateUpgrade("CritChance", "Điểm yếu", "Tỉ lệ chí mạng +15%.", ItemGroup.Weapon, UpgradeStat.CritChance, UpgradeOperation.Add, 0.15f, false);
+            CreateUpgrade("Pierce", "Xuyên phá", "Projectile xuyên thêm 1 mục tiêu.", ItemGroup.Weapon, UpgradeStat.Pierce, UpgradeOperation.Add, 1f, false);
+            CreateUpgrade("CritExplode", "Nổ chí mạng", "Đòn chí mạng gây nổ nhỏ diện rộng.", ItemGroup.Weapon, UpgradeStat.CritExplode, UpgradeOperation.Set, 1f, true);
+            CreateUpgrade("MagicDamage", "Cường phép", "Sát thương phép +25%.", ItemGroup.Magic, UpgradeStat.MagicDamage, UpgradeOperation.Multiply, 1.25f, false);
+            CreateUpgrade("MagicCooldown", "Niệm nhanh", "Cooldown phép -20%.", ItemGroup.Magic, UpgradeStat.MagicCooldown, UpgradeOperation.Multiply, 0.8f, false);
+            CreateUpgrade("DotDuration", "Dư chấn nguyên tố", "Thời gian đốt / làm chậm / đóng băng +50%.", ItemGroup.Magic, UpgradeStat.DotDuration, UpgradeOperation.Multiply, 1.5f, false);
+            CreateUpgrade("DoubleCast", "Vọng âm", "Phép có 25% cơ hội cast hai lần.", ItemGroup.Magic, UpgradeStat.DoubleCastChance, UpgradeOperation.Add, 0.25f, false);
+            CreateUpgrade("SupportPower", "Cộng hưởng", "Hiệu quả item Hỗ trợ (Anvil, Hourglass) +50%.", ItemGroup.Support, UpgradeStat.SupportPower, UpgradeOperation.Multiply, 1.5f, false);
+            CreateUpgrade("WallMaxHp", "Gia cố tường", "Máu tường tối đa +25 và hồi phần cộng thêm.", ItemGroup.Defense, UpgradeStat.WallMaxHp, UpgradeOperation.Add, 25f, false);
+            CreateUpgrade("HealPerWave", "Tu sửa", "Hồi 10 máu tường sau mỗi wave.", ItemGroup.Defense, UpgradeStat.HealPerWave, UpgradeOperation.Add, 10f, false);
+            CreateUpgrade("WaveShield", "Khiên khởi động", "Nhận 20 khiên vào đầu mỗi wave.", ItemGroup.Defense, UpgradeStat.WaveShield, UpgradeOperation.Add, 20f, false);
+        }
+
+        private static void CreateUpgrade(string assetName, string displayName, string description, ItemGroup group,
+            UpgradeStat stat, UpgradeOperation operation, float value, bool once)
+        {
+            var upgrade = GetOrCreateAsset<UpgradeDefinition>(DataRoot + "/Upgrades/" + assetName + ".asset");
+            upgrade.EditorSetup(displayName, description, group, stat, operation, value, once);
+        }
+
+        private static UpgradeDefinition[] LoadUpgradePool()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:UpgradeDefinition", new[] { DataRoot + "/Upgrades" });
+            var pool = new UpgradeDefinition[guids.Length];
+            for (int i = 0; i < guids.Length; i++)
+            {
+                pool[i] = AssetDatabase.LoadAssetAtPath<UpgradeDefinition>(AssetDatabase.GUIDToAssetPath(guids[i]));
+            }
+            return pool;
+        }
+
+        // ---------- Prefabs ----------
+
+        private static void InstallPrefabs()
+        {
+            InstallEnemyPrefab();
+            InstallSimpleSpritePrefab<Projectile>("Projectile", "_renderer", 15);
+            InstallSimpleSpritePrefab<VisualEffect>("VisualEffect", "_renderer", 16);
+            InstallLightningPrefab();
+            InstallFloatingTextPrefab();
+        }
+
+        private static void InstallEnemyPrefab()
+        {
+            var root = new GameObject("Enemy", typeof(Enemy));
+            try
+            {
+                SpriteRenderer body = ChildSprite(root.transform, "Body", 10);
+                SpriteRenderer status = ChildSprite(root.transform, "StatusRing", 11);
+                SpriteRenderer burn = ChildSprite(root.transform, "BurnMark", 12);
+                SpriteRenderer hpBack = ChildSprite(root.transform, "HpBarBack", 13);
+                SpriteRenderer hpFill = ChildSprite(root.transform, "HpBarFill", 14);
+                SpriteRenderer armorFill = ChildSprite(root.transform, "ArmorBarFill", 14);
+
+                var so = new SerializedObject(root.GetComponent<Enemy>());
+                so.FindProperty("_body").objectReferenceValue = body;
+                so.FindProperty("_statusRing").objectReferenceValue = status;
+                so.FindProperty("_burnMark").objectReferenceValue = burn;
+                so.FindProperty("_hpBarBack").objectReferenceValue = hpBack;
+                so.FindProperty("_hpBarFill").objectReferenceValue = hpFill;
+                so.FindProperty("_armorBarFill").objectReferenceValue = armorFill;
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabRoot + "/Enemy.prefab");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void InstallSimpleSpritePrefab<T>(string name, string rendererField, int sortingOrder) where T : Component
+        {
+            var root = new GameObject(name, typeof(T));
+            try
+            {
+                SpriteRenderer renderer = ChildSprite(root.transform, "Sprite", sortingOrder);
+                var so = new SerializedObject(root.GetComponent<T>());
+                so.FindProperty(rendererField).objectReferenceValue = renderer;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabRoot + "/" + name + ".prefab");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void InstallLightningPrefab()
+        {
+            var root = new GameObject("LightningBolt", typeof(LightningBolt), typeof(LineRenderer));
+            try
+            {
+                var line = root.GetComponent<LineRenderer>();
+                line.useWorldSpace = true;
+                line.startWidth = 0.05f;
+                line.endWidth = 0.05f;
+                line.sortingOrder = 16;
+                line.textureMode = LineTextureMode.Stretch;
+
+                var so = new SerializedObject(root.GetComponent<LightningBolt>());
+                so.FindProperty("_line").objectReferenceValue = line;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabRoot + "/LightningBolt.prefab");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void InstallFloatingTextPrefab()
+        {
+            var root = new GameObject("FloatingText", typeof(RectTransform), typeof(FloatingText));
+            try
+            {
+                var rect = root.GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(220f, 60f);
+                var label = CreateTmp(root.transform, "Label", string.Empty, 30f, TMPro.TextAlignmentOptions.Center, true);
+                Stretch(label.rectTransform);
+
+                var so = new SerializedObject(root.GetComponent<FloatingText>());
+                so.FindProperty("_label").objectReferenceValue = label;
+                so.FindProperty("_rect").objectReferenceValue = rect;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabRoot + "/FloatingText.prefab");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static SpriteRenderer ChildSprite(Transform parent, string name, int sortingOrder)
+        {
+            var child = new GameObject(name, typeof(SpriteRenderer));
+            child.transform.SetParent(parent, false);
+            var renderer = child.GetComponent<SpriteRenderer>();
+            renderer.sortingOrder = sortingOrder;
+            return renderer;
+        }
+    }
+}

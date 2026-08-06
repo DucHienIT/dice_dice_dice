@@ -1,0 +1,841 @@
+using TMPro;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+namespace DiceDiceDice.EditorTools
+{
+    public static partial class GameInstaller
+    {
+        /// <summary>All scene components collected during the build for wiring + verification.</summary>
+        private class SceneRefs
+        {
+            public GameManager Game;
+            public BoardController Board;
+            public EconomyController Economy;
+            public ShopController Shop;
+            public EnemyManager Enemies;
+            public Transform EnemyPool;
+            public ProjectileManager Projectiles;
+            public Transform ProjectilePool;
+            public EffectManager Effects;
+            public Transform EffectPool;
+            public WaveSpawner Spawner;
+            public ItemTicker Ticker;
+            public AuraService Auras;
+            public UpgradeSystem Upgrades;
+            public BaseWall Wall;
+            public AudioManager Audio;
+            public AudioSource SfxSource;
+            public AudioSource MusicSource;
+            public WallView WallView;
+            public SpriteRenderer WallBody, WallHitFlash, Ground, BoardBackdrop, ShieldGlow, CrackLow, CrackHigh;
+            public UIController Ui;
+            public HUDView Hud;
+            public TMP_Text GoldLabel, HpLabel, LevelLabel, XpLabel, WaveLabel, PhaseLabel, MuteLabel;
+            public Image HpFill, ShieldFill, XpFill;
+            public Button MuteButton;
+            public BoardSlotView[] Slots = new BoardSlotView[8];
+            public ShopPanelView ShopPanel;
+            public ShopItemView[] ShopItems = new ShopItemView[3];
+            public InfoPanelView InfoPanel;
+            public ModalView Modal;
+            public UpgradeChoiceView[] Choices = new UpgradeChoiceView[3];
+            public BannerView Banner;
+            public ToastView Toast;
+            public FloatingTextManager FloatingText;
+            public RectTransform WorldUiRoot;
+            public Image DragGhost;
+        }
+
+        [MenuItem("Tools/DICE DICE DICE/Build Scene Only")]
+        public static void BuildScene()
+        {
+            Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            RemoveOldRoots(scene, "GameSystems", "WorldVisuals", "UICanvas", "EventSystem");
+            SetupCamera(scene);
+
+            var refs = new SceneRefs();
+            BuildSystems(refs);
+            BuildWorldVisuals(refs);
+            BuildUi(refs);
+            WireEverything(refs);
+            VerifyWiring(refs);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            EnsureBuildSettings();
+            Debug.Log("[Installer] Scene built and saved: " + ScenePath);
+        }
+
+        private static void RemoveOldRoots(Scene scene, params string[] names)
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+            for (int i = 0; i < roots.Length; i++)
+            {
+                for (int n = 0; n < names.Length; n++)
+                {
+                    if (roots[i].name == names[n])
+                    {
+                        Object.DestroyImmediate(roots[i]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static void SetupCamera(Scene scene)
+        {
+            Camera camera = null;
+            GameObject[] roots = scene.GetRootGameObjects();
+            for (int i = 0; i < roots.Length; i++)
+            {
+                camera = roots[i].GetComponentInChildren<Camera>();
+                if (camera != null)
+                {
+                    break;
+                }
+            }
+            if (camera == null)
+            {
+                var go = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
+                go.tag = "MainCamera";
+                camera = go.GetComponent<Camera>();
+            }
+            camera.orthographic = true;
+            camera.orthographicSize = 5.4f;
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Palette != null ? Palette.BackgroundTop : new Color(0.09f, 0.11f, 0.18f);
+        }
+
+        // ---------- Systems ----------
+
+        private static void BuildSystems(SceneRefs refs)
+        {
+            var root = new GameObject("GameSystems");
+
+            refs.Game = NewSystem<GameManager>(root, "GameManager");
+            refs.Board = NewSystem<BoardController>(root, "Board");
+            refs.Economy = NewSystem<EconomyController>(root, "Economy");
+            refs.Shop = NewSystem<ShopController>(root, "Shop");
+            refs.Enemies = NewSystem<EnemyManager>(root, "Enemies");
+            refs.EnemyPool = NewChild(refs.Enemies.transform, "EnemyPool").transform;
+            refs.Projectiles = NewSystem<ProjectileManager>(root, "Projectiles");
+            refs.ProjectilePool = NewChild(refs.Projectiles.transform, "ProjectilePool").transform;
+            refs.Effects = NewSystem<EffectManager>(root, "Effects");
+            refs.EffectPool = NewChild(refs.Effects.transform, "EffectPool").transform;
+            refs.Spawner = NewSystem<WaveSpawner>(root, "WaveSpawner");
+            refs.Ticker = NewSystem<ItemTicker>(root, "ItemTicker");
+            refs.Auras = NewSystem<AuraService>(root, "Auras");
+            refs.Upgrades = NewSystem<UpgradeSystem>(root, "Upgrades");
+            refs.Wall = NewSystem<BaseWall>(root, "Wall");
+
+            GameObject audioGo = NewChild(root.transform, "Audio");
+            refs.Audio = audioGo.AddComponent<AudioManager>();
+            refs.SfxSource = audioGo.AddComponent<AudioSource>();
+            refs.SfxSource.playOnAwake = false;
+            refs.MusicSource = audioGo.AddComponent<AudioSource>();
+            refs.MusicSource.playOnAwake = false;
+        }
+
+        private static T NewSystem<T>(GameObject root, string name) where T : Component
+        {
+            GameObject go = NewChild(root.transform, name);
+            return go.AddComponent<T>();
+        }
+
+        private static GameObject NewChild(Transform parent, string name)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            return go;
+        }
+
+        // ---------- World visuals ----------
+
+        private static void BuildWorldVisuals(SceneRefs refs)
+        {
+            var root = new GameObject("WorldVisuals");
+            refs.WallView = root.AddComponent<WallView>();
+
+            refs.BoardBackdrop = WorldSprite(root.transform, "BoardBackdrop", 1);
+            refs.Ground = WorldSprite(root.transform, "Ground", 2);
+            refs.ShieldGlow = WorldSprite(root.transform, "ShieldGlow", 4);
+
+            GameObject wallRoot = NewChild(root.transform, "WallRoot");
+            refs.WallBody = WorldSprite(wallRoot.transform, "WallBody", 5);
+            refs.WallHitFlash = WorldSprite(wallRoot.transform, "WallHitFlash", 6);
+            refs.WallBody.transform.localPosition = Vector3.zero;
+            wallRoot.transform.position = new Vector3(Config.WallCenterX, 0f, 0f);
+
+            refs.CrackLow = WorldSprite(root.transform, "CrackLow", 7);
+            refs.CrackHigh = WorldSprite(root.transform, "CrackHigh", 7);
+        }
+
+        private static SpriteRenderer WorldSprite(Transform parent, string name, int sortingOrder)
+        {
+            GameObject go = NewChild(parent, name);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sortingOrder = sortingOrder;
+            return renderer;
+        }
+
+        // ---------- UI ----------
+
+        private static void BuildUi(SceneRefs refs)
+        {
+            var canvasGo = new GameObject("UICanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvas = canvasGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            refs.Ui = canvasGo.AddComponent<UIController>();
+
+            RectTransform boardCanvas = NestedCanvas(canvasGo.transform, "BoardCanvas", 10);
+            RectTransform shopCanvas = NestedCanvas(canvasGo.transform, "ShopCanvas", 20);
+            RectTransform hudCanvas = NestedCanvas(canvasGo.transform, "HUDCanvas", 30);
+            RectTransform popupCanvas = NestedCanvas(canvasGo.transform, "PopupCanvas", 40);
+            RectTransform modalCanvas = NestedCanvas(canvasGo.transform, "ModalCanvas", 50);
+
+            BuildBoardUi(refs, boardCanvas);
+            BuildShopUi(refs, shopCanvas);
+            BuildInfoPanel(refs, shopCanvas);
+            BuildHud(refs, hudCanvas);
+            BuildPopupUi(refs, popupCanvas);
+            BuildModal(refs, modalCanvas);
+
+            var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            _ = eventSystem;
+        }
+
+        private static RectTransform NestedCanvas(Transform parent, string name, int sortingOrder)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster));
+            go.transform.SetParent(parent, false);
+            var rect = go.GetComponent<RectTransform>();
+            Stretch(rect);
+            var canvas = go.GetComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = sortingOrder;
+            return rect;
+        }
+
+        private static void BuildBoardUi(SceneRefs refs, RectTransform parent)
+        {
+            RectTransform boardRoot = CenterRect(parent, "BoardRoot");
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 world = Config.SlotWorldPosition(i);
+                var slotGo = new GameObject("Slot" + i, typeof(RectTransform), typeof(Image), typeof(BoardSlotView));
+                slotGo.transform.SetParent(boardRoot, false);
+                var rect = slotGo.GetComponent<RectTransform>();
+                SetRect(rect, Half, Half, Half, world * 100f, new Vector2(100f, 100f));
+
+                Image frame = slotGo.GetComponent<Image>();
+                Image background = CreateImage(rect, "Background", Color.white, false);
+                SetInset(background.rectTransform, 3f);
+                Image icon = CreateImage(rect, "Icon", Color.white, false);
+                SetRect(icon.rectTransform, Half, Half, Half, Vector2.zero, new Vector2(58f, 58f));
+                TMP_Text rarity = CreateTmp(rect, "Rarity", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
+                SetRect(rarity.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(7f, -4f), new Vector2(80f, 16f));
+                rarity.fontStyle = FontStyles.Bold;
+                Image dot = CreateImage(rect, "GroupDot", Color.white, false);
+                SetRect(dot.rectTransform, TopRight, TopRight, TopRight, new Vector2(-7f, -7f), new Vector2(12f, 12f));
+                Image progressBack = CreateImage(rect, "ProgressBack", new Color(0.05f, 0.06f, 0.1f, 1f), false);
+                SetRect(progressBack.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(-16f, 7f));
+                Image progressFill = CreateImage(progressBack.rectTransform, "ProgressFill", Color.white, false);
+                Stretch(progressFill.rectTransform);
+                TMP_Text face = CreateTmp(rect, "Face", string.Empty, 42f, TextAlignmentOptions.Center, true);
+                Stretch(face.rectTransform);
+                face.fontStyle = FontStyles.Bold;
+                Image selection = CreateImage(rect, "Selection", Color.white, false);
+                SetInset(selection.rectTransform, -5f);
+
+                var view = slotGo.GetComponent<BoardSlotView>();
+                var so = new SerializedObject(view);
+                SetRefProp(so, "_rect", rect);
+                SetRefProp(so, "_frame", frame);
+                SetRefProp(so, "_background", background);
+                SetRefProp(so, "_icon", icon);
+                SetRefProp(so, "_rarityLabel", rarity);
+                SetRefProp(so, "_groupDot", dot);
+                SetRefProp(so, "_progressBack", progressBack);
+                SetRefProp(so, "_progressFill", progressFill);
+                SetRefProp(so, "_faceLabel", face);
+                SetRefProp(so, "_selectionRing", selection);
+                so.ApplyModifiedPropertiesWithoutUndo();
+                refs.Slots[i] = view;
+            }
+        }
+
+        private static void BuildShopUi(SceneRefs refs, RectTransform parent)
+        {
+            var panelGo = new GameObject("ShopPanel", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(ShopPanelView));
+            panelGo.transform.SetParent(parent, false);
+            var rect = panelGo.GetComponent<RectTransform>();
+            SetRect(rect, TopRight, TopRight, TopRight, new Vector2(-28f, -90f), new Vector2(430f, 560f));
+            Image panelBg = panelGo.GetComponent<Image>();
+
+            TMP_Text title = CreateTmp(rect, "Title", "SHOP — MUA SẮM TRƯỚC KHI VÀO WAVE", 14f, TextAlignmentOptions.Center, true);
+            SetRect(title.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -12f), new Vector2(400f, 22f));
+            title.fontStyle = FontStyles.Bold;
+
+            for (int i = 0; i < 3; i++)
+            {
+                var itemGo = new GameObject("ShopItem" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(ShopItemView));
+                itemGo.transform.SetParent(rect, false);
+                var itemRect = itemGo.GetComponent<RectTransform>();
+                SetRect(itemRect, TopCenter, TopCenter, TopCenter, new Vector2(0f, -44f - i * 114f), new Vector2(398f, 106f));
+                Image itemBg = itemGo.GetComponent<Image>();
+                var button = itemGo.GetComponent<Button>();
+                button.targetGraphic = itemBg;
+
+                Image icon = CreateImage(itemRect, "Icon", Color.white, false);
+                SetRect(icon.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(12f, 0f), new Vector2(56f, 56f));
+                TMP_Text name = CreateTmp(itemRect, "Name", string.Empty, 16f, TextAlignmentOptions.TopLeft, true);
+                SetRect(name.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(80f, -8f), new Vector2(220f, 22f));
+                name.fontStyle = FontStyles.Bold;
+                TMP_Text tag = CreateTmp(itemRect, "Tag", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
+                SetRect(tag.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(80f, -30f), new Vector2(240f, 16f));
+                tag.color = new Color(0.6f, 0.64f, 0.74f);
+                TMP_Text desc = CreateTmp(itemRect, "Desc", string.Empty, 11f, TextAlignmentOptions.TopLeft, true);
+                SetRect(desc.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(80f, -47f), new Vector2(305f, 54f));
+                desc.color = new Color(0.72f, 0.76f, 0.85f);
+                TMP_Text price = CreateTmp(itemRect, "Price", string.Empty, 17f, TextAlignmentOptions.TopRight, true);
+                SetRect(price.rectTransform, TopRight, TopRight, TopRight, new Vector2(-10f, -8f), new Vector2(70f, 24f));
+                price.fontStyle = FontStyles.Bold;
+                price.color = new Color(0.96f, 0.77f, 0.26f);
+
+                var view = itemGo.GetComponent<ShopItemView>();
+                var so = new SerializedObject(view);
+                SetRefProp(so, "_button", button);
+                SetRefProp(so, "_background", itemBg);
+                SetRefProp(so, "_icon", icon);
+                SetRefProp(so, "_nameLabel", name);
+                SetRefProp(so, "_tagLabel", tag);
+                SetRefProp(so, "_descriptionLabel", desc);
+                SetRefProp(so, "_priceLabel", price);
+                SetRefProp(so, "_group", itemGo.GetComponent<CanvasGroup>());
+                so.ApplyModifiedPropertiesWithoutUndo();
+                refs.ShopItems[i] = view;
+            }
+
+            Button reroll = CreateButton(rect, "RerollButton", out TMP_Text rerollLabel, out Image rerollBg, "Reroll (2 vàng)", 15f);
+            SetRect(((RectTransform)reroll.transform), TopLeft, TopLeft, TopLeft, new Vector2(14f, -396f), new Vector2(196f, 48f));
+            Button lockButton = CreateButton(rect, "LockButton", out TMP_Text lockLabel, out Image lockBg, "Khóa", 15f);
+            SetRect(((RectTransform)lockButton.transform), TopRight, TopRight, TopRight, new Vector2(-14f, -396f), new Vector2(196f, 48f));
+            Button start = CreateButton(rect, "StartWaveButton", out TMP_Text startLabel, out Image startBg, "Bắt đầu Wave 1", 20f);
+            SetRect(((RectTransform)start.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -458f), new Vector2(402f, 62f));
+            startBg.color = new Color(0.23f, 0.43f, 0.94f);
+
+            refs.ShopPanel = panelGo.GetComponent<ShopPanelView>();
+            var panelSo = new SerializedObject(refs.ShopPanel);
+            SetRefProp(panelSo, "_group", panelGo.GetComponent<CanvasGroup>());
+            SetRefProp(panelSo, "_background", panelBg);
+            SetArrayProp(panelSo, "_items", refs.ShopItems);
+            SetRefProp(panelSo, "_rerollButton", reroll);
+            SetRefProp(panelSo, "_rerollLabel", rerollLabel);
+            SetRefProp(panelSo, "_lockButton", lockButton);
+            SetRefProp(panelSo, "_lockLabel", lockLabel);
+            SetRefProp(panelSo, "_lockBackground", lockBg);
+            SetRefProp(panelSo, "_startWaveButton", start);
+            SetRefProp(panelSo, "_startWaveLabel", startLabel);
+            panelSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void BuildInfoPanel(SceneRefs refs, RectTransform parent)
+        {
+            var panelGo = new GameObject("InfoPanel", typeof(RectTransform), typeof(Image), typeof(InfoPanelView));
+            panelGo.transform.SetParent(parent, false);
+            var rect = panelGo.GetComponent<RectTransform>();
+            SetRect(rect, BottomLeft, BottomLeft, BottomLeft, new Vector2(24f, 20f), new Vector2(360f, 320f));
+            Image bg = panelGo.GetComponent<Image>();
+
+            TMP_Text title = CreateTmp(rect, "Title", "THÔNG TIN", 12f, TextAlignmentOptions.TopLeft, true);
+            SetRect(title.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(14f, -10f), new Vector2(200f, 18f));
+            title.fontStyle = FontStyles.Bold;
+            title.color = new Color(0.6f, 0.64f, 0.74f);
+
+            TMP_Text body = CreateTmp(rect, "Body", string.Empty, 13f, TextAlignmentOptions.TopLeft, true);
+            SetRect(body.rectTransform, TopLeft, TopLeft, TopLeft, new Vector2(14f, -34f), new Vector2(332f, 218f));
+            body.richText = true;
+
+            Button sell = CreateButton(rect, "SellButton", out TMP_Text sellLabel, out Image sellBg, "Bán", 15f);
+            SetRect(((RectTransform)sell.transform), BottomCenter, BottomCenter, BottomCenter, new Vector2(0f, 12f), new Vector2(330f, 44f));
+
+            refs.InfoPanel = panelGo.GetComponent<InfoPanelView>();
+            var so = new SerializedObject(refs.InfoPanel);
+            SetRefProp(so, "_background", bg);
+            SetRefProp(so, "_body", body);
+            SetRefProp(so, "_sellButton", sell);
+            SetRefProp(so, "_sellLabel", sellLabel);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void BuildHud(SceneRefs refs, RectTransform parent)
+        {
+            var hudGo = new GameObject("HUD", typeof(RectTransform), typeof(HUDView));
+            hudGo.transform.SetParent(parent, false);
+            Stretch((RectTransform)hudGo.transform);
+
+            Image topBar = CreateImage((RectTransform)hudGo.transform, "TopBar", new Color(0.12f, 0.14f, 0.2f, 0.95f), false);
+            SetRect(topBar.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(0f, 64f));
+            RectTransform bar = topBar.rectTransform;
+
+            TMP_Text gold = CreateTmp(bar, "GoldLabel", "0", 26f, TextAlignmentOptions.Left, true);
+            SetRect(gold.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(24f, 0f), new Vector2(130f, 40f));
+            gold.fontStyle = FontStyles.Bold;
+            gold.color = new Color(0.96f, 0.77f, 0.26f);
+
+            Image hpBack = CreateImage(bar, "HpBarBack", new Color(0.05f, 0.06f, 0.1f, 1f), false);
+            SetRect(hpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(180f, 0f), new Vector2(220f, 18f));
+            Image hpFill = CreateImage(hpBack.rectTransform, "HpFill", new Color(1f, 0.35f, 0.35f), false);
+            Stretch(hpFill.rectTransform);
+            MakeFilled(hpFill);
+            Image shieldFill = CreateImage(hpBack.rectTransform, "ShieldFill", new Color(0.2f, 0.79f, 0.84f, 0.85f), false);
+            Stretch(shieldFill.rectTransform);
+            MakeFilled(shieldFill);
+            shieldFill.fillAmount = 0f;
+            TMP_Text hpText = CreateTmp(hpBack.rectTransform, "HpText", string.Empty, 11f, TextAlignmentOptions.Center, true);
+            Stretch(hpText.rectTransform);
+            hpText.fontStyle = FontStyles.Bold;
+
+            TMP_Text level = CreateTmp(bar, "LevelLabel", "Lv.1", 18f, TextAlignmentOptions.Left, true);
+            SetRect(level.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(424f, 0f), new Vector2(70f, 40f));
+            level.fontStyle = FontStyles.Bold;
+
+            Image xpBack = CreateImage(bar, "XpBarBack", new Color(0.05f, 0.06f, 0.1f, 1f), false);
+            SetRect(xpBack.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(500f, 0f), new Vector2(160f, 18f));
+            Image xpFill = CreateImage(xpBack.rectTransform, "XpFill", new Color(0.48f, 0.36f, 1f), false);
+            Stretch(xpFill.rectTransform);
+            MakeFilled(xpFill);
+            TMP_Text xpText = CreateTmp(xpBack.rectTransform, "XpText", string.Empty, 11f, TextAlignmentOptions.Center, true);
+            Stretch(xpText.rectTransform);
+            xpText.fontStyle = FontStyles.Bold;
+
+            TMP_Text wave = CreateTmp(bar, "WaveLabel", "Wave 0/10", 22f, TextAlignmentOptions.Left, true);
+            SetRect(wave.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(690f, 0f), new Vector2(180f, 40f));
+            wave.fontStyle = FontStyles.Bold;
+
+            TMP_Text phase = CreateTmp(bar, "PhaseLabel", "GIAI ĐOẠN MUA SẮM", 15f, TextAlignmentOptions.Left, true);
+            SetRect(phase.rectTransform, LeftCenter, LeftCenter, LeftCenter, new Vector2(890f, 0f), new Vector2(300f, 40f));
+            phase.fontStyle = FontStyles.Bold;
+
+            Button mute = CreateButton(bar, "MuteButton", out TMP_Text muteLabel, out Image muteBg, "ÂM", 13f);
+            SetRect(((RectTransform)mute.transform), RightCenter, RightCenter, RightCenter, new Vector2(-20f, 0f), new Vector2(64f, 38f));
+
+            refs.Hud = hudGo.GetComponent<HUDView>();
+            refs.GoldLabel = gold;
+            refs.HpFill = hpFill;
+            refs.ShieldFill = shieldFill;
+            refs.HpLabel = hpText;
+            refs.LevelLabel = level;
+            refs.XpFill = xpFill;
+            refs.XpLabel = xpText;
+            refs.WaveLabel = wave;
+            refs.PhaseLabel = phase;
+            refs.MuteButton = mute;
+            refs.MuteLabel = muteLabel;
+
+            var so = new SerializedObject(refs.Hud);
+            SetRefProp(so, "_goldLabel", gold);
+            SetRefProp(so, "_hpFill", hpFill);
+            SetRefProp(so, "_shieldFill", shieldFill);
+            SetRefProp(so, "_hpLabel", hpText);
+            SetRefProp(so, "_levelLabel", level);
+            SetRefProp(so, "_xpFill", xpFill);
+            SetRefProp(so, "_xpLabel", xpText);
+            SetRefProp(so, "_waveLabel", wave);
+            SetRefProp(so, "_phaseLabel", phase);
+            SetRefProp(so, "_muteButton", mute);
+            SetRefProp(so, "_muteLabel", muteLabel);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void BuildPopupUi(SceneRefs refs, RectTransform parent)
+        {
+            refs.FloatingText = parent.gameObject.AddComponent<FloatingTextManager>();
+            refs.WorldUiRoot = CenterRect(parent, "WorldUiRoot");
+
+            var bannerGo = new GameObject("Banner", typeof(RectTransform), typeof(BannerView));
+            bannerGo.transform.SetParent(parent, false);
+            TMP_Text bannerLabel = CreateTmp((RectTransform)bannerGo.transform, "Label", string.Empty, 48f, TextAlignmentOptions.Center, true);
+            SetRect(((RectTransform)bannerGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -150f), new Vector2(1200f, 80f));
+            Stretch(bannerLabel.rectTransform);
+            bannerLabel.fontStyle = FontStyles.Bold;
+            bannerLabel.color = new Color(1f, 1f, 1f, 0f);
+            refs.Banner = bannerGo.GetComponent<BannerView>();
+            var bannerSo = new SerializedObject(refs.Banner);
+            SetRefProp(bannerSo, "_label", bannerLabel);
+            bannerSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var toastGo = new GameObject("Toast", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(ToastView));
+            toastGo.transform.SetParent(parent, false);
+            SetRect(((RectTransform)toastGo.transform), TopCenter, TopCenter, TopCenter, new Vector2(0f, -80f), new Vector2(640f, 46f));
+            Image toastBg = toastGo.GetComponent<Image>();
+            toastBg.raycastTarget = false;
+            TMP_Text toastLabel = CreateTmp((RectTransform)toastGo.transform, "Label", string.Empty, 15f, TextAlignmentOptions.Center, true);
+            Stretch(toastLabel.rectTransform);
+            toastLabel.fontStyle = FontStyles.Bold;
+            var toastGroup = toastGo.GetComponent<CanvasGroup>();
+            toastGroup.blocksRaycasts = false;
+            toastGroup.interactable = false;
+            refs.Toast = toastGo.GetComponent<ToastView>();
+            var toastSo = new SerializedObject(refs.Toast);
+            SetRefProp(toastSo, "_group", toastGroup);
+            SetRefProp(toastSo, "_background", toastBg);
+            SetRefProp(toastSo, "_label", toastLabel);
+            toastSo.ApplyModifiedPropertiesWithoutUndo();
+
+            refs.DragGhost = CreateImage(parent, "DragGhost", Color.white, false);
+            SetRect(refs.DragGhost.rectTransform, Half, Half, Half, Vector2.zero, new Vector2(64f, 64f));
+            refs.DragGhost.enabled = false;
+        }
+
+        private static void BuildModal(SceneRefs refs, RectTransform parent)
+        {
+            refs.Modal = parent.gameObject.AddComponent<ModalView>();
+
+            var rootGo = new GameObject("ModalRoot", typeof(RectTransform));
+            rootGo.transform.SetParent(parent, false);
+            var root = (RectTransform)rootGo.transform;
+            Stretch(root);
+
+            Image dim = CreateImage(root, "Dim", new Color(0.03f, 0.04f, 0.06f, 0.85f), true);
+            Stretch(dim.rectTransform);
+
+            TMP_Text title = CreateTmp(root, "Title", string.Empty, 34f, TextAlignmentOptions.Center, true);
+            SetRect(title.rectTransform, Half, Half, Half, new Vector2(0f, 330f), new Vector2(1000f, 52f));
+            title.fontStyle = FontStyles.Bold;
+
+            TMP_Text subtitle = CreateTmp(root, "Subtitle", string.Empty, 16f, TextAlignmentOptions.Center, true);
+            SetRect(subtitle.rectTransform, Half, Half, Half, new Vector2(0f, 284f), new Vector2(900f, 30f));
+            subtitle.color = new Color(0.6f, 0.64f, 0.74f);
+
+            RectTransform choicesRoot = CenterRect(root, "ChoicesRoot");
+            choicesRoot.anchoredPosition = new Vector2(0f, 20f);
+            for (int i = 0; i < 3; i++)
+            {
+                var choiceGo = new GameObject("Choice" + i, typeof(RectTransform), typeof(Image), typeof(Button), typeof(UpgradeChoiceView));
+                choiceGo.transform.SetParent(choicesRoot, false);
+                var rect = (RectTransform)choiceGo.transform;
+                SetRect(rect, Half, Half, Half, new Vector2((i - 1) * 300f, 0f), new Vector2(276f, 260f));
+                Image bg = choiceGo.GetComponent<Image>();
+                var button = choiceGo.GetComponent<Button>();
+                button.targetGraphic = bg;
+
+                TMP_Text group = CreateTmp(rect, "Group", string.Empty, 12f, TextAlignmentOptions.Center, true);
+                SetRect(group.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -20f), new Vector2(240f, 20f));
+                group.fontStyle = FontStyles.Bold;
+                TMP_Text name = CreateTmp(rect, "Name", string.Empty, 19f, TextAlignmentOptions.Center, true);
+                SetRect(name.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -46f), new Vector2(250f, 56f));
+                name.fontStyle = FontStyles.Bold;
+                TMP_Text desc = CreateTmp(rect, "Desc", string.Empty, 14f, TextAlignmentOptions.Top, true);
+                SetRect(desc.rectTransform, TopCenter, TopCenter, TopCenter, new Vector2(0f, -106f), new Vector2(240f, 134f));
+                desc.color = new Color(0.72f, 0.76f, 0.85f);
+
+                var view = choiceGo.GetComponent<UpgradeChoiceView>();
+                var so = new SerializedObject(view);
+                SetRefProp(so, "_button", button);
+                SetRefProp(so, "_background", bg);
+                SetRefProp(so, "_groupLabel", group);
+                SetRefProp(so, "_nameLabel", name);
+                SetRefProp(so, "_descriptionLabel", desc);
+                so.ApplyModifiedPropertiesWithoutUndo();
+                refs.Choices[i] = view;
+            }
+
+            Image statsBg = CreateImage(root, "StatsPanel", Color.white, false);
+            SetRect(statsBg.rectTransform, Half, Half, Half, new Vector2(0f, -10f), new Vector2(680f, 470f));
+            TMP_Text statsBody = CreateTmp(statsBg.rectTransform, "Body", string.Empty, 16f, TextAlignmentOptions.TopLeft, true);
+            SetInset(statsBody.rectTransform, 26f);
+            statsBody.richText = true;
+            statsBody.lineSpacing = 14f;
+
+            Button action = CreateButton(root, "ActionButton", out TMP_Text actionLabel, out Image actionBg, string.Empty, 19f);
+            SetRect(((RectTransform)action.transform), Half, Half, Half, new Vector2(0f, -330f), new Vector2(300f, 58f));
+            actionBg.color = new Color(0.23f, 0.43f, 0.94f);
+
+            var modalSo = new SerializedObject(refs.Modal);
+            SetRefProp(modalSo, "_root", rootGo);
+            SetRefProp(modalSo, "_dim", dim);
+            SetRefProp(modalSo, "_title", title);
+            SetRefProp(modalSo, "_subtitle", subtitle);
+            SetRefProp(modalSo, "_choicesRoot", choicesRoot.gameObject);
+            SetArrayProp(modalSo, "_choices", refs.Choices);
+            SetRefProp(modalSo, "_statsBackground", statsBg);
+            SetRefProp(modalSo, "_statsBody", statsBody);
+            SetRefProp(modalSo, "_actionButton", action);
+            SetRefProp(modalSo, "_actionLabel", actionLabel);
+            modalSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // ---------- Wiring ----------
+
+        private static void WireEverything(SceneRefs refs)
+        {
+            GameConfig config = Config;
+            PaletteConfig palette = Palette;
+            var enemyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/Enemy.prefab").GetComponent<Enemy>();
+            var projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/Projectile.prefab").GetComponent<Projectile>();
+            var effectPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/VisualEffect.prefab").GetComponent<VisualEffect>();
+            var lightningPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/LightningBolt.prefab").GetComponent<LightningBolt>();
+            var floatingTextPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/FloatingText.prefab").GetComponent<FloatingText>();
+            ItemDefinition[] itemPool = LoadItemPool();
+            UpgradeDefinition[] upgradePool = LoadUpgradePool();
+            var waveSet = AssetDatabase.LoadAssetAtPath<WaveSet>(DataRoot + "/Waves/WaveSet.asset");
+
+            Wire(refs.Game,
+                ("_config", config), ("_palette", palette), ("_board", refs.Board), ("_economy", refs.Economy),
+                ("_shop", refs.Shop), ("_enemies", refs.Enemies), ("_projectiles", refs.Projectiles),
+                ("_effects", refs.Effects), ("_spawner", refs.Spawner), ("_ticker", refs.Ticker),
+                ("_auras", refs.Auras), ("_upgrades", refs.Upgrades), ("_wall", refs.Wall),
+                ("_audio", refs.Audio), ("_wallView", refs.WallView), ("_ui", refs.Ui));
+            WireArray(refs.Game, "_startingItems", new Object[] { FindItem(itemPool, "Dice"), FindItem(itemPool, "Bow") });
+
+            Wire(refs.Board, ("_game", refs.Game), ("_economy", refs.Economy), ("_audio", refs.Audio));
+            Wire(refs.Economy, ("_config", config));
+            Wire(refs.Shop,
+                ("_config", config), ("_game", refs.Game), ("_economy", refs.Economy),
+                ("_board", refs.Board), ("_audio", refs.Audio));
+            WireArray(refs.Shop, "_itemPool", itemPool);
+            Wire(refs.Enemies,
+                ("_config", config), ("_enemyPrefab", enemyPrefab), ("_enemyParent", refs.EnemyPool),
+                ("_effects", refs.Effects), ("_audio", refs.Audio));
+            Wire(refs.Projectiles,
+                ("_config", config), ("_projectilePrefab", projectilePrefab),
+                ("_projectileParent", refs.ProjectilePool), ("_effects", refs.Effects));
+            Wire(refs.Effects,
+                ("_config", config), ("_palette", palette), ("_effectPrefab", effectPrefab),
+                ("_lightningPrefab", lightningPrefab), ("_effectParent", refs.EffectPool),
+                ("_floatingText", refs.FloatingText), ("_wallView", refs.WallView));
+            Wire(refs.Spawner, ("_waveSet", waveSet), ("_enemies", refs.Enemies));
+            Wire(refs.Ticker,
+                ("_config", config), ("_game", refs.Game), ("_board", refs.Board),
+                ("_economy", refs.Economy), ("_audio", refs.Audio));
+            Wire(refs.Auras, ("_board", refs.Board));
+            Wire(refs.Upgrades, ("_wall", refs.Wall), ("_auras", refs.Auras));
+            WireArray(refs.Upgrades, "_pool", upgradePool);
+            Wire(refs.Wall, ("_config", config));
+            Wire(refs.Audio, ("_sfxSource", refs.SfxSource), ("_musicSource", refs.MusicSource));
+            Wire(refs.WallView,
+                ("_config", config), ("_palette", palette), ("_wall", refs.Wall),
+                ("_wallBody", refs.WallBody), ("_wallHitFlash", refs.WallHitFlash), ("_ground", refs.Ground),
+                ("_boardBackdrop", refs.BoardBackdrop), ("_shieldGlow", refs.ShieldGlow),
+                ("_crackLow", refs.CrackLow), ("_crackHigh", refs.CrackHigh));
+            Wire(refs.FloatingText,
+                ("_config", config), ("_palette", palette), ("_prefab", floatingTextPrefab),
+                ("_poolParent", refs.WorldUiRoot), ("_goldTarget", refs.GoldLabel.rectTransform));
+            Wire(refs.Ui,
+                ("_hud", refs.Hud), ("_shopPanel", refs.ShopPanel), ("_infoPanel", refs.InfoPanel),
+                ("_modal", refs.Modal), ("_banner", refs.Banner), ("_toast", refs.Toast),
+                ("_floatingText", refs.FloatingText), ("_dragGhost", refs.DragGhost));
+            WireArray(refs.Ui, "_slots", refs.Slots);
+        }
+
+        private static ItemDefinition FindItem(ItemDefinition[] pool, string displayName)
+        {
+            for (int i = 0; i < pool.Length; i++)
+            {
+                if (pool[i] != null && pool[i].DisplayName == displayName)
+                {
+                    return pool[i];
+                }
+            }
+            return null;
+        }
+
+        private static void Wire(Component component, params (string field, Object value)[] fields)
+        {
+            var so = new SerializedObject(component);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                SetRefProp(so, fields[i].field, fields[i].value);
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void WireArray(Component component, string field, System.Collections.IList values)
+        {
+            var so = new SerializedObject(component);
+            SetArrayProp(so, field, values);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetRefProp(SerializedObject so, string field, Object value)
+        {
+            SerializedProperty property = so.FindProperty(field);
+            if (property == null)
+            {
+                Debug.LogError("[Installer] Missing serialized field '" + field + "' on " + so.targetObject.GetType().Name);
+                return;
+            }
+            property.objectReferenceValue = value;
+        }
+
+        private static void SetArrayProp(SerializedObject so, string field, System.Collections.IList values)
+        {
+            SerializedProperty property = so.FindProperty(field);
+            if (property == null)
+            {
+                Debug.LogError("[Installer] Missing serialized array '" + field + "' on " + so.targetObject.GetType().Name);
+                return;
+            }
+            property.arraySize = values.Count;
+            for (int i = 0; i < values.Count; i++)
+            {
+                property.GetArrayElementAtIndex(i).objectReferenceValue = (Object)values[i];
+            }
+        }
+
+        private static void VerifyWiring(SceneRefs refs)
+        {
+            int missing = 0;
+            Component[] targets =
+            {
+                refs.Game, refs.Board, refs.Economy, refs.Shop, refs.Enemies, refs.Projectiles, refs.Effects,
+                refs.Spawner, refs.Ticker, refs.Auras, refs.Upgrades, refs.Wall, refs.Audio, refs.WallView,
+                refs.Ui, refs.Hud, refs.ShopPanel, refs.InfoPanel, refs.Modal, refs.Banner, refs.Toast, refs.FloatingText
+            };
+            for (int t = 0; t < targets.Length; t++)
+            {
+                var so = new SerializedObject(targets[t]);
+                SerializedProperty property = so.GetIterator();
+                bool enterChildren = true;
+                while (property.NextVisible(enterChildren))
+                {
+                    enterChildren = false;
+                    if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                        property.name != "m_Script" && property.objectReferenceValue == null)
+                    {
+                        Debug.LogError("[Installer] Unwired reference: " + targets[t].GetType().Name + "." + property.propertyPath);
+                        missing++;
+                    }
+                }
+            }
+            if (missing == 0)
+            {
+                Debug.Log("[Installer] Wiring verified: no missing references.");
+            }
+        }
+
+        private static void EnsureBuildSettings()
+        {
+            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
+            for (int i = 0; i < scenes.Length; i++)
+            {
+                if (scenes[i].path == ScenePath)
+                {
+                    return;
+                }
+            }
+            var list = new System.Collections.Generic.List<EditorBuildSettingsScene>(scenes)
+            {
+                new EditorBuildSettingsScene(ScenePath, true)
+            };
+            EditorBuildSettings.scenes = list.ToArray();
+        }
+
+        // ---------- UI helpers ----------
+
+        private static readonly Vector2 Half = new Vector2(0.5f, 0.5f);
+        private static readonly Vector2 TopLeft = new Vector2(0f, 1f);
+        private static readonly Vector2 TopCenter = new Vector2(0.5f, 1f);
+        private static readonly Vector2 TopRight = new Vector2(1f, 1f);
+        private static readonly Vector2 LeftCenter = new Vector2(0f, 0.5f);
+        private static readonly Vector2 RightCenter = new Vector2(1f, 0.5f);
+        private static readonly Vector2 BottomLeft = new Vector2(0f, 0f);
+        private static readonly Vector2 BottomCenter = new Vector2(0.5f, 0f);
+
+        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPosition, Vector2 size)
+        {
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = pivot;
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = size;
+        }
+
+        private static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = Half;
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
+        }
+
+        private static void SetInset(RectTransform rect, float inset)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = Half;
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(-inset * 2f, -inset * 2f);
+        }
+
+        private static RectTransform CenterRect(RectTransform parent, string name)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rect = (RectTransform)go.transform;
+            SetRect(rect, Half, Half, Half, Vector2.zero, Vector2.zero);
+            return rect;
+        }
+
+        private static Image CreateImage(RectTransform parent, string name, Color color, bool raycast)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var image = go.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = raycast;
+            return image;
+        }
+
+        private static void MakeFilled(Image image)
+        {
+            image.type = Image.Type.Filled;
+            image.fillMethod = Image.FillMethod.Horizontal;
+            image.fillOrigin = 0;
+            image.fillAmount = 1f;
+        }
+
+        private static TextMeshProUGUI CreateTmp(Transform parent, string name, string text, float size, TextAlignmentOptions alignment, bool raycastOff)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            go.transform.SetParent(parent, false);
+            var tmp = go.GetComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = size;
+            tmp.alignment = alignment;
+            tmp.raycastTarget = !raycastOff;
+            tmp.color = new Color(0.91f, 0.93f, 0.96f);
+            tmp.textWrappingMode = TextWrappingModes.Normal;
+            return tmp;
+        }
+
+        private static Button CreateButton(RectTransform parent, string name, out TMP_Text label, out Image background, string text, float fontSize)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            background = go.GetComponent<Image>();
+            background.color = new Color(0.15f, 0.17f, 0.25f, 1f);
+            var button = go.GetComponent<Button>();
+            button.targetGraphic = background;
+            TextMeshProUGUI tmp = CreateTmp((RectTransform)go.transform, "Label", text, fontSize, TextAlignmentOptions.Center, true);
+            Stretch(tmp.rectTransform);
+            tmp.fontStyle = FontStyles.Bold;
+            label = tmp;
+            return button;
+        }
+    }
+}
