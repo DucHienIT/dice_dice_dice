@@ -108,8 +108,8 @@ namespace DiceDiceDice
             _shop.Roll(true);
 
             _ui.Init(this);
-            Paused = true;
-            _ui.ShowIntro(OnIntroClosed);
+            // No intro screen: the run opens straight into the first shopping phase.
+            MaybeShowLevelUp();
         }
 
         private void Update()
@@ -192,12 +192,6 @@ namespace DiceDiceDice
             DOTween.KillAll();
             Scene active = SceneManager.GetActiveScene();
             SceneManager.LoadScene(active.buildIndex);
-        }
-
-        private void OnIntroClosed()
-        {
-            Paused = false;
-            MaybeShowLevelUp();
         }
 
         private void OnEnemyKilled(Enemy enemy)

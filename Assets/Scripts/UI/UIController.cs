@@ -102,20 +102,6 @@ namespace DiceDiceDice
 
         // ---------- Modal flows ----------
 
-        public void ShowIntro(Action onStart)
-        {
-            _modal.ShowInfo("DICE DICE DICE!", "Tower Defense + Merge + Roguelite",
-                "<b>Dice</b> make gold. <b>Weapons and magic</b> kill monsters.\n\n" +
-                "Drag two identical items together to <b>merge</b>.\n\n" +
-                "Buy in the shop, then press <b>Start Wave</b>.\n\n" +
-                "Survive 10 waves to win.",
-                "Play", () =>
-                {
-                    _modal.Hide();
-                    onStart();
-                });
-        }
-
         public void ShowLevelUp(int level, List<UpgradeDefinition> choices, Action<UpgradeDefinition> onPicked)
         {
             _modal.ShowChoices("LEVEL " + level + "!", "Pick one roguelike upgrade - it lasts for the rest of the run.");
@@ -376,7 +362,7 @@ namespace DiceDiceDice
                 ShopController.ShopOffer offer = shop.GetOffer(i);
                 if (offer.Definition != null)
                 {
-                    views[i].Render(offer, _game.Palette);
+                    views[i].Render(offer, _game.Skin);
                 }
             }
             RefreshShopButtons();

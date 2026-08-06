@@ -18,7 +18,7 @@ namespace DiceDiceDice.EditorTools
         private const string FhComponents = "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Sptites/Components/";
         private const string FhItemIcons = FhComponents + "Icon_ItemIcons/128/";
         private const string FhPictoIcons = FhComponents + "Icon_PictoIcons/128/";
-        private const string FhFonts = "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Fonts/";
+        private const string GameFont = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular SDF.asset";
         private const string CgDiceIcon = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Dice_Yellow.png";
 
         private static Sprite LoadSprite(string path)
@@ -31,19 +31,20 @@ namespace DiceDiceDice.EditorTools
             return sprite;
         }
 
-        private static TMPro.TMP_FontAsset LoadFont(string fileName)
+        private static TMPro.TMP_FontAsset LoadFont(string path)
         {
-            var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(FhFonts + fileName);
+            var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(path);
             if (font == null)
             {
-                Debug.LogError("[Installer] Missing font: " + fileName);
+                Debug.LogError("[Installer] Missing font: " + path);
             }
             return font;
         }
 
-        /// <summary>The one font used by every text in the game. Its static atlas is ASCII-only,
-        /// so all game strings must be plain ASCII (project rule: English text only).</summary>
-        private static TMPro.TMP_FontAsset DisplayFont => LoadFont("GermaniaOne-Regular SDF.asset");
+        /// <summary>The one font used by every text in the game: Lilita One, a rounded casual display
+        /// face that stays readable at small sizes. Its static atlas is ASCII-only, so all game strings
+        /// must be plain ASCII (project rule: English text only).</summary>
+        private static TMPro.TMP_FontAsset DisplayFont => LoadFont(GameFont);
 
         [MenuItem("Tools/DICE DICE DICE/Install All")]
         public static void InstallAll()

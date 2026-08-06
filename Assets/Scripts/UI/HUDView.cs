@@ -19,6 +19,8 @@ namespace DiceDiceDice
         [SerializeField] private Button _muteButton;
         [SerializeField] private Image _muteIcon;
 
+        private static readonly Color QuietText = new Color(0.78f, 0.76f, 0.70f);
+
         public RectTransform GoldRect => _goldLabel.rectTransform;
         public Button MuteButton => _muteButton;
 
@@ -56,7 +58,7 @@ namespace DiceDiceDice
             else
             {
                 _phaseLabel.text = "SHOPPING PHASE";
-                _phaseLabel.color = palette.TextDim;
+                _phaseLabel.color = QuietText; // the HUD floats on the dark field - keep it light
             }
         }
 
