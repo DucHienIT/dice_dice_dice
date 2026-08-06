@@ -18,6 +18,7 @@ MonoBehaviour:
   _description: "Ki\u1EBFm kh\xED ch\xE9m qu\xE1i g\u1EA7n t\u01B0\u1EDDng th\xE0nh
     nh\u1EA5t, ch\xE9m tr\xFAng nhi\u1EC1u m\u1EE5c ti\xEAu theo ph\u1EA9m c\u1EA5p."
   _icon: 2
+  _iconSprite: {fileID: 21300000, guid: 0556552df2e304f23b60de8c1a528f1b, type: 3}
   _shopWeight: 1
   _baseDamage: 9
   _baseCooldown: 1.6

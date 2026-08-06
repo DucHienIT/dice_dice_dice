@@ -18,5 +18,6 @@ MonoBehaviour:
   _description: "T\u1EA1o khi\xEAn cho t\u01B0\u1EDDng th\xE0nh v\xE0o \u0111\u1EA7u
     m\u1ED7i wave, h\u1EA5p th\u1EE5 s\xE1t th\u01B0\u01A1ng tr\u01B0\u1EDBc m\xE1u."
   _icon: 10
+  _iconSprite: {fileID: 21300000, guid: f569ddd85d34045b1b68f2df0d0c56b0, type: 3}
   _shopWeight: 1
   _shieldPerRarity: 15

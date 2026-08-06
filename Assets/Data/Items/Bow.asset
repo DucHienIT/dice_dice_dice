@@ -18,6 +18,7 @@ MonoBehaviour:
   _description: "B\u1EAFn nhanh, s\xE1t th\u01B0\u01A1ng th\u1EA5p. Epic: xuy\xEAn
     m\u1EE5c ti\xEAu. Legendary: th\u1EC9nh tho\u1EA3ng t\u1EA1o m\u01B0a t\xEAn."
   _icon: 1
+  _iconSprite: {fileID: 21300000, guid: 407ec35d7e13641709c3cdad1a0796f7, type: 3}
   _shopWeight: 1
   _baseDamage: 4
   _baseCooldown: 0.8

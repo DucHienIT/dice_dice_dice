@@ -19,6 +19,7 @@ MonoBehaviour:
     b\u1EB1ng m\u1EB7t s\u1ED1. Merge \u0111\u1EC3 roll nhanh h\u01A1n, m\u1EB7t
     s\u1ED1 t\u1ED1i thi\u1EC3u cao h\u01A1n, v\xE0ng nh\xE2n theo ph\u1EA9m c\u1EA5p."
   _icon: 0
+  _iconSprite: {fileID: 21300000, guid: 9e1d77e107b614ae9be157429a65de67, type: 3}
   _shopWeight: 1
   _baseInterval: 5
   _intervalReductionPerRarity: 0.7

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8748d0b1235affe42ad2392dbbc9bae3, type: 3}
+  m_Name: UiSkin
+  m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UiSkin
+  _itemFrameByRarity:
+  - {fileID: 21300000, guid: ed56f2c0522214951aef5dd038c26a60, type: 3}
+  - {fileID: 21300000, guid: da43048cfd9b64fe9a143c610c58e1c9, type: 3}
+  - {fileID: 21300000, guid: d3ef70a0e21c74ae9ac67d0244d06501, type: 3}
+  - {fileID: 21300000, guid: 22012083ff9c646ddadeefcd984bb48f, type: 3}
+  _itemFrameEmpty: {fileID: 21300000, guid: f0be9265fd74e4fb3af913c799ad3f06, type: 3}
+  _itemFrameFocus: {fileID: 21300000, guid: b1a895715c1d4495d8551b8fbc9ffa12, type: 3}
+  _cardBgByGroup:
+  - {fileID: 21300000, guid: 13681252af4ef48e790ebc5df2f7dc7b, type: 3}
+  - {fileID: 21300000, guid: ef443883340c54de8a884f79062e37b4, type: 3}
+  - {fileID: 21300000, guid: 8dea355958a3f4bfa88e7610253ee9e9, type: 3}
+  - {fileID: 21300000, guid: 83b2576d0ef1141c09d8b1858a4eddef, type: 3}
+  - {fileID: 21300000, guid: 6ef919a88c7534eadb57df129a2ed8d8, type: 3}
+  _cardBorderByGroup:
+  - {fileID: 21300000, guid: fd544271bef754a36aa1ad7a34240c7e, type: 3}
+  - {fileID: 21300000, guid: be84d21d4dbae4b53bd30031288b14e0, type: 3}
+  - {fileID: 21300000, guid: fbaa656e1295544cf938731394b5578f, type: 3}
+  - {fileID: 21300000, guid: fe3a8301450654208af3addf3b85c41c, type: 3}
+  - {fileID: 21300000, guid: 6102077e488234504a39c3ca02e641f7, type: 3}
+  _soundOnIcon: {fileID: 21300000, guid: 48553240e2a79498583a1b7e7bae5f04, type: 3}
+  _soundOffIcon: {fileID: 21300000, guid: ad1326b99fd144d219cb8f148cf3b432, type: 3}
+  _coinIcon: {fileID: 21300000, guid: 43b21bacbadd44558b44555fb3a275c9, type: 3}

@@ -18,6 +18,7 @@ MonoBehaviour:
   _description: "S\xE9t lan gi\u1EEFa nhi\u1EC1u m\u1EE5c ti\xEAu \u0111\u1EE9ng
     g\u1EA7n nhau."
   _icon: 7
+  _iconSprite: {fileID: 21300000, guid: 8a245e6a432104407ac94b346715b296, type: 3}
   _shopWeight: 1
   _baseDamage: 8
   _baseCooldown: 3
