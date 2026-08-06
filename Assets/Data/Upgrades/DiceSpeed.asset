@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: DiceSpeed
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Dice t\u0103ng t\u1ED1c"
-  _description: "Dice roll nhanh h\u01A1n 20%."
+  _displayName: Quick Dice
+  _description: Dice roll 20% faster.
   _group: 0
   _stat: 0
   _operation: 1

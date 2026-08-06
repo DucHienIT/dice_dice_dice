@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: WaveShield
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Khi\xEAn kh\u1EDFi \u0111\u1ED9ng"
-  _description: "Nh\u1EADn 20 khi\xEAn v\xE0o \u0111\u1EA7u m\u1ED7i wave."
+  _displayName: Opening Shield
+  _description: Gain a 20-point shield at the start of each wave.
   _group: 4
   _stat: 21
   _operation: 0

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: SixBonus
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "L\u1ED9c l\xE1"
-  _description: "Roll ra 6 nh\u1EADn th\xEAm 5 v\xE0ng."
+  _displayName: Jackpot
+  _description: Rolling a 6 grants 5 bonus gold.
   _group: 0
   _stat: 2
   _operation: 0

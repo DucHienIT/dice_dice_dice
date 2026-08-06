@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Frost Stone
   _group: 2
   _price: 14
-  _description: "S\xE1t th\u01B0\u01A1ng th\u1EA5p, l\xE0m ch\u1EADm qu\xE1i. Epic
-    tr\u1EDF l\xEAn c\xF3 c\u01A1 h\u1ED9i \u0111\xF3ng b\u0103ng."
+  _description: Low damage but slows monsters. Epic and above can freeze.
   _icon: 6
   _iconSprite: {fileID: 21300000, guid: f0e586bb433934ae2830a01f147d8230, type: 3}
   _shopWeight: 1

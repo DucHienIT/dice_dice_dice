@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: SellRate
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Th\u01B0\u01A1ng l\u01B0\u1EE3ng"
-  _description: "B\xE1n item nh\u1EADn 75% gi\xE1 tr\u1ECB thay v\xEC 50%."
+  _displayName: Haggler
+  _description: Sell items for 75% of their value instead of 50%.
   _group: 0
   _stat: 8
   _operation: 2

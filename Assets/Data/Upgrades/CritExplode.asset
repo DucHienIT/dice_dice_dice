@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: CritExplode
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "N\u1ED5 ch\xED m\u1EA1ng"
-  _description: "\u0110\xF2n ch\xED m\u1EA1ng g\xE2y n\u1ED5 nh\u1ECF di\u1EC7n r\u1ED9ng."
+  _displayName: Critical Blast
+  _description: Critical hits cause a small explosion.
   _group: 1
   _stat: 13
   _operation: 2

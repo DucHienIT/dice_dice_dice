@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: DiceMinFace
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "M\u1EB7t s\u1ED1 may m\u1EAFn"
-  _description: "Gi\xE1 tr\u1ECB roll t\u1ED1i thi\u1EC3u c\u1EE7a Dice +1."
+  _displayName: Lucky Faces
+  _description: Minimum dice roll +1.
   _group: 0
   _stat: 1
   _operation: 0

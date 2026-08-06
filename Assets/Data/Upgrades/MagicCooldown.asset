@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: MagicCooldown
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Ni\u1EC7m nhanh"
-  _description: "Cooldown ph\xE9p -20%."
+  _displayName: Fast Casting
+  _description: Spell cooldowns -20%.
   _group: 2
   _stat: 15
   _operation: 1

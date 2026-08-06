@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: DotDuration
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "D\u01B0 ch\u1EA5n nguy\xEAn t\u1ED1"
-  _description: "Th\u1EDDi gian \u0111\u1ED1t / l\xE0m ch\u1EADm / \u0111\xF3ng b\u0103ng
-    +50%."
+  _displayName: Elemental Echo
+  _description: Burn / slow / freeze duration +50%.
   _group: 2
   _stat: 16
   _operation: 1

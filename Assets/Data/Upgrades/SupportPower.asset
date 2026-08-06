@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: SupportPower
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "C\u1ED9ng h\u01B0\u1EDFng"
-  _description: "Hi\u1EC7u qu\u1EA3 item H\u1ED7 tr\u1EE3 (Anvil, Hourglass) +50%."
+  _displayName: Resonance
+  _description: Support items (Anvil, Hourglass) are 50% more effective.
   _group: 3
   _stat: 18
   _operation: 1

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: FreeReroll
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Kh\xE1ch quen"
-  _description: "Reroll \u0111\u1EA7u ti\xEAn m\u1ED7i wave mi\u1EC5n ph\xED."
+  _displayName: Regular Customer
+  _description: First reroll each wave is free.
   _group: 0
   _stat: 7
   _operation: 0

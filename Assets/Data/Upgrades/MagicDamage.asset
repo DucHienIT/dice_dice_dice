@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: MagicDamage
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "C\u01B0\u1EDDng ph\xE9p"
-  _description: "S\xE1t th\u01B0\u01A1ng ph\xE9p +25%."
+  _displayName: Arcane Power
+  _description: Magic damage +25%.
   _group: 2
   _stat: 14
   _operation: 1

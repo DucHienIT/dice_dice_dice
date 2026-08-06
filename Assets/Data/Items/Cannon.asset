@@ -15,8 +15,7 @@ MonoBehaviour:
   _displayName: Cannon
   _group: 1
   _price: 18
-  _description: "\u0110\u1EA1n n\u1ED5 di\u1EC7n r\u1ED9ng, hi\u1EC7u qu\u1EA3 v\u1EDBi
-    nh\xF3m qu\xE1i \u0111\xF4ng."
+  _description: Explosive shells with area damage - great against crowds.
   _icon: 4
   _iconSprite: {fileID: 21300000, guid: 7dc620ac2691444648230abad6d94d1f, type: 3}
   _shopWeight: 1

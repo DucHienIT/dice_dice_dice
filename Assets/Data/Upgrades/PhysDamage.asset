@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: PhysDamage
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "M\xE0i s\u1EAFc"
-  _description: "S\xE1t th\u01B0\u01A1ng v\u1EADt l\xFD +25%."
+  _displayName: Sharpened Edges
+  _description: Physical damage +25%.
   _group: 1
   _stat: 9
   _operation: 1

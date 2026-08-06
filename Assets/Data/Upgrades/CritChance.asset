@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: CritChance
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "\u0110i\u1EC3m y\u1EBFu"
-  _description: "T\u1EC9 l\u1EC7 ch\xED m\u1EA1ng +15%."
+  _displayName: Weak Spot
+  _description: Critical chance +15%.
   _group: 1
   _stat: 11
   _operation: 0

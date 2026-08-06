@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: DoubleRoll
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Roll k\xE9p"
-  _description: "Dice c\xF3 25% c\u01A1 h\u1ED9i roll hai l\u1EA7n."
+  _displayName: Double Roll
+  _description: Dice have a 25% chance to roll twice.
   _group: 0
   _stat: 3
   _operation: 0

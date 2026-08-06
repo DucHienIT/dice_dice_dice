@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: Pierce
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Xuy\xEAn ph\xE1"
-  _description: "Projectile xuy\xEAn th\xEAm 1 m\u1EE5c ti\xEAu."
+  _displayName: Piercing Shots
+  _description: Projectiles pierce 1 extra target.
   _group: 1
   _stat: 12
   _operation: 0

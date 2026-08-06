@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: WaveGold
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Th\u01B0\u1EDFng wave"
-  _description: "Nh\u1EADn th\xEAm 10 v\xE0ng khi k\u1EBFt th\xFAc m\u1ED7i wave."
+  _displayName: Wave Bounty
+  _description: Gain 10 extra gold after each wave.
   _group: 0
   _stat: 6
   _operation: 0

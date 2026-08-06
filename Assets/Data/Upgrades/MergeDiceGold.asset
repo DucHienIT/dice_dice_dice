@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: MergeDiceGold
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Tinh hoa h\u1EE3p nh\u1EA5t"
-  _description: "M\u1ED7i l\u1EA7n merge Dice nh\u1EADn ngay 10 v\xE0ng."
+  _displayName: Merge Essence
+  _description: Gain 10 gold whenever you merge Dice.
   _group: 0
   _stat: 4
   _operation: 0

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: HealPerWave
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: "Tu s\u1EEDa"
-  _description: "H\u1ED3i 10 m\xE1u t\u01B0\u1EDDng sau m\u1ED7i wave."
+  _displayName: Repairs
+  _description: Restore 10 wall HP after each wave.
   _group: 4
   _stat: 20
   _operation: 0

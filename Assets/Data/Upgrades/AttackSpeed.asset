@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 312c6a54044df1947864d8da44470309, type: 3}
   m_Name: AttackSpeed
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.UpgradeDefinition
-  _displayName: Tay nhanh
-  _description: "T\u1ED1c \u0111\u1ED9 \u0111\xE1nh c\u1EE7a Weapon +20%."
+  _displayName: Quick Hands
+  _description: Weapon attack speed +20%.
   _group: 1
   _stat: 10
   _operation: 1

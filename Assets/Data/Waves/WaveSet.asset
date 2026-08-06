@@ -57,7 +57,7 @@ MonoBehaviour:
       _count: 4
       _interval: 1.5
       _startTime: 15
-  - _label: "Wave 5 \u2014 MINI-BOSS"
+  - _label: Wave 5 - MINI-BOSS
     _bossAlarm: 1
     _spawns:
     - _enemy: {fileID: 11400000, guid: 0f4edc9968de65946984685719c55d95, type: 2}
