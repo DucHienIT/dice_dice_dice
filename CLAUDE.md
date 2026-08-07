@@ -22,7 +22,7 @@ All runtime code is in `Assets/Scripts/` under namespace `DiceDiceDice`, followi
 - `Board/` — `BoardModel` (pure logic, 8 slots as `const`), `BoardController` (move/merge/sell with phase rules), `BoardMoveResult`.
 - `Items/` — `ItemInstance`, `ItemTicker` (dice roll timers — wave-only, progress carries over — and combat cooldowns; fires events for UI), enums.
 - `Combat/` — `CombatContext` (bundle passed to item `Fire`), `ProjectileManager`/`Projectile` (pooled, list-based hit tests, no physics), `EffectManager`/`VisualEffect`/`LightningBolt` (pooled), `AuraService` (Anvil/Hourglass auras, recomputed on board change).
-- `Enemies/` — `Enemy` (pooled, no own Update), `EnemyManager` (single tick loop, targeting API, damage/resist/armor/DoT), `WaveSpawner`.
+- `Enemies/` — `Enemy` (pooled, no own Update; one prefab per enemy type in `Assets/Prefabs/Enemies/`, each embedding a FantasyMonsters `Monster` view that `Enemy` drives via `SetState` Walk/Run/Idle + `Attack`), `EnemyManager` (single tick loop, per-type pools keyed by `EnemyDefinition`, targeting API, damage/resist/armor/DoT), `WaveSpawner`.
 - `Economy/` — `EconomyController` (gold/XP/level events). `Shop/` — `ShopController` (buy/reroll/lock, weighted dice frequency). `Roguelike/` — `UpgradeSystem` (applies `UpgradeDefinition` stat+op+value to `RunModifiers`).
 - `Data/` — ScriptableObject classes: `GameConfig` (all balance knobs + world layout), `PaletteConfig` (all colors), `UiSkin` (state-dependent Layer Lab sprites: slot frame per rarity, upgrade card per group, mute icons, coin), `ItemDefinition` hierarchy (each combat item = own class with `Fire()` override — add item #12 by adding a class + asset, never a switch; `IconSprite` holds the authored Layer Lab icon), `EnemyDefinition`, `WaveSet`, `UpgradeDefinition`.
 - `UI/` — `UIController` (sole glue: subscribes to system events, feeds dumb views), `HUDView`, `BoardSlotView` (uGUI drag/drop + DOTween roll/merge feedback), `ShopPanelView`/`ShopItemView`, `InfoPanelView`, `ModalView` (intro/level-up/game-over), `BannerView`, `ToastView`, `FloatingTextManager`/`FloatingText` (pooled gold/CRIT popups).
@@ -37,7 +37,7 @@ Key conventions established:
 - **UI uses the Layer Lab GUI Pro-FantasyHero skin** (frames/buttons/sliders/popups/icons), authored into the scene by the installer; state-swapped sprites live in `Assets/Data/UiSkin.asset`. The Dice icon comes from the GUI Pro-CasualGame pack (same vendor). Layer Lab panels are light parchment, so UI body text defaults to dark brown.
 - **HARD RULE — English only:** no Vietnamese anywhere in source code or in-game text (strings, data assets, labels). All game strings must be plain ASCII (no `—`, `·`, `→`, `×` — use `-`, `|`, `->`, `x`), because of the font rule below.
 - **HARD RULE — single font:** every TMP text in the game uses exactly one font asset: `LilitaOne-Regular SDF` (Layer Lab GUI Pro-CasualGame) — a rounded casual display face chosen for legibility at small sizes. It is assigned centrally in the installer's `CreateTmp` (`GameInstaller.GameFont`); never assign another font or a per-label variant. Its static atlas is ASCII-only, which is why game strings must be ASCII.
-- World visuals (enemies, projectiles, effects, dice faces) and all audio remain procedural (`SpriteFactory`/`AudioSynth`); `PaletteConfig` still owns world/rarity/group colors.
+- World visuals (projectiles, effects, dice faces) and all audio remain procedural (`SpriteFactory`/`AudioSynth`); `PaletteConfig` still owns world/rarity/group colors. **Enemies are the exception:** their visuals come from the `Assets/FantasyMonsters` pack — the installer nests one monster prefab per enemy type (mapping in `InstallEnemies`), auto-scales it to the gameplay radius (bounds-fit against `Enemy.BodyVisualScale`; pack art already faces left, the march direction) and pins its `SortingGroup` to order 10. `EnemyDefinition.BodyColor` only tints death-pop effects now.
 - Play-test drivers via `mcp__UnityMCP__execute_code`: set `Application.runInBackground = true` before Play; UI buttons can be invoked through `SerializedObject` lookups (see git history of this build for examples).
 
 ## The Design Spec Is Authoritative
@@ -66,6 +66,7 @@ There is no CLI build script; builds go through the Unity Editor (or MCP `manage
 
 ## Third-Party Assets (do not modify)
 
+- `Assets/FantasyMonsters/` — animated monster prefabs (all enemy visuals; driven via its `Monster` script API)
 - `Assets/JMO Assets/` — Toony Colors Pro 2 (stylized/toon shading)
 - `Assets/Plugins/Demigiant/` — DOTween + DOTween Pro (tweening; settings in `Assets/Resources/DOTweenSettings.asset`)
 - `Assets/Layer Lab/` — GUI Pro packs (FantasyHero, CasualGame) for UI art

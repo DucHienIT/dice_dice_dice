@@ -19,6 +19,8 @@ MonoBehaviour:
   _xpReward: 3
   _radius: 0.14
   _bodyColor: {r: 0.8784314, g: 0.78039217, b: 0.2901961, a: 1}
+  _prefab: {fileID: 6405954534172965390, guid: 05c1dccc3d1431b42a1f181188a25ccb, type: 3}
+  _poolSize: 10
   _physicalResist: 0
   _magicResist: 0
   _isHealer: 0

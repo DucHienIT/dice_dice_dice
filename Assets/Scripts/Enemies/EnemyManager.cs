@@ -8,12 +8,13 @@ namespace DiceDiceDice
     public class EnemyManager : MonoBehaviour
     {
         [SerializeField] private GameConfig _config;
-        [SerializeField] private Enemy _enemyPrefab;
+        [SerializeField] private EnemyDefinition[] _enemyTypes;
         [SerializeField] private Transform _enemyParent;
         [SerializeField] private EffectManager _effects;
         [SerializeField] private AudioManager _audio;
 
-        private ObjectPool<Enemy> _pool;
+        private readonly Dictionary<EnemyDefinition, ObjectPool<Enemy>> _pools =
+            new Dictionary<EnemyDefinition, ObjectPool<Enemy>>(16);
         private readonly List<Enemy> _active = new List<Enemy>(64);
         private readonly HashSet<Enemy> _chained = new HashSet<Enemy>();
         private RunStats _stats;
@@ -29,12 +30,16 @@ namespace DiceDiceDice
         {
             _stats = stats;
             _wall = wall;
-            _pool = new ObjectPool<Enemy>(_enemyPrefab, _enemyParent, _config.EnemyPoolSize);
+            for (int i = 0; i < _enemyTypes.Length; i++)
+            {
+                EnemyDefinition definition = _enemyTypes[i];
+                _pools[definition] = new ObjectPool<Enemy>(definition.Prefab, _enemyParent, definition.PoolSize);
+            }
         }
 
         public void Spawn(EnemyDefinition definition, int wave)
         {
-            Enemy enemy = _pool.Get();
+            Enemy enemy = _pools[definition].Get();
             float hpMul = _config.HpMultiplier(wave, definition.IsElite || definition.IsBoss);
             float speedMul = _config.SpeedMultiplier(wave);
             var position = new Vector2(_config.SpawnX, UnityEngine.Random.Range(_config.EnemyYMin, _config.EnemyYMax));
@@ -92,7 +97,8 @@ namespace DiceDiceDice
         {
             for (int i = _active.Count - 1; i >= 0; i--)
             {
-                _pool.Release(_active[i]);
+                Enemy enemy = _active[i];
+                _pools[enemy.Definition].Release(enemy);
             }
             _active.Clear();
         }
@@ -171,7 +177,7 @@ namespace DiceDiceDice
             Enemy enemy = _active[index];
             _active[index] = _active[_active.Count - 1];
             _active.RemoveAt(_active.Count - 1);
-            _pool.Release(enemy);
+            _pools[enemy.Definition].Release(enemy);
         }
 
         private void TickHealer(Enemy healer, float deltaTime)
@@ -182,6 +188,7 @@ namespace DiceDiceDice
                 return;
             }
             healer.HealTimer = 0f;
+            healer.PlayAbilityPulse();
             float radius = _config.HealerRadius;
             float healAmount = _config.HealerHpPerPulse * _config.HpMultiplier(WaveContext, false);
             for (int i = 0; i < _active.Count; i++)

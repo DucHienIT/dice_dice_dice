@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace DiceDiceDice
 {
-    /// <summary>Balance data for one enemy type (spec sections 16-17).</summary>
+    /// <summary>Balance data for one enemy type (spec sections 16-17). Visuals come from the
+    /// FantasyMonsters pack via the per-type Enemy prefab referenced here.</summary>
     [CreateAssetMenu(menuName = "DiceDiceDice/Enemy", fileName = "Enemy")]
     public class EnemyDefinition : ScriptableObject
     {
@@ -13,6 +14,8 @@ namespace DiceDiceDice
         [SerializeField] private int _xpReward = 3;
         [SerializeField] private float _radius = 0.18f;
         [SerializeField] private Color _bodyColor = Color.white;
+        [SerializeField] private Enemy _prefab;
+        [SerializeField, Min(1)] private int _poolSize = 8;
         [SerializeField, Range(0f, 1f)] private float _physicalResist;
         [SerializeField, Range(0f, 1f)] private float _magicResist;
         [SerializeField] private bool _isHealer;
@@ -27,6 +30,8 @@ namespace DiceDiceDice
         public int XpReward => _xpReward;
         public float Radius => _radius;
         public Color BodyColor => _bodyColor;
+        public Enemy Prefab => _prefab;
+        public int PoolSize => _poolSize;
         public float PhysicalResist => _physicalResist;
         public float MagicResist => _magicResist;
         public bool IsHealer => _isHealer;
@@ -51,6 +56,12 @@ namespace DiceDiceDice
             _isElite = isElite;
             _isBoss = isBoss;
             _armor = armor;
+        }
+
+        public void EditorSetPrefab(Enemy prefab, int poolSize)
+        {
+            _prefab = prefab;
+            _poolSize = Mathf.Max(1, poolSize);
         }
 #endif
     }

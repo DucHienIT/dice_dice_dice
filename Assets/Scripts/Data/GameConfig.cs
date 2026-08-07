@@ -51,7 +51,6 @@ namespace DiceDiceDice
 
         [Header("Performance")]
         [SerializeField] private int _targetFrameRate = 60;
-        [SerializeField] private int _enemyPoolSize = 48;
         [SerializeField] private int _projectilePoolSize = 128;
         [SerializeField] private int _effectPoolSize = 48;
         [SerializeField] private int _lightningPoolSize = 8;
@@ -91,7 +90,6 @@ namespace DiceDiceDice
         /// </summary>
         public float ProjectileLeftX => Mathf.Min(_boardOrigin.x, _wallStopX) - 1f;
         public int TargetFrameRate => _targetFrameRate;
-        public int EnemyPoolSize => _enemyPoolSize;
         public int ProjectilePoolSize => _projectilePoolSize;
         public int EffectPoolSize => _effectPoolSize;
         public int LightningPoolSize => _lightningPoolSize;

@@ -19,6 +19,9 @@ namespace DiceDiceDice.EditorTools
         private const string FhItemIcons = FhComponents + "Icon_ItemIcons/128/";
         private const string FhPictoIcons = FhComponents + "Icon_PictoIcons/128/";
         private const string GameFont = "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular SDF.asset";
+
+        // FantasyMonsters pack (read-only third-party asset) supplies all enemy visuals.
+        private const string MonstersRoot = "Assets/FantasyMonsters/Monsters/";
         private const string GeneratedItemIcons = "Assets/Art/ItemIcons/Generated/";
 
         private static Sprite LoadSprite(string path)
@@ -82,6 +85,7 @@ namespace DiceDiceDice.EditorTools
             EnsureFolder(DataRoot, "Waves");
             EnsureFolder(DataRoot, "Upgrades");
             EnsureFolder("Assets", "Prefabs");
+            EnsureFolder(PrefabRoot, "Enemies");
         }
 
         private static void EnsureFolder(string parent, string name)
@@ -294,22 +298,128 @@ namespace DiceDiceDice.EditorTools
 
         private static void InstallEnemies()
         {
-            CreateEnemy("Basic", "Basic", 22f, 0.55f, 10, 3, 0.18f, Hex("c96a4a"), 0f, 0f, false, false, false, 0f);
-            CreateEnemy("Runner", "Runner", 12f, 1.15f, 8, 3, 0.14f, Hex("e0c74a"), 0f, 0f, false, false, false, 0f);
-            CreateEnemy("Tank", "Tank", 70f, 0.3f, 20, 6, 0.24f, Hex("8a5adf"), 0f, 0f, false, false, false, 0f);
-            CreateEnemy("Swarm", "Swarm", 8f, 0.82f, 5, 2, 0.11f, Hex("5ad08a"), 0f, 0f, false, false, false, 0f);
-            CreateEnemy("Armored", "Armored", 38f, 0.4f, 12, 5, 0.19f, Hex("9aa4bd"), 0.5f, 0f, false, false, false, 0f);
-            CreateEnemy("MagicResist", "M.Resist", 38f, 0.4f, 12, 5, 0.19f, Hex("5a8adf"), 0f, 0.5f, false, false, false, 0f);
-            CreateEnemy("Healer", "Healer", 26f, 0.46f, 8, 6, 0.16f, Hex("ff8ac8"), 0f, 0f, true, false, false, 0f);
-            CreateEnemy("Elite", "ELITE", 230f, 0.24f, 35, 25, 0.3f, Hex("ff4a6b"), 0f, 0f, false, true, false, 0f);
-            CreateEnemy("Boss", "LOADED GOLEM", 750f, 0.13f, 999, 60, 0.42f, Hex("ffb830"), 0f, 0f, false, false, true, 300f);
+            CreateEnemy("Basic", "Basic", 22f, 0.55f, 10, 3, 0.18f, Hex("c96a4a"), 0f, 0f, false, false, false, 0f, "Rats/Rat", 12);
+            CreateEnemy("Runner", "Runner", 12f, 1.15f, 8, 3, 0.14f, Hex("e0c74a"), 0f, 0f, false, false, false, 0f, "Dogs/Wolf", 10);
+            CreateEnemy("Tank", "Tank", 70f, 0.3f, 20, 6, 0.24f, Hex("8a5adf"), 0f, 0f, false, false, false, 0f, "Giants/Troll", 6);
+            CreateEnemy("Swarm", "Swarm", 8f, 0.82f, 5, 2, 0.11f, Hex("5ad08a"), 0f, 0f, false, false, false, 0f, "Insects/Wasp", 18);
+            CreateEnemy("Armored", "Armored", 38f, 0.4f, 12, 5, 0.19f, Hex("9aa4bd"), 0.5f, 0f, false, false, false, 0f, "Insects/Scarab", 8);
+            CreateEnemy("MagicResist", "M.Resist", 38f, 0.4f, 12, 5, 0.19f, Hex("5a8adf"), 0f, 0.5f, false, false, false, 0f, "Bats/EvilEye", 8);
+            CreateEnemy("Healer", "Healer", 26f, 0.46f, 8, 6, 0.16f, Hex("ff8ac8"), 0f, 0f, true, false, false, 0f, "Insects/MossQueen", 4);
+            CreateEnemy("Elite", "ELITE", 230f, 0.24f, 35, 25, 0.3f, Hex("ff4a6b"), 0f, 0f, false, true, false, 0f, "Giants/Punisher", 3);
+            CreateEnemy("Boss", "DREADNOUGHT", 750f, 0.13f, 999, 60, 0.42f, Hex("ffb830"), 0f, 0f, false, false, true, 300f, "Giants/Dreadnought", 2);
         }
 
         private static void CreateEnemy(string assetName, string displayName, float hp, float speed, int damage, int xp,
-            float radius, Color color, float physResist, float magicResist, bool healer, bool elite, bool boss, float armor)
+            float radius, Color color, float physResist, float magicResist, bool healer, bool elite, bool boss, float armor,
+            string monsterPath, int poolSize)
         {
             var enemy = GetOrCreateAsset<EnemyDefinition>(DataRoot + "/Enemies/" + assetName + ".asset");
             enemy.EditorSetup(displayName, hp, speed, damage, xp, radius, color, physResist, magicResist, healer, elite, boss, armor);
+            enemy.EditorSetPrefab(BuildEnemyPrefab(assetName, monsterPath, radius), poolSize);
+        }
+
+        /// <summary>Builds (idempotently) the per-type Enemy prefab: a pooled Enemy root with a nested
+        /// FantasyMonsters monster instance as its view, scaled so the visual matches the gameplay
+        /// radius and flipped to face the wall (enemies march right-to-left).</summary>
+        private static Enemy BuildEnemyPrefab(string assetName, string monsterPath, float radius)
+        {
+            string leaf = monsterPath.Substring(monsterPath.LastIndexOf('/') + 1);
+            string sourcePath = MonstersRoot + monsterPath + "/" + leaf + ".prefab";
+            var monsterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
+            if (monsterPrefab == null)
+            {
+                Debug.LogError("[Installer] Missing FantasyMonsters prefab: " + sourcePath);
+                return null;
+            }
+
+            string prefabPath = PrefabRoot + "/Enemies/" + assetName + ".prefab";
+            var root = new GameObject(assetName, typeof(Enemy));
+            try
+            {
+                var view = (GameObject)PrefabUtility.InstantiatePrefab(monsterPrefab);
+                view.name = leaf;
+                view.transform.SetParent(root.transform, false);
+
+                // Fit the monster art to the gameplay radius: measure combined sprite bounds at scale 1,
+                // then scale and re-center so the visual midpoint sits on the enemy position.
+                Bounds bounds = ComputeSpriteBounds(view);
+                float sourceSize = Mathf.Max(bounds.size.x, bounds.size.y, 0.01f);
+                float scale = radius * 2f * DiceDiceDice.Enemy.BodyVisualScale / sourceSize;
+                // Pack monsters are authored already facing left - the direction they march in-game.
+                view.transform.localScale = new Vector3(scale, scale, 1f);
+                view.transform.localPosition = new Vector3(-bounds.center.x * scale, -bounds.center.y * scale, 0f);
+
+                var sortingGroup = view.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                if (sortingGroup != null)
+                {
+                    var groupSo = new SerializedObject(sortingGroup);
+                    groupSo.FindProperty("m_SortingOrder").intValue = 10;
+                    groupSo.ApplyModifiedPropertiesWithoutUndo();
+                }
+                else
+                {
+                    Debug.LogError("[Installer] Monster prefab has no SortingGroup: " + sourcePath);
+                }
+
+                SpriteRenderer status = ChildSprite(root.transform, "StatusRing", 11);
+                SpriteRenderer burn = ChildSprite(root.transform, "BurnMark", 12);
+                SpriteRenderer hpBack = ChildSprite(root.transform, "HpBarBack", 13);
+                SpriteRenderer hpFill = ChildSprite(root.transform, "HpBarFill", 14);
+                SpriteRenderer armorFill = ChildSprite(root.transform, "ArmorBarFill", 14);
+
+                var so = new SerializedObject(root.GetComponent<Enemy>());
+                so.FindProperty("_monster").objectReferenceValue = view.GetComponent<Assets.FantasyMonsters.Common.Scripts.Monster>();
+                so.FindProperty("_view").objectReferenceValue = view.transform;
+                so.FindProperty("_statusRing").objectReferenceValue = status;
+                so.FindProperty("_burnMark").objectReferenceValue = burn;
+                so.FindProperty("_hpBarBack").objectReferenceValue = hpBack;
+                so.FindProperty("_hpBarFill").objectReferenceValue = hpFill;
+                so.FindProperty("_armorBarFill").objectReferenceValue = armorFill;
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                var saved = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+                return saved.GetComponent<Enemy>();
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static Bounds ComputeSpriteBounds(GameObject view)
+        {
+            SpriteRenderer[] renderers = view.GetComponentsInChildren<SpriteRenderer>(true);
+            var bounds = new Bounds(Vector3.zero, Vector3.zero);
+            bool hasAny = false;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                // The blob shadow widens the bounds without being part of the body silhouette.
+                if (renderers[i].sprite == null || renderers[i].name == "Shadow")
+                {
+                    continue;
+                }
+                if (!hasAny)
+                {
+                    bounds = renderers[i].bounds;
+                    hasAny = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderers[i].bounds);
+                }
+            }
+            return bounds;
+        }
+
+        private static EnemyDefinition[] LoadEnemyPool()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:EnemyDefinition", new[] { DataRoot + "/Enemies" });
+            var pool = new EnemyDefinition[guids.Length];
+            for (int i = 0; i < guids.Length; i++)
+            {
+                pool[i] = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(AssetDatabase.GUIDToAssetPath(guids[i]));
+            }
+            return pool;
         }
 
         private static EnemyDefinition Enemy(string name)
@@ -340,7 +450,7 @@ namespace DiceDiceDice.EditorTools
                 Wave("Wave 7", false, S("MagicResist", 5, 3f, 1f), S("Swarm", 14, 0.45f, 5f), S("Tank", 2, 6f, 12f)),
                 Wave("Wave 8", false, S("Healer", 2, 8f, 4f), S("Armored", 4, 3.2f, 1f), S("MagicResist", 4, 3.2f, 2.5f), S("Basic", 10, 1.4f, 6f)),
                 Wave("Wave 9", false, S("Tank", 4, 4f, 1f), S("Runner", 8, 1f, 3f), S("Healer", 2, 7f, 8f), S("Swarm", 12, 0.5f, 12f), S("Elite", 1, 0f, 24f)),
-                Wave("BOSS: LOADED GOLEM", true, S("Swarm", 8, 0.6f, 2f), S("Basic", 6, 2.5f, 6f), S("Boss", 1, 0f, 10f), S("Runner", 6, 1.5f, 26f))
+                Wave("BOSS: DREADNOUGHT", true, S("Swarm", 8, 0.6f, 2f), S("Basic", 6, 2.5f, 6f), S("Boss", 1, 0f, 10f), S("Runner", 6, 1.5f, 26f))
             };
             waveSet.EditorSetWaves(waves);
         }
@@ -405,40 +515,10 @@ namespace DiceDiceDice.EditorTools
 
         private static void InstallPrefabs()
         {
-            InstallEnemyPrefab();
             InstallSimpleSpritePrefab<Projectile>("Projectile", "_renderer", 15);
             InstallSimpleSpritePrefab<VisualEffect>("VisualEffect", "_renderer", 16);
             InstallLightningPrefab();
             InstallFloatingTextPrefab();
-        }
-
-        private static void InstallEnemyPrefab()
-        {
-            var root = new GameObject("Enemy", typeof(Enemy));
-            try
-            {
-                SpriteRenderer body = ChildSprite(root.transform, "Body", 10);
-                SpriteRenderer status = ChildSprite(root.transform, "StatusRing", 11);
-                SpriteRenderer burn = ChildSprite(root.transform, "BurnMark", 12);
-                SpriteRenderer hpBack = ChildSprite(root.transform, "HpBarBack", 13);
-                SpriteRenderer hpFill = ChildSprite(root.transform, "HpBarFill", 14);
-                SpriteRenderer armorFill = ChildSprite(root.transform, "ArmorBarFill", 14);
-
-                var so = new SerializedObject(root.GetComponent<Enemy>());
-                so.FindProperty("_body").objectReferenceValue = body;
-                so.FindProperty("_statusRing").objectReferenceValue = status;
-                so.FindProperty("_burnMark").objectReferenceValue = burn;
-                so.FindProperty("_hpBarBack").objectReferenceValue = hpBack;
-                so.FindProperty("_hpBarFill").objectReferenceValue = hpFill;
-                so.FindProperty("_armorBarFill").objectReferenceValue = armorFill;
-                so.ApplyModifiedPropertiesWithoutUndo();
-
-                PrefabUtility.SaveAsPrefabAsset(root, PrefabRoot + "/Enemy.prefab");
-            }
-            finally
-            {
-                Object.DestroyImmediate(root);
-            }
         }
 
         private static void InstallSimpleSpritePrefab<T>(string name, string rendererField, int sortingOrder) where T : Component

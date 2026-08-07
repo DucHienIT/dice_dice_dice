@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9975a25b97e8734580708f9c9a4b2d1, type: 3}
   m_Name: Boss
   m_EditorClassIdentifier: Assembly-CSharp::DiceDiceDice.EnemyDefinition
-  _displayName: LOADED GOLEM
+  _displayName: DREADNOUGHT
   _maxHp: 750
   _speed: 0.13
   _contactDamage: 999
   _xpReward: 60
   _radius: 0.42
   _bodyColor: {r: 1, g: 0.72156864, b: 0.1882353, a: 1}
+  _prefab: {fileID: 6113923835095582605, guid: 9a238f7f5ef53454fb1365db2e3ca66d, type: 3}
+  _poolSize: 2
   _physicalResist: 0
   _magicResist: 0
   _isHealer: 0

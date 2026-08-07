@@ -44,7 +44,6 @@ MonoBehaviour:
   _fieldRightX: 9.9
   _skySpawnY: 6
   _targetFrameRate: 60
-  _enemyPoolSize: 48
   _projectilePoolSize: 128
   _effectPoolSize: 48
   _lightningPoolSize: 8

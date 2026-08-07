@@ -144,7 +144,7 @@ MonoBehaviour:
       _count: 1
       _interval: 0
       _startTime: 24
-  - _label: 'BOSS: LOADED GOLEM'
+  - _label: 'BOSS: DREADNOUGHT'
     _bossAlarm: 1
     _spawns:
     - _enemy: {fileID: 11400000, guid: dd3127a518ebab8419bd1e0d96cc28b9, type: 2}

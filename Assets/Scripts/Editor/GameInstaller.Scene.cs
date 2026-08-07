@@ -657,7 +657,6 @@ namespace DiceDiceDice.EditorTools
         {
             GameConfig config = Config;
             PaletteConfig palette = Palette;
-            var enemyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/Enemy.prefab").GetComponent<Enemy>();
             var projectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/Projectile.prefab").GetComponent<Projectile>();
             var effectPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/VisualEffect.prefab").GetComponent<VisualEffect>();
             var lightningPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabRoot + "/LightningBolt.prefab").GetComponent<LightningBolt>();
@@ -684,8 +683,9 @@ namespace DiceDiceDice.EditorTools
                 ("_board", refs.Board), ("_audio", refs.Audio));
             WireArray(refs.Shop, "_itemPool", itemPool);
             Wire(refs.Enemies,
-                ("_config", config), ("_enemyPrefab", enemyPrefab), ("_enemyParent", refs.EnemyPool),
+                ("_config", config), ("_enemyParent", refs.EnemyPool),
                 ("_effects", refs.Effects), ("_audio", refs.Audio));
+            WireArray(refs.Enemies, "_enemyTypes", LoadEnemyPool());
             Wire(refs.Projectiles,
                 ("_config", config), ("_projectilePrefab", projectilePrefab),
                 ("_projectileParent", refs.ProjectilePool), ("_effects", refs.Effects));
