@@ -10,7 +10,11 @@ namespace DiceDiceDice
         public float Timer;
 
         /// <summary>Remaining duration of the dice roll animation; a roll resolves when this reaches 0.</summary>
-        public float RollAnimTimer;
+
+
+        /// <summary>The resolved face shown on the board. Zero means the die has not rolled yet.</summary>
+        public int LastDiceFace;
+public float RollAnimTimer;
 
         public ItemInstance(ItemDefinition definition, ItemRarity rarity)
         {

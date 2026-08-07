@@ -79,7 +79,15 @@ namespace DiceDiceDice
         // ---------- Builders ----------
 
         private static readonly Color32 White1 = new Color32(255, 255, 255, 255);
-        private static readonly Color32 Dark1 = new Color32(35, 38, 48, 255);
+
+        private static readonly Color32 Cream = new Color32(246, 232, 198, 255);
+        private static readonly Color32 Wood = new Color32(174, 108, 44, 255);
+        private static readonly Color32 Gold = new Color32(247, 190, 45, 255);
+        private static readonly Color32 Steel = new Color32(156, 167, 181, 255);
+        private static readonly Color32 SteelDark = new Color32(73, 81, 94, 255);
+        private static readonly Color32 Fire = new Color32(244, 91, 49, 255);
+        private static readonly Color32 Ice = new Color32(83, 194, 226, 255);
+private static readonly Color32 Dark1 = new Color32(35, 38, 48, 255);
 
         private static Sprite BuildWhite()
         {
@@ -112,10 +120,11 @@ namespace DiceDiceDice
             return canvas.ToSprite(PixelsPerUnit);
         }
 
-        private static Sprite BuildDiceFace(int face)
+private static Sprite BuildDiceFace(int face)
         {
             var canvas = new PixelCanvas(Size);
-            canvas.RoundedRect(4f, 4f, 56f, 56f, 12f, White1);
+            canvas.RoundedRect(2f, 2f, 60f, 60f, 13f, Dark1);
+            canvas.RoundedRect(6f, 6f, 52f, 52f, 10f, Cream);
             const float lo = 19f, mid = 32f, hi = 45f, r = 5f;
             if (face == 1) { canvas.FillCircle(mid, mid, r + 1f, Dark1); }
             if (face == 2) { canvas.FillCircle(lo, hi, r, Dark1); canvas.FillCircle(hi, lo, r, Dark1); }
@@ -197,32 +206,48 @@ namespace DiceDiceDice
             });
         }
 
-        private static Sprite BuildProjectile(ProjectileVisual visual)
+private static Sprite BuildProjectile(ProjectileVisual visual)
         {
             return Build(c =>
             {
                 switch (visual)
                 {
                     case ProjectileVisual.Arrow:
-                        c.Line(8f, 32f, 48f, 32f, 3f, White1);
-                        c.FillTriangle(58f, 32f, 46f, 26f, 46f, 38f, White1);
+                        c.Line(7f, 32f, 49f, 32f, 7f, Dark1);
+                        c.Line(8f, 32f, 49f, 32f, 3f, Wood);
+                        c.FillTriangle(61f, 32f, 47f, 23f, 47f, 41f, Dark1);
+                        c.FillTriangle(57f, 32f, 48f, 27f, 48f, 37f, Steel);
+                        c.FillTriangle(5f, 32f, 16f, 25f, 16f, 32f, Dark1);
+                        c.FillTriangle(5f, 32f, 16f, 39f, 16f, 32f, Dark1);
+                        c.FillTriangle(8f, 32f, 16f, 28f, 16f, 32f, Gold);
+                        c.FillTriangle(8f, 32f, 16f, 36f, 16f, 32f, Gold);
                         break;
                     case ProjectileVisual.Bolt:
-                        c.Line(6f, 32f, 50f, 32f, 5f, White1);
-                        c.FillTriangle(60f, 32f, 48f, 25f, 48f, 39f, White1);
+                        c.Line(5f, 32f, 48f, 32f, 9f, Dark1);
+                        c.Line(7f, 32f, 49f, 32f, 5f, Wood);
+                        c.FillTriangle(62f, 32f, 46f, 21f, 46f, 43f, Dark1);
+                        c.FillTriangle(58f, 32f, 48f, 26f, 48f, 38f, Steel);
+                        c.FillRect(7f, 25f, 5f, 14f, Gold);
                         break;
                     case ProjectileVisual.Shell:
-                        c.FillCircle(32f, 32f, 12f, White1);
+                        c.FillCircle(32f, 32f, 16f, Dark1);
+                        c.FillCircle(32f, 32f, 11f, SteelDark);
+                        c.FillCircle(28f, 37f, 3f, Steel);
                         break;
                     case ProjectileVisual.Meteor:
-                        c.FillCircle(32f, 24f, 13f, White1);
-                        c.FillTriangle(32f, 62f, 22f, 34f, 42f, 34f, White1);
+                        c.FillTriangle(32f, 62f, 18f, 29f, 46f, 29f, Dark1);
+                        c.FillTriangle(32f, 59f, 23f, 31f, 41f, 31f, Fire);
+                        c.FillTriangle(32f, 52f, 27f, 31f, 37f, 31f, Gold);
+                        c.FillCircle(32f, 22f, 16f, Dark1);
+                        c.FillCircle(32f, 22f, 11f, SteelDark);
+                        c.FillCircle(28f, 26f, 3f, Steel);
                         break;
                     case ProjectileVisual.Frost:
-                        c.FillCircle(32f, 32f, 9f, White1);
-                        c.Line(32f, 14f, 32f, 50f, 2f, White1);
-                        c.Line(16f, 23f, 48f, 41f, 2f, White1);
-                        c.Line(16f, 41f, 48f, 23f, 2f, White1);
+                        c.FillCircle(32f, 32f, 17f, Dark1);
+                        c.FillCircle(32f, 32f, 13f, Ice);
+                        c.Line(32f, 21f, 32f, 43f, 3f, White1);
+                        c.Line(22f, 26f, 42f, 38f, 3f, White1);
+                        c.Line(22f, 38f, 42f, 26f, 3f, White1);
                         break;
                 }
             });

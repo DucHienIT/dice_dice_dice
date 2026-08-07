@@ -26,6 +26,7 @@ namespace DiceDiceDice
             spec.Damage = EffectiveDamage(rarity, ctx);
             spec.DamageType = DamageType;
             spec.SourceName = DisplayName;
+            spec.LaunchDelay = 0.06f;
             spec.AoeRadius = _baseAoeRadius + _aoeRadiusPerRarity * (int)rarity;
             ctx.Projectiles.Spawn(spec);
 

@@ -31,6 +31,7 @@ namespace DiceDiceDice
             spec.Damage = damage;
             spec.DamageType = DamageType;
             spec.SourceName = DisplayName;
+            spec.LaunchDelay = 0.14f;
             spec.Crit = crit;
             spec.Pierce = (rarity >= ItemRarity.Legendary ? _legendaryPierce : 0) + ctx.Mods.Pierce;
             ctx.Projectiles.Spawn(spec);

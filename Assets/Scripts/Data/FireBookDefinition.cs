@@ -29,6 +29,7 @@ namespace DiceDiceDice
             spec.Damage = EffectiveDamage(rarity, ctx);
             spec.DamageType = DamageType;
             spec.SourceName = DisplayName;
+            spec.LaunchDelay = 0.12f;
             spec.AoeRadius = _baseAoeRadius + _aoeRadiusPerRarity * (int)rarity;
             spec.BurnDps = _burnDpsPerRarity * ((int)rarity + 1);
             spec.BurnDuration = _burnDuration * ctx.Mods.DotDuration;

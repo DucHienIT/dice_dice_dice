@@ -33,6 +33,7 @@ namespace DiceDiceDice
             spec.Damage = damage;
             spec.DamageType = DamageType;
             spec.SourceName = DisplayName;
+            spec.LaunchDelay = 0.16f;
             spec.Pierce = pierce;
             ctx.Projectiles.Spawn(spec);
 

@@ -121,10 +121,11 @@ namespace DiceDiceDice
             }
         }
 
-        private void ResolveRoll(int slot, ItemInstance item, DiceDefinition dice)
+private void ResolveRoll(int slot, ItemInstance item, DiceDefinition dice)
         {
             item.Timer = 0f;
             int totalGold = RollOnce(item, dice, out int face);
+            item.LastDiceFace = face;
             if (_mods.DoubleRollChance > 0f && UnityEngine.Random.value < _mods.DoubleRollChance)
             {
                 totalGold += RollOnce(item, dice, out _);

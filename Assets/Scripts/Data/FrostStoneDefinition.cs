@@ -30,6 +30,7 @@ namespace DiceDiceDice
             spec.Damage = EffectiveDamage(rarity, ctx);
             spec.DamageType = DamageType;
             spec.SourceName = DisplayName;
+            spec.LaunchDelay = 0.1f;
             spec.SlowDuration = _slowDuration * ctx.Mods.DotDuration;
             spec.FreezeDuration = freeze ? _freezeDuration * ctx.Mods.DotDuration : 0f;
             ctx.Projectiles.Spawn(spec);

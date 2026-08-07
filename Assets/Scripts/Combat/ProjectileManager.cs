@@ -39,11 +39,15 @@ namespace DiceDiceDice
             _active.Clear();
         }
 
-        public void Tick(float deltaTime)
+public void Tick(float deltaTime)
         {
             for (int i = _active.Count - 1; i >= 0; i--)
             {
                 Projectile projectile = _active[i];
+                if (projectile.TickLaunchDelay(deltaTime))
+                {
+                    continue;
+                }
                 if (TickOne(projectile, deltaTime))
                 {
                     _active[i] = _active[_active.Count - 1];

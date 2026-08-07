@@ -28,6 +28,7 @@ namespace DiceDiceDice
         public float BurnDuration;
         public float SlowDuration;
         public float FreezeDuration;
-        public bool MeteorFall;
+                public float LaunchDelay;
+public bool MeteorFall;
     }
 }
