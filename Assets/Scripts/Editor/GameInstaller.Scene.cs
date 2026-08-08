@@ -71,6 +71,7 @@ namespace DiceDiceDice.EditorTools
         [MenuItem("Tools/DICE DICE DICE/Build Scene Only")]
         public static void BuildScene()
         {
+            ConfigureWorldArt();
             Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             RemoveOldRoots(scene, "GameSystems", "WorldVisuals", "UICanvas", "EventSystem");
 
@@ -704,6 +705,7 @@ namespace DiceDiceDice.EditorTools
             Wire(refs.Audio, ("_sfxSource", refs.SfxSource), ("_musicSource", refs.MusicSource));
             Wire(refs.WallView,
                 ("_config", config), ("_palette", palette), ("_wall", refs.Wall),
+                ("_arenaSprite", LoadSprite(DungeonArenaPath)), ("_wallSprite", LoadSprite(DungeonWallPath)),
                 ("_wallBody", refs.WallBody), ("_wallHitFlash", refs.WallHitFlash), ("_ground", refs.Ground),
                 ("_boardBackdrop", refs.BoardBackdrop), ("_shieldGlow", refs.ShieldGlow),
                 ("_crackLow", refs.CrackLow), ("_crackHigh", refs.CrackHigh));

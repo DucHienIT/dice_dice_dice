@@ -23,6 +23,8 @@ namespace DiceDiceDice.EditorTools
         // FantasyMonsters pack (read-only third-party asset) supplies all enemy visuals.
         private const string MonstersRoot = "Assets/FantasyMonsters/Monsters/";
         private const string GeneratedItemIcons = "Assets/Art/ItemIcons/Generated/";
+        private const string DungeonArenaPath = "Assets/Art/Environment/DungeonArena.png";
+        private const string DungeonWallPath = "Assets/Art/Environment/DungeonWall.png";
 
         private static Sprite LoadSprite(string path)
         {
@@ -53,6 +55,7 @@ namespace DiceDiceDice.EditorTools
         public static void InstallAll()
         {
             EnsureFolders();
+            ConfigureWorldArt();
             InstallConfigs();
             InstallItems();
             InstallEnemies();
@@ -68,6 +71,7 @@ namespace DiceDiceDice.EditorTools
         public static void InstallDataOnly()
         {
             EnsureFolders();
+            ConfigureWorldArt();
             InstallConfigs();
             InstallItems();
             InstallEnemies();
@@ -275,6 +279,43 @@ namespace DiceDiceDice.EditorTools
             }
         }
 
+
+        private static void ConfigureWorldArt()
+        {
+            ConfigureWorldTexture(DungeonArenaPath, false);
+            ConfigureWorldTexture(DungeonWallPath, true);
+        }
+
+        private static void ConfigureWorldTexture(string path, bool alphaIsTransparency)
+        {
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+            {
+                Debug.LogError("[Installer] Missing world art: " + path);
+                return;
+            }
+
+            bool dirty = importer.textureType != TextureImporterType.Sprite
+                || importer.spriteImportMode != SpriteImportMode.Single
+                || importer.mipmapEnabled
+                || importer.alphaIsTransparency != alphaIsTransparency
+                || importer.filterMode != FilterMode.Point
+                || importer.wrapMode != TextureWrapMode.Clamp
+                || importer.textureCompression != TextureImporterCompression.Uncompressed;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 100f;
+            importer.alphaIsTransparency = alphaIsTransparency;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.maxTextureSize = 2048;
+            if (dirty)
+            {
+                importer.SaveAndReimport();
+            }
+        }
 
         private static void SetItemIcon(string assetName, string spritePath)
         {
