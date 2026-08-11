@@ -1,5 +1,6 @@
 using System;
 using CCQ.Data;
+using CCQ.Localization;
 using UnityEngine;
 
 namespace CCQ.UI
@@ -43,17 +44,21 @@ namespace CCQ.UI
             Sidekick incoming, float snackHealPct)
         {
             var swapScale = new Vector3(_swapCardScale, _swapCardScale, 1f);
+            string releaseFormat = Loc.Get(LocKeys.ChoiceRelease);
+            string adoptDesc = Loc.Get(LocKeys.ChoiceAdoptDesc)
+                .Replace("{s}", incoming.DisplayName)
+                .Replace("{d}", incoming.Description);
             for (int i = 0; i < 3; i++)
             {
                 Sidekick s = owned[i];
-                _cards[i].SetContent(s.Icon, "Release " + s.DisplayName,
-                    "Adopt <b>" + incoming.DisplayName + "</b> — " + incoming.Description);
+                _cards[i].SetContent(s.Icon, releaseFormat.Replace("{s}", s.DisplayName), adoptDesc);
                 _cards[i].SetVisible(true);
                 _cards[i].Rect.anchoredPosition = new Vector2((i - 1.5f) * _swapSpacingX, 0f);
                 _cards[i].Rect.localScale = swapScale;
             }
-            _cards[3].SetContent(incoming.Icon, "Wave goodbye",
-                "Keep your pod — it gifts a snack (+" + Mathf.RoundToInt(snackHealPct * 100f) + "% HP)");
+            _cards[3].SetContent(incoming.Icon, Loc.Get(LocKeys.ChoiceWaveGoodbye),
+                Loc.Get(LocKeys.ChoiceSnackDesc)
+                    .Replace("{n}", Mathf.RoundToInt(snackHealPct * 100f).ToString()));
             _cards[3].SetVisible(true);
             _cards[3].Rect.anchoredPosition = new Vector2(1.5f * _swapSpacingX, 0f);
             _cards[3].Rect.localScale = swapScale;

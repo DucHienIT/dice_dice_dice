@@ -1,0 +1,1146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f0b0c553be8edd4682e9180fdd13e37, type: 3}
+  m_Name: I2Languages
+  m_EditorClassIdentifier: Assembly-CSharp::I2.Loc.LanguageSourceAsset
+  mSource:
+    UserAgreesToHaveItOnTheScene: 0
+    UserAgreesToHaveItInsideThePluginsFolder: 0
+    GoogleLiveSyncIsUptoDate: 1
+    mTerms:
+    - Term: Narrative/BattleIntro/1
+      TermType: 0
+      Description: 
+      Languages:
+      - '*Cosmic Critters* emerge from the bio-luminescent flora; engage defensive
+        protocols!'
+      - "*Qu\xE1i V\u0169 Tr\u1EE5* tr\u1ED3i l\xEAn t\u1EEB \u0111\xE1m th\u1EF1c
+        v\u1EADt ph\xE1t s\xE1ng; k\xEDch ho\u1EA1t giao th\u1EE9c ph\xF2ng th\u1EE7!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BattleIntro/2
+      TermType: 0
+      Description: 
+      Languages:
+      - A wild *{e}* blocks the trail, hissing static; you have no choice but to
+        strike first.
+      - "M\u1ED9t con *{e}* hoang d\xE3 ch\u1EB7n \u0111\u01B0\u1EDDng, r\xEDt l\xEAn
+        nh\u01B0 nhi\u1EC5u s\xF3ng; b\u1EA1n bu\u1ED9c ph\u1EA3i ra tay tr\u01B0\u1EDBc."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BattleIntro/3
+      TermType: 0
+      Description: 
+      Languages:
+      - Sensors ping - *{e}* burrows out of the glowshroom bed, fangs first!
+      - "C\u1EA3m bi\u1EBFn b\xE1o \u0111\u1ED9ng - *{e}* chui l\xEAn t\u1EEB lu\u1ED1ng
+        n\u1EA5m ph\xE1t quang, nanh nh\u1ECDn d\u1EF1ng \u0111\u1EE9ng!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BattleIntro/4
+      TermType: 0
+      Description: 
+      Languages:
+      - The lake bubbles... a hungry *{e}* surfaces and charges!
+      - "M\u1EB7t h\u1ED3 s\u1EE7i b\u1ECDt... m\u1ED9t con *{e}* \u0111\xF3i kh\xE1t
+        tr\u1ED3i l\xEAn v\xE0 lao t\u1EDBi!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BattleIntro/5
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Your translator crackles: "*{e}* claims this territory. Prepare!"'
+      - "M\xE1y phi\xEAn d\u1ECBch r\xE8 l\xEAn: \"*{e}* tuy\xEAn b\u1ED1 l\xE3nh
+        th\u1ED5 n\xE0y. Chu\u1EA9n b\u1ECB \u0111i!\""
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/EliteIntro/1
+      TermType: 0
+      Description: 
+      Languages:
+      - An *irradiated {e}* looms ahead, crackling with unstable energy!
+      - "M\u1ED9t con *{e} nhi\u1EC5m x\u1EA1* s\u1EEBng s\u1EEFng ph\xEDa tr\u01B0\u1EDBc,
+        n\u0103ng l\u01B0\u1EE3ng b\u1EA5t \u1ED5n n\u1ED5 l\xE9p b\xE9p!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/EliteIntro/2
+      TermType: 0
+      Description: 
+      Languages:
+      - This *{e}* has feasted on starlight - larger, meaner, hungrier.
+      - "Con *{e}* n\xE0y \u0111\xE3 nu\u1ED1t tr\u1ECDn \xE1nh sao - to h\u01A1n,
+        d\u1EEF h\u01A1n, \u0111\xF3i h\u01A1n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossIntro/1
+      TermType: 0
+      Description: 
+      Languages:
+      - The ground trembles. *{e}*, tyrant of this world, descends!
+      - "M\u1EB7t \u0111\u1EA5t rung chuy\u1EC3n. *{e}*, b\u1EA1o ch\xFAa c\u1EE7a
+        th\u1EBF gi\u1EDBi n\xE0y, gi\xE1ng l\xE2m!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossIntro/2
+      TermType: 0
+      Description: 
+      Languages:
+      - All flora dims. *{e}* has found you.
+      - "M\u1ECDi \xE1nh s\xE1ng th\u1EF1c v\u1EADt v\u1EE5t t\u1EAFt. *{e}* \u0111\xE3
+        t\xECm ra b\u1EA1n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Win/1
+      TermType: 0
+      Description: 
+      Languages:
+      - The *{e}* dissolves into stardust. You absorb <b>+{xp} XP</b>.
+      - "*{e}* tan th\xE0nh b\u1EE5i sao. B\u1EA1n h\u1EA5p th\u1EE5 <b>+{xp} XP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Win/2
+      TermType: 0
+      Description: 
+      Languages:
+      - '*{e}* flees into the flora, defeated. <b>+{xp} XP</b> gathered.'
+      - "*{e}* b\u1EA1i tr\u1EADn, ch\u1EA1y tr\u1ED1n v\xE0o \u0111\xE1m th\u1EF1c
+        v\u1EADt. Thu \u0111\u01B0\u1EE3c <b>+{xp} XP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Win/3
+      TermType: 0
+      Description: 
+      Languages:
+      - Threat neutralized. Cosmic residue grants <b>+{xp} XP</b>.
+      - "M\u1ED1i \u0111e d\u1ECDa b\u1ECB v\xF4 hi\u1EC7u. T\xE0n d\u01B0 v\u0169
+        tr\u1EE5 mang l\u1EA1i <b>+{xp} XP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Fortune/1
+      TermType: 0
+      Description: 
+      Languages:
+      - A drifting *spore of luck* settles on your antenna.
+      - "M\u1ED9t *b\xE0o t\u1EED may m\u1EAFn* tr\xF4i d\u1EA1t \u0111\u1EADu l\xEAn
+        r\xE2u \u0103ng-ten c\u1EE7a b\u1EA1n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Fortune/2
+      TermType: 0
+      Description: 
+      Languages:
+      - You sip glowing dew from a crystal leaf. Refreshing!
+      - "B\u1EA1n nh\u1EA5p gi\u1ECDt s\u01B0\u01A1ng ph\xE1t s\xE1ng tr\xEAn chi\u1EBFc
+        l\xE1 pha l\xEA. S\u1EA3ng kho\xE1i!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Fortune/3
+      TermType: 0
+      Description: 
+      Languages:
+      - A tiny *star fragment* fuses with your suit.
+      - "M\u1ED9t *m\u1EA3nh sao* t\xED hon h\u1EE3p nh\u1EA5t v\xE0o b\u1ED9 gi\xE1p
+        c\u1EE7a b\u1EA1n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Choice/1
+      TermType: 0
+      Description: 
+      Languages:
+      - A derelict *supply pod* cracks open, offering strange tech...
+      - "M\u1ED9t *khoang ti\u1EBFp t\u1EBF* b\u1ECF hoang b\u1EADt m\u1EDF, h\xE9
+        l\u1ED9 c\xF4ng ngh\u1EC7 l\u1EA1..."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Choice/2
+      TermType: 0
+      Description: 
+      Languages:
+      - 'The flora whispers of *mutation*. Choose your evolution:'
+      - "\u0110\xE1m th\u1EF1c v\u1EADt th\xEC th\u1EA7m v\u1EC1 *\u0111\u1ED9t bi\u1EBFn*.
+        Ch\u1ECDn h\u01B0\u1EDBng ti\u1EBFn h\xF3a c\u1EE7a b\u1EA1n:"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Choice/3
+      TermType: 0
+      Description: 
+      Languages:
+      - An ancient vending machine hums to life. *Pick one:*
+      - "M\u1ED9t m\xE1y b\xE1n h\xE0ng c\u1ED5 \u0111\u1EA1i rung l\xEAn kh\u1EDFi
+        \u0111\u1ED9ng. *Ch\u1ECDn m\u1ED9t:*"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Spring/1
+      TermType: 0
+      Description: 
+      Languages:
+      - You discover a *bio-luminescent spring* and soak your weary tentacles. <b>+{heal}
+        HP</b>.
+      - "B\u1EA1n t\xECm th\u1EA5y m\u1ED9t *su\u1ED1i ph\xE1t quang sinh h\u1ECDc*
+        v\xE0 ng\xE2m \u0111\xE1m x\xFAc tu r\xE3 r\u1EDDi. <b>+{heal} HP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Spring/2
+      TermType: 0
+      Description: 
+      Languages:
+      - Friendly micro-critters knit your wounds. <b>+{heal} HP</b>.
+      - "L\u0169 vi sinh v\u1EADt th\xE2n thi\u1EC7n v\xE1 l\xE0nh v\u1EBFt th\u01B0\u01A1ng
+        cho b\u1EA1n. <b>+{heal} HP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Sidekick/1
+      TermType: 0
+      Description: 
+      Languages:
+      - A curious *{s}* bobs out of the flora and decides you are its best friend!
+      - "M\u1ED9t con *{s}* t\xF2 m\xF2 nh\xFAn nh\u1EA3y ra kh\u1ECFi l\xF9m c\xE2y
+        v\xE0 quy\u1EBFt \u0111\u1ECBnh b\u1EA1n l\xE0 b\u1EA1n th\xE2n c\u1EE7a
+        n\xF3!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Sidekick/2
+      TermType: 0
+      Description: 
+      Languages:
+      - '*{s}* the cosmic critter joins your voyage!'
+      - "*{s}*, sinh v\u1EADt v\u0169 tr\u1EE5, gia nh\u1EADp h\xE0nh tr\xECnh c\u1EE7a
+        b\u1EA1n!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/SidekickFull/1
+      TermType: 0
+      Description: 
+      Languages:
+      - It waves goodbye and gifts you a *snack* instead. <b>+{heal} HP</b>.
+      - "N\xF3 v\u1EABy tay t\u1EA1m bi\u1EC7t v\xE0 t\u1EB7ng b\u1EA1n m\u1ED9t
+        *b\u1EEFa \u0103n nh\u1EB9* thay l\u1EDDi ch\xE0o. <b>+{heal} HP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/SidekickJoin
+      TermType: 0
+      Description: 
+      Languages:
+      - ' <b>{s}</b> {d}.'
+      - ' <b>{s}</b> {d}.'
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/SidekickPodFull
+      TermType: 0
+      Description: 
+      Languages:
+      - ' But your pod is full - make room, or send it off with a snack?'
+      - " Nh\u01B0ng khoang c\u1EE7a b\u1EA1n \u0111\xE3 \u0111\u1EA7y - d\u1ECDn
+        ch\u1ED7, hay ti\u1EC5n n\xF3 \u0111i k\xE8m m\u1ED9t b\u1EEFa \u0103n nh\u1EB9?"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/SidekickSwap
+      TermType: 0
+      Description: 
+      Languages:
+      - '*{r}* waves goodbye and drifts into the flora. <b>{s}</b> {d}.'
+      - "*{r}* v\u1EABy tay t\u1EA1m bi\u1EC7t v\xE0 tr\xF4i v\xE0o l\xF9m c\xE2y.
+        <b>{s}</b> {d}."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Trap/1
+      TermType: 0
+      Description: 
+      Languages:
+      - You step on a *snapvine*! It lashes out before you break free. <b>-{dmg}
+        HP</b>.
+      - "B\u1EA1n gi\u1EABm ph\u1EA3i *d\xE2y leo \u0111\u1EDBp*! N\xF3 qu\u1EADt
+        m\u1EA1nh tr\u01B0\u1EDBc khi b\u1EA1n tho\xE1t ra. <b>-{dmg} HP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Trap/2
+      TermType: 0
+      Description: 
+      Languages:
+      - A gas bloom bursts - *toxic spores*! <b>-{dmg} HP</b>.
+      - "M\u1ED9t t\xFAi kh\xED bung ra - *b\xE0o t\u1EED \u0111\u1ED9c*! <b>-{dmg}
+        HP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Treasure/1
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Half-buried in the moss: an *alien artifact*! Analyzing grants <b>+{xp}
+        XP</b>.'
+      - "V\xF9i n\u1EEDa trong r\xEAu: m\u1ED9t *c\u1ED5 v\u1EADt ngo\xE0i h\xE0nh
+        tinh*! Ph\xE2n t\xEDch n\xF3 cho <b>+{xp} XP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Treasure/2
+      TermType: 0
+      Description: 
+      Languages:
+      - You crack open a *meteor geode* full of knowledge crystals. <b>+{xp} XP</b>.
+      - "B\u1EA1n \u0111\u1EADp v\u1EE1 m\u1ED9t *kh\u1ED1i thi\xEAn th\u1EA1ch*
+        \u0111\u1EA7y tinh th\u1EC3 tri th\u1EE9c. <b>+{xp} XP</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/PlanetClear/1
+      TermType: 0
+      Description: 
+      Languages:
+      - The skies calm. *{p}* is pacified - your ship beams you to the next world.
+      - "B\u1EA7u tr\u1EDDi l\u1EB7ng xu\u1ED1ng. *{p}* \u0111\xE3 b\xECnh y\xEAn
+        - phi thuy\u1EC1n d\u1ECBch chuy\u1EC3n b\u1EA1n t\u1EDBi th\u1EBF gi\u1EDBi
+        k\u1EBF ti\u1EBFp."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/LevelUpSuffix
+      TermType: 0
+      Description: 
+      Languages:
+      - ' <b>Level up! Lv.{lv}</b>'
+      - " <b>L\xEAn c\u1EA5p! C\u1EA5p {lv}</b>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/IntroNewRun
+      TermType: 0
+      Description: 
+      Languages:
+      - You beam down onto *{p}* - bio-luminescent flora hums in the dusk. Tap <b>ENGAGE</b>
+        to explore.
+      - "B\u1EA1n d\u1ECBch chuy\u1EC3n xu\u1ED1ng *{p}* - th\u1EF1c v\u1EADt ph\xE1t
+        quang ng\xE2n nga trong ho\xE0ng h\xF4n. Ch\u1EA1m <b>XU\u1EA4T PH\xC1T</b>
+        \u0111\u1EC3 kh\xE1m ph\xE1."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/IntroResume
+      TermType: 0
+      Description: 
+      Languages:
+      - Signal restored - your voyage on *{p}* continues. Tap <b>ENGAGE</b>.
+      - "T\xEDn hi\u1EC7u kh\xF4i ph\u1EE5c - h\xE0nh tr\xECnh c\u1EE7a b\u1EA1n
+        tr\xEAn *{p}* ti\u1EBFp t\u1EE5c. Ch\u1EA1m <b>XU\u1EA4T PH\xC1T</b>."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/Death
+      TermType: 0
+      Description: 
+      Languages:
+      - Your suit's life support fades... the *{e}* was too much. The mothership
+        retrieves your escape pod.
+      - "H\u1EC7 duy tr\xEC s\u1EF1 s\u1ED1ng t\u1EAFt d\u1EA7n... *{e}* qu\xE1 m\u1EA1nh.
+        T\xE0u m\u1EB9 thu h\u1ED3i khoang tho\xE1t hi\u1EC3m c\u1EE7a b\u1EA1n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/ElitePrefix
+      TermType: 0
+      Description: 
+      Languages:
+      - Irradiated {e}
+      - "{e} Nhi\u1EC5m X\u1EA1"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/1
+      TermType: 0
+      Description: 
+      Languages:
+      - Wobblor
+      - Wobblor
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/2
+      TermType: 0
+      Description: 
+      Languages:
+      - Zorp
+      - Zorp
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/3
+      TermType: 0
+      Description: 
+      Languages:
+      - Muncher
+      - Muncher
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/4
+      TermType: 0
+      Description: 
+      Languages:
+      - Blinkoid
+      - Blinkoid
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/5
+      TermType: 0
+      Description: 
+      Languages:
+      - Squishex
+      - Squishex
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/6
+      TermType: 0
+      Description: 
+      Languages:
+      - Gnarp
+      - Gnarp
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/7
+      TermType: 0
+      Description: 
+      Languages:
+      - Floob
+      - Floob
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/CritterName/8
+      TermType: 0
+      Description: 
+      Languages:
+      - Krellik
+      - Krellik
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossName/1
+      TermType: 0
+      Description: 
+      Languages:
+      - Overmind Gluttox
+      - "Ch\xFAa T\u1EC3 Gluttox"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossName/2
+      TermType: 0
+      Description: 
+      Languages:
+      - Warden Xal
+      - "Qu\u1EA3n Ng\u1EE5c Xal"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossName/3
+      TermType: 0
+      Description: 
+      Languages:
+      - The Devourer
+      - "K\u1EBB Nu\u1ED1t Ch\u1EEDng"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossName/4
+      TermType: 0
+      Description: 
+      Languages:
+      - Empress Vex
+      - "N\u1EEF Ho\xE0ng Vex"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Narrative/BossName/5
+      TermType: 0
+      Description: 
+      Languages:
+      - Null Titan
+      - "Titan H\u01B0 V\xF4"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Planet/Verdania
+      TermType: 0
+      Description: 
+      Languages:
+      - Verdania
+      - Verdania
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Planet/Pyros
+      TermType: 0
+      Description: 
+      Languages:
+      - Pyros
+      - Pyros
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Planet/Glacius
+      TermType: 0
+      Description: 
+      Languages:
+      - Glacius
+      - Glacius
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Planet/Fungaria
+      TermType: 0
+      Description: 
+      Languages:
+      - Fungaria
+      - Fungaria
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Planet/Voidreach
+      TermType: 0
+      Description: 
+      Languages:
+      - Voidreach
+      - Voidreach
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Gloop/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Gloop
+      - Gloop
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Gloop/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - adds +15% of your ATK each strike
+      - "c\u1ED9ng th\xEAm 15% ATK m\u1ED7i \u0111\xF2n \u0111\xE1nh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Sporeling/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Sporeling
+      - Sporeling
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Sporeling/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - heals 2% Max HP each beat
+      - "h\u1ED3i 2% HP t\u1ED1i \u0111a m\u1ED7i nh\u1ECBp"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Orbit/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Orbit
+      - Orbit
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Orbit/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - blocks 12% incoming damage
+      - "ch\u1EB7n 12% s\xE1t th\u01B0\u01A1ng nh\u1EADn v\xE0o"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Zappy/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Zappy
+      - Zappy
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Sidekick/Zappy/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - crit chance +6%
+      - "t\u1EC9 l\u1EC7 ch\xED m\u1EA1ng +6%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Fortune/MaxHp
+      TermType: 0
+      Description: 
+      Languages:
+      - Max HP +7%
+      - "HP t\u1ED1i \u0111a +7%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Fortune/Atk
+      TermType: 0
+      Description: 
+      Languages:
+      - ATK +5%
+      - ATK +5%
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Fortune/Def
+      TermType: 0
+      Description: 
+      Languages:
+      - DEF +2
+      - DEF +2
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Fortune/Crit
+      TermType: 0
+      Description: 
+      Languages:
+      - Crit +3%
+      - "Ch\xED m\u1EA1ng +3%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Fortune/Heal
+      TermType: 0
+      Description: 
+      Languages:
+      - Heal 20% HP
+      - "H\u1ED3i 20% HP"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/PlasmaCell/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Plasma Cell
+      - Pin Plasma
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/PlasmaCell/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Cosmic ATK +18%
+      - "ATK v\u0169 tr\u1EE5 +18%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/GeneSplice/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Gene Splice
+      - "Gh\xE9p Gen"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/GeneSplice/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Max HP +22%
+      - "HP t\u1ED1i \u0111a +22%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/OrbitalPlating/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Orbital Plating
+      - "Gi\xE1p Qu\u1EF9 \u0110\u1EA1o"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/OrbitalPlating/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Shield DEF +4
+      - "DEF khi\xEAn +4"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/SymbioteFangs/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Symbiote Fangs
+      - "Nanh C\u1ED9ng Sinh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/SymbioteFangs/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Lifesteal 8% of damage
+      - "H\xFAt m\xE1u 8% s\xE1t th\u01B0\u01A1ng"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/TargetingVisor/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Targeting Visor
+      - "K\xEDnh Ng\u1EAFm"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/TargetingVisor/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Crit chance +8%
+      - "T\u1EC9 l\u1EC7 ch\xED m\u1EA1ng +8%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/SpikeMembrane/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Spike Membrane
+      - "M\xE0ng Gai"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/SpikeMembrane/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Thorns: reflect 20% dmg'
+      - "Ph\u1EA3n \u0111\xF2n: d\u1ED9i l\u1EA1i 20% s\xE1t th\u01B0\u01A1ng"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/UnstableCore/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Unstable Core
+      - "L\xF5i B\u1EA5t \u1ED4n"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/UnstableCore/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - ATK +30% but Max HP -10%
+      - "ATK +30% nh\u01B0ng HP t\u1ED1i \u0111a -10%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/NanoSerum/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Nano Serum
+      - "Huy\u1EBFt Thanh Nano"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Upgrade/NanoSerum/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Heal 45% HP instantly
+      - "H\u1ED3i ngay 45% HP"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Engage/Engage
+      TermType: 0
+      Description: 
+      Languages:
+      - ENGAGE
+      - "XU\u1EA4T PH\xC1T"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Engage/Traveling
+      TermType: 0
+      Description: 
+      Languages:
+      - TRAVELING...
+      - "\u0110ANG \u0110I..."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Engage/Battling
+      TermType: 0
+      Description: 
+      Languages:
+      - BATTLING...
+      - "\u0110ANG \u0110\xC1NH..."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Engage/Choosing
+      TermType: 0
+      Description: 
+      Languages:
+      - CHOOSE...
+      - "H\xC3Y CH\u1ECCN..."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Engage/NewVoyage
+      TermType: 0
+      Description: 
+      Languages:
+      - NEW VOYAGE
+      - "H\xC0NH TR\xCCNH M\u1EDAI"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/Round
+      TermType: 0
+      Description: 
+      Languages:
+      - Round {0}/{1}
+      - "V\xF2ng {0}/{1}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/Level
+      TermType: 0
+      Description: 
+      Languages:
+      - Lv.{0}
+      - "C\u1EA5p {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/Speed
+      TermType: 0
+      Description: 
+      Languages:
+      - x{0}
+      - x{0}
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/StatXp
+      TermType: 0
+      Description: 
+      Languages:
+      - XP
+      - XP
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/StatHp
+      TermType: 0
+      Description: 
+      Languages:
+      - ALIEN HP
+      - "M\xC1U ALIEN"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/StatAtk
+      TermType: 0
+      Description: 
+      Languages:
+      - COSMIC ATK
+      - "ATK V\u0168 TR\u1EE4"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Hud/StatDef
+      TermType: 0
+      Description: 
+      Languages:
+      - SHIELD DEF
+      - "GI\xC1P KHI\xCAN"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Console/StarCycle
+      TermType: 0
+      Description: 
+      Languages:
+      - Star Cycle {0}
+      - "Chu K\u1EF3 Sao {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Stage/BossPrefix
+      TermType: 0
+      Description: 
+      Languages:
+      - BOSS {0}
+      - "TR\xD9M {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/Acquired
+      TermType: 0
+      Description: 
+      Languages:
+      - Acquired
+      - "\u0110\xE3 nh\u1EADn"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/SmallFortune
+      TermType: 0
+      Description: 
+      Languages:
+      - Small fortune
+      - "V\u1EADn may nh\u1ECF"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/NewSidekick
+      TermType: 0
+      Description: 
+      Languages:
+      - New sidekick
+      - "B\u1EA1n \u0111\u1ED3ng h\xE0nh m\u1EDBi"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/SidekickSwap
+      TermType: 0
+      Description: 
+      Languages:
+      - Sidekick swap
+      - "\u0110\u1ED5i b\u1EA1n \u0111\u1ED3ng h\xE0nh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/PlanetCleared
+      TermType: 0
+      Description: 
+      Languages:
+      - Planet cleared
+      - "\u0110\xE3 chinh ph\u1EE5c h\xE0nh tinh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/SidekickJoins
+      TermType: 0
+      Description: 
+      Languages:
+      - '{s} joins!'
+      - "{s} gia nh\u1EADp!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Banner/WarpingTo
+      TermType: 0
+      Description: 
+      Languages:
+      - Warping to {p}!
+      - "D\u1ECBch chuy\u1EC3n t\u1EDBi {p}!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Choice/Release
+      TermType: 0
+      Description: 
+      Languages:
+      - Release {s}
+      - "Th\u1EA3 {s}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Choice/AdoptDesc
+      TermType: 0
+      Description: 
+      Languages:
+      - Adopt <b>{s}</b> - {d}
+      - "Nh\u1EADn <b>{s}</b> - {d}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Choice/WaveGoodbye
+      TermType: 0
+      Description: 
+      Languages:
+      - Wave goodbye
+      - "V\u1EABy tay t\u1EA1m bi\u1EC7t"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Choice/SnackDesc
+      TermType: 0
+      Description: 
+      Languages:
+      - Keep your pod - it gifts a snack (+{n}% HP)
+      - "Gi\u1EEF nguy\xEAn khoang - nh\u1EADn m\u1ED9t b\u1EEFa nh\u1EB9 (+{n}%
+        HP)"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Floater/Enraged
+      TermType: 0
+      Description: 
+      Languages:
+      - ENRAGED!
+      - "CU\u1ED2NG N\u1ED8!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Floater/LevelUp
+      TermType: 0
+      Description: 
+      Languages:
+      - LEVEL UP!
+      - "L\xCAN C\u1EA4P!"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/Settings
+      TermType: 0
+      Description: 
+      Languages:
+      - Settings
+      - "C\xE0i \u0111\u1EB7t"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/Resume
+      TermType: 0
+      Description: 
+      Languages:
+      - Resume
+      - "Ti\u1EBFp t\u1EE5c"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/MusicOn
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Music: ON'
+      - "Nh\u1EA1c: B\u1EACT"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/MusicOff
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Music: OFF'
+      - "Nh\u1EA1c: T\u1EAET"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/SfxOn
+      TermType: 0
+      Description: 
+      Languages:
+      - 'SFX: ON'
+      - "\xC2m thanh: B\u1EACT"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/SfxOff
+      TermType: 0
+      Description: 
+      Languages:
+      - 'SFX: OFF'
+      - "\xC2m thanh: T\u1EAET"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/Restart
+      TermType: 0
+      Description: 
+      Languages:
+      - Restart voyage
+      - "Ch\u01A1i l\u1EA1i t\u1EEB \u0111\u1EA7u"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/ResetAll
+      TermType: 0
+      Description: 
+      Languages:
+      - Reset all data
+      - "X\xF3a to\xE0n b\u1ED9 d\u1EEF li\u1EC7u"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/Language
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Language: {0}'
+      - "Ng\xF4n ng\u1EEF: {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/About
+      TermType: 0
+      Description: 
+      Languages:
+      - Cosmic Critter Quest - a tap-to-advance auto-battle voyage.
+      - "Cosmic Critter Quest - h\xE0nh tr\xECnh t\u1EF1 chi\u1EBFn \u0111\u1EA5u
+        ch\u1EC9 v\u1EDBi m\u1ED9t n\xFAt ch\u1EA1m."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Overlay/BestShort
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Best voyage: Planet {0} - Round {1}'
+      - "K\u1EF7 l\u1EE5c: H\xE0nh tinh {0} - V\xF2ng {1}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/Title
+      TermType: 0
+      Description: 
+      Languages:
+      - Voyage Ended
+      - "K\u1EBFt th\xFAc h\xE0nh tr\xECnh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/FellOn
+      TermType: 0
+      Description: 
+      Languages:
+      - You fell on <b>{0}</b>
+      - "B\u1EA1n g\u1EE5c ng\xE3 tr\xEAn <b>{0}</b>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/Progress
+      TermType: 0
+      Description: 
+      Languages:
+      - <size=140%>Planet {0} - Round {1}</size>
+      - "<size=140%>H\xE0nh tinh {0} - V\xF2ng {1}</size>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/LevelCycle
+      TermType: 0
+      Description: 
+      Languages:
+      - Level {0} - Star Cycle {1}
+      - "C\u1EA5p {0} - Chu K\u1EF3 Sao {1}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/HitLine
+      TermType: 0
+      Description: 
+      Languages:
+      - Hits {0} - Crits {1} - Max hit {2}
+      - "\u0110\xF2n \u0111\xE1nh {0} - Ch\xED m\u1EA1ng {1} - \u0110\xF2n m\u1EA1nh
+        nh\u1EA5t {2}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/DamageLine
+      TermType: 0
+      Description: 
+      Languages:
+      - Damage dealt {0}
+      - "T\u1ED5ng s\xE1t th\u01B0\u01A1ng {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/SlainLine
+      TermType: 0
+      Description: 
+      Languages:
+      - Elites {0} - Bosses {1}
+      - "Tinh anh {0} - Tr\xF9m {1}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/NewBest
+      TermType: 0
+      Description: 
+      Languages:
+      - <color=#FFD35C><b>NEW BEST VOYAGE!</b></color>
+      - "<color=#FFD35C><b>K\u1EF6 L\u1EE4C M\u1EDAI!</b></color>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/BestVoyage
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Best voyage: Planet {0} - Round {1} (Lv.{2})'
+      - "K\u1EF7 l\u1EE5c: H\xE0nh tinh {0} - V\xF2ng {1} (C\u1EA5p {2})"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Language/en
+      TermType: 0
+      Description: 
+      Languages:
+      - English
+      - English
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Language/vi
+      TermType: 0
+      Description: 
+      Languages:
+      - "Ti\u1EBFng Vi\u1EC7t"
+      - "Ti\u1EBFng Vi\u1EC7t"
+      Flags: 0000
+      Languages_Touch: []
+    CaseInsensitiveTerms: 0
+    OnMissingTranslation: 1
+    mTerm_AppName: 
+    mLanguages:
+    - Name: English
+      Code: en
+      Flags: 0
+    - Name: Vietnamese
+      Code: vi
+      Flags: 0
+    IgnoreDeviceLanguage: 0
+    _AllowUnloadingLanguages: 0
+    Google_WebServiceURL: 
+    Google_SpreadsheetKey: 
+    Google_SpreadsheetName: 
+    Google_LastUpdatedVersion: 
+    Google_Password: change_this
+    GoogleUpdateFrequency: 3
+    GoogleInEditorCheckFrequency: 2
+    GoogleUpdateSynchronization: 1
+    GoogleUpdateDelay: 0
+    Assets: []
+    Spreadsheet_LocalFileName: 
+    Spreadsheet_LocalCSVSeparator: ','
+    Spreadsheet_LocalCSVEncoding: utf-8
+    Spreadsheet_SpecializationAsRows: 1

@@ -1,5 +1,6 @@
 using CCQ.Core;
 using CCQ.Data;
+using CCQ.Localization;
 using CCQ.Progression;
 using CCQ.Sidekicks;
 using CCQ.Utils;
@@ -29,10 +30,10 @@ namespace CCQ.Events
             StatModApplier.Apply(run.Player, f.Mods);
             return new EventOutcome
             {
-                Text = NarrativeConfig.Pick(_narrative.FortuneTexts),
+                Line = LocLine.Of(NarrativeConfig.PickKey(_narrative.FortuneKeys)),
                 BannerIcon = f.Icon,
                 BannerTitle = f.DisplayName,
-                BannerTag = "Small fortune"
+                BannerTag = Loc.Get(LocKeys.BannerSmallFortune)
             };
         }
 
@@ -40,9 +41,9 @@ namespace CCQ.Events
         {
             Vector2 range = _config.SpringHeal;
             int heal = run.Player.HealPct(Random.Range(range.x, range.y));
-            string text = NarrativeConfig.Pick(_narrative.SpringTexts)
-                .Replace("{heal}", NumberStrings.Get(heal));
-            return new EventOutcome { Text = text, HeroHpDelta = heal };
+            LocLine line = LocLine.Of(NarrativeConfig.PickKey(_narrative.SpringKeys))
+                .With("{heal}", NumberStrings.Get(heal));
+            return new EventOutcome { Line = line, HeroHpDelta = heal };
         }
 
         public EventOutcome ResolveTrap(RunState run)
@@ -50,9 +51,9 @@ namespace CCQ.Events
             Vector2 range = _config.TrapDmg;
             int dmg = Mathf.RoundToInt(run.Player.MaxHp * Random.Range(range.x, range.y));
             run.Player.TakeDamage(dmg, 1); // traps never kill — floor at 1 HP
-            string text = NarrativeConfig.Pick(_narrative.TrapTexts)
-                .Replace("{dmg}", NumberStrings.Get(dmg));
-            return new EventOutcome { Text = text, HeroHpDelta = -dmg };
+            LocLine line = LocLine.Of(NarrativeConfig.PickKey(_narrative.TrapKeys))
+                .With("{dmg}", NumberStrings.Get(dmg));
+            return new EventOutcome { Line = line, HeroHpDelta = -dmg };
         }
 
         public EventOutcome ResolveTreasure(RunState run)
@@ -61,13 +62,18 @@ namespace CCQ.Events
             int g = run.GlobalRound(_config, run.Round + 1);
             int xp = Mathf.RoundToInt(_config.EnemyXp(g) * Random.Range(range.x, range.y));
             int ups = XpSystem.GrantXp(_config, run.Player, xp);
-            string text = NarrativeConfig.Pick(_narrative.TreasureTexts)
-                .Replace("{xp}", NumberStrings.Get(xp));
+            var outcome = new EventOutcome
+            {
+                Line = LocLine.Of(NarrativeConfig.PickKey(_narrative.TreasureKeys))
+                    .With("{xp}", NumberStrings.Get(xp)),
+                LevelUps = ups
+            };
             if (ups > 0)
             {
-                text += _narrative.LevelUpSuffix.Replace("{lv}", NumberStrings.Get(run.Player.Level));
+                outcome.Suffix = LocLine.Of(_narrative.LevelUpSuffixKey)
+                    .With("{lv}", NumberStrings.Get(run.Player.Level));
             }
-            return new EventOutcome { Text = text, LevelUps = ups };
+            return outcome;
         }
 
         /// <summary>
@@ -83,36 +89,38 @@ namespace CCQ.Events
                 return ResolveSnack(run); // owns every kind already
             }
 
+            LocLine intro = LocLine.Of(NarrativeConfig.PickKey(_narrative.SidekickKeys))
+                .With("{s}", rolled.DisplayName);
+
             if (run.Player.Sidekicks.Count >= _config.MaxSidekicks)
             {
-                string offer = NarrativeConfig.Pick(_narrative.SidekickTexts)
-                    .Replace("{s}", rolled.DisplayName);
                 return new EventOutcome
                 {
-                    Text = offer + " But your pod is full — make room, or send it off with a snack?",
+                    Line = intro,
+                    Suffix = LocLine.Of(LocKeys.SidekickPodFull),
                     PendingSidekick = rolled
                 };
             }
 
             run.Player.Sidekicks.Add(rolled);
-            string text = NarrativeConfig.Pick(_narrative.SidekickTexts)
-                    .Replace("{s}", rolled.DisplayName)
-                + " <b>" + rolled.DisplayName + "</b> " + rolled.Description + ".";
             return new EventOutcome
             {
-                Text = text,
+                Line = intro,
+                Suffix = LocLine.Of(LocKeys.SidekickJoin)
+                    .With("{s}", rolled.DisplayName)
+                    .With("{d}", rolled.Description),
                 BannerIcon = rolled.Icon,
-                BannerTitle = rolled.DisplayName + " joins!",
-                BannerTag = "New sidekick"
+                BannerTitle = Loc.Get(LocKeys.BannerSidekickJoins).Replace("{s}", rolled.DisplayName),
+                BannerTag = Loc.Get(LocKeys.BannerNewSidekick)
             };
         }
 
         public EventOutcome ResolveSnack(RunState run)
         {
             int heal = run.Player.HealPct(_config.SnackHeal);
-            string text = NarrativeConfig.Pick(_narrative.SidekickFullTexts)
-                .Replace("{heal}", NumberStrings.Get(heal));
-            return new EventOutcome { Text = text, HeroHpDelta = heal };
+            LocLine line = LocLine.Of(NarrativeConfig.PickKey(_narrative.SidekickFullKeys))
+                .With("{heal}", NumberStrings.Get(heal));
+            return new EventOutcome { Line = line, HeroHpDelta = heal };
         }
 
         /// <summary>Swap: release owned sidekick at index, adopt the pending one.</summary>
@@ -122,11 +130,13 @@ namespace CCQ.Events
             run.Player.Sidekicks[releaseIndex] = incoming;
             return new EventOutcome
             {
-                Text = "*" + released.DisplayName + "* waves goodbye and drifts into the flora. <b>" +
-                       incoming.DisplayName + "</b> " + incoming.Description + ".",
+                Line = LocLine.Of(LocKeys.SidekickSwap)
+                    .With("{r}", released.DisplayName)
+                    .With("{s}", incoming.DisplayName)
+                    .With("{d}", incoming.Description),
                 BannerIcon = incoming.Icon,
-                BannerTitle = incoming.DisplayName + " joins!",
-                BannerTag = "Sidekick swap"
+                BannerTitle = Loc.Get(LocKeys.BannerSidekickJoins).Replace("{s}", incoming.DisplayName),
+                BannerTag = Loc.Get(LocKeys.BannerSidekickSwap)
             };
         }
 

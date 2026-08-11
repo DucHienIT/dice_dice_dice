@@ -6,17 +6,19 @@ using UnityEngine.UI;
 namespace CCQ.UI
 {
     /// <summary>
-    /// Modal overlay (settings / game over). Up to 5 pre-placed buttons — callers pass
+    /// Modal overlay (settings / game over). Up to 6 pre-placed buttons — callers pass
     /// label + action pairs; unused buttons hide. While open, GameManager pauses battle.
     /// </summary>
     public class OverlayView : MonoBehaviour
     {
+        public const int MaxButtons = 6;
+
         [SerializeField] private TextMeshProUGUI _title;
         [SerializeField] private TextMeshProUGUI _body;
         [SerializeField] private Button[] _buttons;
         [SerializeField] private TextMeshProUGUI[] _buttonLabels;
 
-        private readonly Action[] _actions = new Action[5];
+        private readonly Action[] _actions = new Action[MaxButtons];
 
         public bool IsOpen => gameObject.activeSelf;
 
@@ -34,7 +36,8 @@ namespace CCQ.UI
             string label1 = null, Action action1 = null,
             string label2 = null, Action action2 = null,
             string label3 = null, Action action3 = null,
-            string label4 = null, Action action4 = null)
+            string label4 = null, Action action4 = null,
+            string label5 = null, Action action5 = null)
         {
             _title.text = title;
             _body.text = body;
@@ -43,6 +46,7 @@ namespace CCQ.UI
             Bind(2, label2, action2);
             Bind(3, label3, action3);
             Bind(4, label4, action4);
+            Bind(5, label5, action5);
             if (!gameObject.activeSelf) gameObject.SetActive(true);
         }
 

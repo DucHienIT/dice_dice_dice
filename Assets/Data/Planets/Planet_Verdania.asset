@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94320bd62fd54d64dbd2cb0b2c493cf9, type: 3}
   m_Name: Planet_Verdania
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Planet
-  _displayName: Verdania
+  _nameKey: Planet/Verdania
   _skyTop: {r: 0.16862746, g: 0.105882354, b: 0.36862746, a: 1}
   _skyBottom: {r: 0.07058824, g: 0.22745098, b: 0.41960785, a: 1}
   _lake: {r: 0.12156863, g: 0.65882355, b: 0.627451, a: 1}

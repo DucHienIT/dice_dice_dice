@@ -1,6 +1,7 @@
 using CCQ.Core;
 using CCQ.Data;
 using CCQ.Enemies;
+using CCQ.Localization;
 using CCQ.Sidekicks;
 using TMPro;
 using UnityEngine;
@@ -61,7 +62,9 @@ namespace CCQ.Combat
             _enterT = 0f; // slides in from off-screen right, as if the hero walked up to it
 
             bool boss = enemy.Kind == EnemyKind.Boss;
-            _enemyName.text = boss ? "BOSS " + enemy.Name : enemy.Name;
+            _enemyName.text = boss
+                ? Loc.Get(LocKeys.StageBossPrefix).Replace("{0}", enemy.Name)
+                : enemy.Name;
             _enemyName.color = boss ? BossNameColor : Color.white;
             Vector3 namePos = _enemyName.transform.position;
             namePos.y = _baseY + 2.15f * enemy.Look.Size + 0.32f;

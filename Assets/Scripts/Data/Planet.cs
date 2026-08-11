@@ -1,3 +1,4 @@
+using CCQ.Localization;
 using UnityEngine;
 
 namespace CCQ.Data
@@ -5,7 +6,8 @@ namespace CCQ.Data
     [CreateAssetMenu(menuName = "CCQ/Planet", fileName = "Planet")]
     public class Planet : ScriptableObject
     {
-        [SerializeField] private string _displayName;
+        [Tooltip("Localization term key — the name lives in CCQ_Localization.csv.")]
+        [SerializeField] private string _nameKey;
         [SerializeField] private Color _skyTop;
         [SerializeField] private Color _skyBottom;
         [SerializeField] private Color _lake;
@@ -23,7 +25,7 @@ namespace CCQ.Data
         [SerializeField] private float _musicRootHz = 110f;
         [SerializeField] private bool _minorMood;
 
-        public string DisplayName => _displayName;
+        public string DisplayName => Loc.Get(_nameKey);
         public Color SkyTop => _skyTop;
         public Color SkyBottom => _skyBottom;
         public Color Lake => _lake;

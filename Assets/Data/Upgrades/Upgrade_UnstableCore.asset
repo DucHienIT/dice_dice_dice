@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
   m_Name: Upgrade_UnstableCore
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _displayName: Unstable Core
-  _description: ATK +30% but Max HP -10%
+  _nameKey: Upgrade/UnstableCore/Name
+  _descriptionKey: Upgrade/UnstableCore/Desc
   _icon: {fileID: 21300000, guid: 6a804579ee240497ab330defdfcfad4e, type: 3}
   _mods:
   - Type: 1

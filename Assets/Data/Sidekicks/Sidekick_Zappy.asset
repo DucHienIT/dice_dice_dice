@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sidekick_Zappy
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Sidekick
   _id: spark
-  _displayName: Zappy
-  _description: crit chance +6%
+  _nameKey: Sidekick/Zappy/Name
+  _descriptionKey: Sidekick/Zappy/Desc
   _icon: {fileID: 21300000, guid: dfc9a525fbb2c432287a50678b1eb0b3, type: 3}
   _orbSprite: {fileID: 21300000, guid: f406099d888d45a47a38a24f893ee8ca, type: 3}
   _color: {r: 1, g: 0.827451, b: 0.36078432, a: 1}

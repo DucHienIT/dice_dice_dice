@@ -1,3 +1,4 @@
+using CCQ.Localization;
 using UnityEngine;
 
 namespace CCQ.Data
@@ -5,13 +6,14 @@ namespace CCQ.Data
     [CreateAssetMenu(menuName = "CCQ/Upgrade Card", fileName = "UpgradeCard")]
     public class UpgradeCard : ScriptableObject
     {
-        [SerializeField] private string _displayName;
-        [SerializeField, TextArea] private string _description;
+        [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]
+        [SerializeField] private string _nameKey;
+        [SerializeField] private string _descriptionKey;
         [SerializeField] private Sprite _icon;
         [SerializeField] private StatMod[] _mods;
 
-        public string DisplayName => _displayName;
-        public string Description => _description;
+        public string DisplayName => Loc.Get(_nameKey);
+        public string Description => Loc.Get(_descriptionKey);
         public Sprite Icon => _icon;
         public StatMod[] Mods => _mods;
     }

@@ -4,6 +4,7 @@ using CCQ.Combat;
 using CCQ.Data;
 using CCQ.Enemies;
 using CCQ.Events;
+using CCQ.Localization;
 using CCQ.Planets;
 using CCQ.Progression;
 using CCQ.Save;
@@ -40,6 +41,14 @@ namespace CCQ.Core
         [SerializeField] private float _designHalfWidth = 5.4f;
         [SerializeField] private float _minOrthoSize = 9.6f;
 
+        /// <summary>Which modal is up, so a language switch can re-render it in place.</summary>
+        private enum OverlayKind
+        {
+            None,
+            Settings,
+            Death
+        }
+
         private RunState _run;
         private GameState _state;
         private BattleEngine _engine;
@@ -52,6 +61,11 @@ namespace CCQ.Core
         private EnemyState _currentEnemy;
         private float _time;
         private float _travelT;
+        // the console line is kept unresolved (key + tokens) so a language switch can
+        // re-render the very same sentence instead of rolling a new one
+        private readonly LocLine[] _eventLines = new LocLine[3];
+        private OverlayKind _openOverlay;
+        private bool _deathWasNewBest;
 
         private string PlanetName => _config.PlanetAt(_run.PlanetIndex).DisplayName;
 
@@ -83,6 +97,7 @@ namespace CCQ.Core
             _ui.SpeedPressed += OnSpeedPressed;
             _ui.GearPressed += OnGearPressed;
             _ui.ChoicePicked += OnChoicePicked;
+            Loc.Changed += OnLanguageChanged;
 
             _run = SaveSystem.TryLoadRun(_config);
             bool resumed = _run != null;
@@ -92,11 +107,29 @@ namespace CCQ.Core
             _stage.HideEnemy();
             _state = GameState.Ready;
             _ui.SetEngageMode(EngageButton.Mode.Engage);
-            SetEvent((resumed ? _narrative.IntroResume : _narrative.IntroNewRun)
-                .Replace("{p}", PlanetName));
+            SetEvent(LocLine.Of(resumed ? _narrative.IntroResumeKey : _narrative.IntroNewRunKey)
+                .With("{p}", PlanetName));
             _ui.ScrambleGlyphs();
             RefreshAll();
             if (!resumed) SaveSystem.SaveRun(_run);
+        }
+
+        private void OnDestroy()
+        {
+            Loc.Changed -= OnLanguageChanged;
+        }
+
+        /// <summary>
+        /// Re-renders everything that was written in the old language: static captions,
+        /// run values, the current console line and whichever modal is open.
+        /// </summary>
+        private void OnLanguageChanged()
+        {
+            _ui.RefreshStaticText();
+            RefreshAll();
+            RenderEvent();
+            if (_openOverlay == OverlayKind.Settings) ShowSettings();
+            else if (_openOverlay == OverlayKind.Death) ShowDeathOverlay(_deathWasNewBest);
         }
 
         private void Update()
@@ -167,12 +200,12 @@ namespace CCQ.Core
             _stage.SetWalking(false);
             _stage.HideEnemy();
             _floaters.Clear();
-            _ui.Overlay.Hide();
+            HideOverlay();
             _ui.HideChoices();
             EnterPlanet();
             _state = GameState.Ready;
             _ui.SetEngageMode(EngageButton.Mode.Engage);
-            SetEvent(_narrative.IntroNewRun.Replace("{p}", PlanetName));
+            SetEvent(LocLine.Of(_narrative.IntroNewRunKey).With("{p}", PlanetName));
             _ui.ScrambleGlyphs();
             RefreshAll();
             SaveSystem.SaveRun(_run);
@@ -260,7 +293,7 @@ namespace CCQ.Core
                     if (outcome.PendingSidekick != null)
                     {
                         _pendingSidekick = outcome.PendingSidekick;
-                        SetEvent(outcome.Text);
+                        SetEvent(outcome.Line, outcome.Suffix);
                         _ui.ShowSidekickSwap(_run.Player.Sidekicks, _pendingSidekick);
                         EnterChoosing();
                         return; // saved after the swap decision
@@ -269,7 +302,7 @@ namespace CCQ.Core
                     break;
                 case Events.EventType.Choice:
                     _resolver.RollChoices(_choiceBuffer);
-                    SetEvent(NarrativeConfig.Pick(_narrative.ChoiceTexts));
+                    SetEvent(LocLine.Of(NarrativeConfig.PickKey(_narrative.ChoiceKeys)));
                     _ui.ShowUpgradeChoices(_choiceBuffer);
                     EnterChoosing();
                     return; // saved after the pick
@@ -309,7 +342,7 @@ namespace CCQ.Core
             {
                 UpgradeCard card = _choiceBuffer[index];
                 StatModApplier.Apply(_run.Player, card.Mods);
-                _ui.ShowBanner(card.Icon, card.DisplayName, "Acquired");
+                _ui.ShowBanner(card.Icon, card.DisplayName, Loc.Get(LocKeys.BannerAcquired));
                 _audio.PlayChime();
             }
 
@@ -322,7 +355,7 @@ namespace CCQ.Core
         private void ApplyOutcome(EventOutcome outcome)
         {
             if (outcome == null) return;
-            if (!string.IsNullOrEmpty(outcome.Text)) SetEvent(outcome.Text);
+            if (!outcome.Line.IsEmpty) SetEvent(outcome.Line, outcome.Suffix);
             if (outcome.BannerIcon != null || !string.IsNullOrEmpty(outcome.BannerTitle))
             {
                 _ui.ShowBanner(outcome.BannerIcon, outcome.BannerTitle, outcome.BannerTag);
@@ -352,9 +385,9 @@ namespace CCQ.Core
             _currentEnemy = _enemyFactory.Create(g, kind, _run.PlanetIndex);
             _stage.ShowEnemy(_currentEnemy);
 
-            string[] pool = kind == EnemyKind.Boss ? _narrative.BossIntros :
-                kind == EnemyKind.Elite ? _narrative.EliteIntros : _narrative.BattleIntros;
-            SetEvent(NarrativeConfig.Pick(pool).Replace("{e}", _currentEnemy.Name));
+            string[] pool = kind == EnemyKind.Boss ? _narrative.BossIntroKeys :
+                kind == EnemyKind.Elite ? _narrative.EliteIntroKeys : _narrative.BattleIntroKeys;
+            SetEvent(LocLine.Of(NarrativeConfig.PickKey(pool)).With("{e}", _currentEnemy.Name));
 
             if (kind == EnemyKind.Boss)
             {
@@ -414,23 +447,24 @@ namespace CCQ.Core
 
         private void OnEnrageStarted()
         {
-            _floaters.SpawnNotice(_stage.EnemyFloaterPos + Vector3.up * 0.4f, "ENRAGED!",
-                FloaterManager.HeroCritColor);
+            _floaters.SpawnNotice(_stage.EnemyFloaterPos + Vector3.up * 0.4f,
+                Loc.Get(LocKeys.FloaterEnraged), FloaterManager.HeroCritColor);
             _shaker.Shake(_config.ShakeHit * 1.5f);
         }
 
         private void OnBattleWon()
         {
-            _sb.Clear();
-            _sb.Append(NarrativeConfig.Pick(_narrative.WinTexts)
-                .Replace("{e}", _currentEnemy.Name)
-                .Replace("{xp}", NumberStrings.Get(_currentEnemy.Xp)));
+            LocLine win = LocLine.Of(NarrativeConfig.PickKey(_narrative.WinKeys))
+                .With("{e}", _currentEnemy.Name)
+                .With("{xp}", NumberStrings.Get(_currentEnemy.Xp));
+            LocLine levelUp = default;
+            LocLine cleared = default;
 
             int ups = XpSystem.GrantXp(_config, _run.Player, _currentEnemy.Xp);
             if (ups > 0)
             {
-                _sb.Append(_narrative.LevelUpSuffix.Replace("{lv}",
-                    NumberStrings.Get(_run.Player.Level)));
+                levelUp = LocLine.Of(_narrative.LevelUpSuffixKey)
+                    .With("{lv}", NumberStrings.Get(_run.Player.Level));
                 CelebrateLevelUp();
             }
             _run.Player.HealPct(_config.RegenPct);
@@ -440,17 +474,21 @@ namespace CCQ.Core
 
             if (_run.Round >= _config.RoundsPerPlanet)
             {
-                _sb.Append('\n').Append(NarrativeConfig.Pick(_narrative.PlanetClearTexts)
-                    .Replace("{p}", PlanetName));
+                // the farewell line names the planet just cleared, the banner the next one
+                cleared = LocLine.Of(NarrativeConfig.PickKey(_narrative.PlanetClearKeys))
+                    .With("{p}", PlanetName)
+                    .NextLine();
                 _run.PlanetIndex++;
                 _run.Round = 0;
                 _run.Player.HealPct(_config.PlanetClearHeal);
                 EnterPlanet();
                 _audio.PlayWarp();
-                _ui.ShowBanner(_warpBannerIcon, "Warping to " + PlanetName + "!", "Planet cleared");
+                _ui.ShowBanner(_warpBannerIcon,
+                    Loc.Get(LocKeys.BannerWarpingTo).Replace("{p}", PlanetName),
+                    Loc.Get(LocKeys.BannerPlanetCleared));
             }
 
-            SetEvent(_sb.ToString());
+            SetEvent(win, levelUp, cleared);
             _state = GameState.Ready;
             _ui.SetEngageMode(EngageButton.Mode.Engage);
             RefreshAll();
@@ -463,15 +501,15 @@ namespace CCQ.Core
             _audio.PlayDeath();
             bool newBest = SaveSystem.SaveBestIfHigher(_config, _run);
             SaveSystem.ClearRun();
-            SetEvent(_narrative.DeathText.Replace("{e}", _currentEnemy.Name));
+            SetEvent(LocLine.Of(_narrative.DeathKey).With("{e}", _currentEnemy.Name));
             _ui.SetEngageMode(EngageButton.Mode.Dead);
             ShowDeathOverlay(newBest);
         }
 
         private void CelebrateLevelUp()
         {
-            _floaters.SpawnNotice(_stage.HeroFloaterPos + Vector3.up * 0.35f, "LEVEL UP!",
-                FloaterManager.NoticeColor);
+            _floaters.SpawnNotice(_stage.HeroFloaterPos + Vector3.up * 0.35f,
+                Loc.Get(LocKeys.FloaterLevelUp), FloaterManager.NoticeColor);
             _audio.PlayLevelUp();
             _bursts.Burst(new Vector3(_stage.HeroX, _stage.BaseY + 0.8f, 0f),
                 FloaterManager.NoticeColor, 10, 3f);
@@ -483,30 +521,28 @@ namespace CCQ.Core
         {
             BestSaveData best = SaveSystem.LoadBest();
             RunStats s = _run.Stats;
+            _openOverlay = OverlayKind.Death;
+            _deathWasNewBest = newBest;
             _sb.Clear();
-            _sb.Append("You fell on <b>").Append(PlanetName).Append("</b>\n");
-            _sb.Append("<size=140%>Planet ").Append(_run.PlanetIndex + 1)
-                .Append(" - Round ").Append(_run.Round).Append("</size>\n");
-            _sb.Append("Level ").Append(_run.Player.Level)
-                .Append(" - Star Cycle ").Append(_run.StarCycle).Append("\n\n");
-            _sb.Append("Hits ").Append(s.Hits)
-                .Append(" - Crits ").Append(s.Crits)
-                .Append(" - Max hit ").Append(s.MaxHit).Append('\n');
-            _sb.Append("Damage dealt ").Append(s.DamageDealt).Append('\n');
-            _sb.Append("Elites ").Append(s.ElitesSlain)
-                .Append(" - Bosses ").Append(s.BossesSlain);
+            _sb.Append(Loc.Format(LocKeys.DeathFellOn, PlanetName)).Append('\n');
+            _sb.Append(Loc.Format(LocKeys.DeathProgress, _run.PlanetIndex + 1, _run.Round))
+                .Append('\n');
+            _sb.Append(Loc.Format(LocKeys.DeathLevelCycle, _run.Player.Level, _run.StarCycle))
+                .Append("\n\n");
+            _sb.Append(Loc.Format(LocKeys.DeathHitLine, s.Hits, s.Crits, s.MaxHit)).Append('\n');
+            _sb.Append(Loc.Format(LocKeys.DeathDamageLine, s.DamageDealt)).Append('\n');
+            _sb.Append(Loc.Format(LocKeys.DeathSlainLine, s.ElitesSlain, s.BossesSlain));
             if (newBest)
             {
-                _sb.Append("\n\n<color=#FFD35C><b>NEW BEST VOYAGE!</b></color>");
+                _sb.Append("\n\n").Append(Loc.Get(LocKeys.DeathNewBest));
             }
             else if (best != null)
             {
-                _sb.Append("\n\nBest voyage: Planet ").Append(best.planet)
-                    .Append(" - Round ").Append(best.round)
-                    .Append(" (Lv.").Append(best.lv).Append(')');
+                _sb.Append("\n\n")
+                    .Append(Loc.Format(LocKeys.DeathBestVoyage, best.planet, best.round, best.lv));
             }
-            _ui.Overlay.Show("Voyage Ended", _sb.ToString(),
-                "NEW VOYAGE", () =>
+            _ui.Overlay.Show(Loc.Get(LocKeys.DeathTitle), _sb.ToString(),
+                Loc.Get(LocKeys.EngageNewVoyage), () =>
                 {
                     _audio.PlayEngage();
                     NewRun(keepSpeed: true);
@@ -516,37 +552,43 @@ namespace CCQ.Core
         private void ShowSettings()
         {
             BestSaveData best = SaveSystem.LoadBest();
+            _openOverlay = OverlayKind.Settings;
             _sb.Clear();
-            _sb.Append("Cosmic Critter Quest — a tap-to-advance\nauto-battle voyage.");
+            _sb.Append(Loc.Get(LocKeys.OverlayAbout));
             if (best != null)
             {
-                _sb.Append("\n\nBest voyage: Planet ").Append(best.planet)
-                    .Append(" - Round ").Append(best.round);
+                _sb.Append("\n\n").Append(Loc.Format(LocKeys.OverlayBestShort, best.planet, best.round));
             }
-            _ui.Overlay.Show("Settings", _sb.ToString(),
-                "Resume", () =>
+            _ui.Overlay.Show(Loc.Get(LocKeys.OverlaySettings), _sb.ToString(),
+                Loc.Get(LocKeys.OverlayResume), () =>
                 {
                     _audio.PlayClick();
-                    _ui.Overlay.Hide();
+                    HideOverlay();
                 },
-                _audio.MusicOn ? "Music: ON" : "Music: OFF", () =>
+                Loc.Get(_audio.MusicOn ? LocKeys.OverlayMusicOn : LocKeys.OverlayMusicOff), () =>
                 {
                     _audio.SetMusicOn(!_audio.MusicOn);
                     _audio.PlayClick();
                     ShowSettings();
                 },
-                _audio.SfxOn ? "SFX: ON" : "SFX: OFF", () =>
+                Loc.Get(_audio.SfxOn ? LocKeys.OverlaySfxOn : LocKeys.OverlaySfxOff), () =>
                 {
                     _audio.SetSfxOn(!_audio.SfxOn);
                     _audio.PlayClick();
                     ShowSettings();
                 },
-                "Restart voyage", () =>
+                Loc.Format(LocKeys.OverlayLanguage, Loc.LanguageLabel(Loc.CurrentCode)), () =>
+                {
+                    _audio.PlayClick();
+                    // I2 batches the switch by a frame; OnLanguageChanged re-shows this panel
+                    Loc.CycleLanguage();
+                },
+                Loc.Get(LocKeys.OverlayRestart), () =>
                 {
                     _audio.PlayClick();
                     NewRun(keepSpeed: true);
                 },
-                "Reset all data", () =>
+                Loc.Get(LocKeys.OverlayResetAll), () =>
                 {
                     _audio.PlayClick();
                     SaveSystem.ClearRun();
@@ -555,11 +597,41 @@ namespace CCQ.Core
                 });
         }
 
+        private void HideOverlay()
+        {
+            _openOverlay = OverlayKind.None;
+            _ui.Overlay.Hide();
+        }
+
         // ---------------- helpers ----------------
 
-        private void SetEvent(string template)
+        private void SetEvent(LocLine line) => SetEvent(line, default, default);
+
+        private void SetEvent(LocLine line, LocLine suffix) => SetEvent(line, suffix, default);
+
+        /// <summary>
+        /// Stores the console line unresolved (so a language switch can re-render it)
+        /// and pushes the formatted text to the view.
+        /// </summary>
+        private void SetEvent(LocLine line, LocLine suffix, LocLine tail)
         {
-            _ui.SetEventText(RichText.Format(template));
+            _eventLines[0] = line;
+            _eventLines[1] = suffix;
+            _eventLines[2] = tail;
+            RenderEvent();
+        }
+
+        private void RenderEvent()
+        {
+            _sb.Clear();
+            for (int i = 0; i < _eventLines.Length; i++)
+            {
+                LocLine line = _eventLines[i];
+                if (line.IsEmpty) continue;
+                if (line.OnNewLine && _sb.Length > 0) _sb.Append('\n');
+                _sb.Append(line.Resolve());
+            }
+            _ui.SetEventText(RichText.Format(_sb.ToString()));
         }
 
         private void RefreshAll()

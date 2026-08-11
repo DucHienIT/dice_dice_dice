@@ -1,4 +1,5 @@
 using CCQ.Data;
+using CCQ.Localization;
 using UnityEngine;
 
 namespace CCQ.Enemies
@@ -29,8 +30,8 @@ namespace CCQ.Enemies
                 hp = Mathf.RoundToInt(hp * m.x);
                 atk = Mathf.RoundToInt(atk * m.y);
                 xp = Mathf.RoundToInt(xp * m.z);
-                string[] bosses = _narrative.BossNames;
-                name = bosses[planetIndex % bosses.Length];
+                string[] bosses = _narrative.BossNameKeys;
+                name = Loc.Get(bosses[planetIndex % bosses.Length]);
             }
             else if (kind == EnemyKind.Elite)
             {
@@ -38,11 +39,12 @@ namespace CCQ.Enemies
                 hp = Mathf.RoundToInt(hp * m.x);
                 atk = Mathf.RoundToInt(atk * m.y);
                 xp = Mathf.RoundToInt(xp * m.z);
-                name = "Irradiated " + NarrativeConfig.Pick(_narrative.CritterNames);
+                name = Loc.Get(LocKeys.ElitePrefix)
+                    .Replace("{e}", Loc.Pick(_narrative.CritterNameKeys));
             }
             else
             {
-                name = NarrativeConfig.Pick(_narrative.CritterNames);
+                name = Loc.Pick(_narrative.CritterNameKeys);
             }
 
             return new EnemyState

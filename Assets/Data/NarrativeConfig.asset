@@ -12,67 +12,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92320d5ee3836364e9b916290ec40eef, type: 3}
   m_Name: NarrativeConfig
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.NarrativeConfig
-  _battleIntros:
-  - '*Cosmic Critters* emerge from the bio-luminescent flora; engage defensive protocols!'
-  - A wild *{e}* blocks the trail, hissing static; you have no choice but to strike
-    first.
-  - Sensors ping - *{e}* burrows out of the glowshroom bed, fangs first!
-  - The lake bubbles... a hungry *{e}* surfaces and charges!
-  - 'Your translator crackles: "*{e}* claims this territory. Prepare!"'
-  _eliteIntros:
-  - An *irradiated {e}* looms ahead, crackling with unstable energy!
-  - This *{e}* has feasted on starlight - larger, meaner, hungrier.
-  _bossIntros:
-  - The ground trembles. *{e}*, tyrant of this world, descends!
-  - All flora dims. *{e}* has found you.
-  _winTexts:
-  - The *{e}* dissolves into stardust. You absorb <b>+{xp} XP</b>.
-  - '*{e}* flees into the flora, defeated. <b>+{xp} XP</b> gathered.'
-  - Threat neutralized. Cosmic residue grants <b>+{xp} XP</b>.
-  _fortuneTexts:
-  - A drifting *spore of luck* settles on your antenna.
-  - You sip glowing dew from a crystal leaf. Refreshing!
-  - A tiny *star fragment* fuses with your suit.
-  _choiceTexts:
-  - A derelict *supply pod* cracks open, offering strange tech...
-  - 'The flora whispers of *mutation*. Choose your evolution:'
-  - An ancient vending machine hums to life. *Pick one:*
-  _springTexts:
-  - You discover a *bio-luminescent spring* and soak your weary tentacles. <b>+{heal}
-    HP</b>.
-  - Friendly micro-critters knit your wounds. <b>+{heal} HP</b>.
-  _sidekickTexts:
-  - A curious *{s}* bobs out of the flora and decides you are its best friend!
-  - '*{s}* the cosmic critter joins your voyage!'
-  _sidekickFullTexts:
-  - It waves goodbye and gifts you a *snack* instead. <b>+{heal} HP</b>.
-  _trapTexts:
-  - You step on a *snapvine*! It lashes out before you break free. <b>-{dmg} HP</b>.
-  - A gas bloom bursts - *toxic spores*! <b>-{dmg} HP</b>.
-  _treasureTexts:
-  - 'Half-buried in the moss: an *alien artifact*! Analyzing grants <b>+{xp} XP</b>.'
-  - You crack open a *meteor geode* full of knowledge crystals. <b>+{xp} XP</b>.
-  _planetClearTexts:
-  - The skies calm. *{p}* is pacified - your ship beams you to the next world.
-  _levelUpSuffix: ' <b>Level up! Lv.{lv}</b>'
-  _introNewRun: You beam down onto *{p}* - bio-luminescent flora hums in the dusk.
-    Tap <b>ENGAGE</b> to explore.
-  _introResume: Signal restored - your voyage on *{p}* continues. Tap <b>ENGAGE</b>.
-  _deathText: Your suit's life support fades... the *{e}* was too much. The mothership
-    retrieves your escape pod.
-  _critterNames:
-  - Wobblor
-  - Zorp
-  - Muncher
-  - Blinkoid
-  - Squishex
-  - Gnarp
-  - Floob
-  - Krellik
-  _bossNames:
-  - Overmind Gluttox
-  - Warden Xal
-  - The Devourer
-  - Empress Vex
-  - Null Titan
+  _battleIntroKeys:
+  - Narrative/BattleIntro/1
+  - Narrative/BattleIntro/2
+  - Narrative/BattleIntro/3
+  - Narrative/BattleIntro/4
+  - Narrative/BattleIntro/5
+  _eliteIntroKeys:
+  - Narrative/EliteIntro/1
+  - Narrative/EliteIntro/2
+  _bossIntroKeys:
+  - Narrative/BossIntro/1
+  - Narrative/BossIntro/2
+  _winKeys:
+  - Narrative/Win/1
+  - Narrative/Win/2
+  - Narrative/Win/3
+  _fortuneKeys:
+  - Narrative/Fortune/1
+  - Narrative/Fortune/2
+  - Narrative/Fortune/3
+  _choiceKeys:
+  - Narrative/Choice/1
+  - Narrative/Choice/2
+  - Narrative/Choice/3
+  _springKeys:
+  - Narrative/Spring/1
+  - Narrative/Spring/2
+  _sidekickKeys:
+  - Narrative/Sidekick/1
+  - Narrative/Sidekick/2
+  _sidekickFullKeys:
+  - Narrative/SidekickFull/1
+  _trapKeys:
+  - Narrative/Trap/1
+  - Narrative/Trap/2
+  _treasureKeys:
+  - Narrative/Treasure/1
+  - Narrative/Treasure/2
+  _planetClearKeys:
+  - Narrative/PlanetClear/1
+  _levelUpSuffixKey: Narrative/LevelUpSuffix
+  _introNewRunKey: Narrative/IntroNewRun
+  _introResumeKey: Narrative/IntroResume
+  _deathKey: Narrative/Death
+  _critterNameKeys:
+  - Narrative/CritterName/1
+  - Narrative/CritterName/2
+  - Narrative/CritterName/3
+  - Narrative/CritterName/4
+  - Narrative/CritterName/5
+  - Narrative/CritterName/6
+  - Narrative/CritterName/7
+  - Narrative/CritterName/8
+  _bossNameKeys:
+  - Narrative/BossName/1
+  - Narrative/BossName/2
+  - Narrative/BossName/3
+  - Narrative/BossName/4
+  - Narrative/BossName/5
   _glyphChars: 0123456789<>/|+=*#@%&?!~^

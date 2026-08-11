@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sidekick_Orbit
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Sidekick
   _id: shield
-  _displayName: Orbit
-  _description: blocks 12% incoming damage
+  _nameKey: Sidekick/Orbit/Name
+  _descriptionKey: Sidekick/Orbit/Desc
   _icon: {fileID: 21300000, guid: 45edc13fd763640fa89956b1e34b6c3e, type: 3}
   _orbSprite: {fileID: 21300000, guid: ff97158e79a285b4eb93189e5b689f6b, type: 3}
   _color: {r: 0.78039217, g: 0.60784316, b: 1, a: 1}

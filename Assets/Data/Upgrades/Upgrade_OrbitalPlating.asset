@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
   m_Name: Upgrade_OrbitalPlating
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _displayName: Orbital Plating
-  _description: Shield DEF +4
+  _nameKey: Upgrade/OrbitalPlating/Name
+  _descriptionKey: Upgrade/OrbitalPlating/Desc
   _icon: {fileID: 21300000, guid: 835bb0042ed8d4333baab9882016e7b9, type: 3}
   _mods:
   - Type: 2

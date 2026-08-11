@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sidekick_Sporeling
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Sidekick
   _id: medic
-  _displayName: Sporeling
-  _description: heals 2% Max HP each beat
+  _nameKey: Sidekick/Sporeling/Name
+  _descriptionKey: Sidekick/Sporeling/Desc
   _icon: {fileID: 21300000, guid: 54342ea484cf74806a6549ccfba577b2, type: 3}
   _orbSprite: {fileID: 21300000, guid: 7397ecafe115668439559faa633e013a, type: 3}
   _color: {r: 0.54509807, g: 0.9411765, b: 0.47843137, a: 1}

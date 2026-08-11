@@ -1,5 +1,6 @@
 using System.Text;
 using CCQ.Data;
+using CCQ.Localization;
 using TMPro;
 using UnityEngine;
 
@@ -21,12 +22,20 @@ namespace CCQ.UI
         private float _revealed;
         private int _lastVisible = -1;
         private int _lastCycle = -1;
+        private string _cycleFormat = "{0}";
+
+        /// <summary>Re-pulls the translated header format and drops the change guard.</summary>
+        public void RefreshStaticText()
+        {
+            _cycleFormat = Loc.Get(LocKeys.ConsoleStarCycle);
+            _lastCycle = -1;
+        }
 
         public void SetStarCycle(int cycle)
         {
             if (cycle == _lastCycle) return;
             _lastCycle = cycle;
-            _cycleLabel.SetText("Star Cycle {0}", Mathf.Max(1, cycle));
+            _cycleLabel.SetText(_cycleFormat, Mathf.Max(1, cycle));
         }
 
         public void SetEventText(string tmpRichText)

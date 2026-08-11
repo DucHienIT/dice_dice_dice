@@ -72,11 +72,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2a3d45e61b4d1e74b96afb7add1ca3e4, type: 2}
   - {fileID: 11400000, guid: 64fa9db74d5bf9249a3ed6952b41c377, type: 2}
   _fortunes:
-  - {fileID: 11400000, guid: b38046841d70aea498a83aefcbfad9e7, type: 2}
-  - {fileID: 11400000, guid: d9bc6057f0a380646b552e727728eb9e, type: 2}
-  - {fileID: 11400000, guid: 8b32b5cfbffe20145be55766d01366c9, type: 2}
-  - {fileID: 11400000, guid: 59ec590238ff9f64cae718233ff87339, type: 2}
-  - {fileID: 11400000, guid: 925bcce2f7d08ad4c82321f140cb4179, type: 2}
+  - {fileID: 11400000, guid: 68a003bab3725fe439dd0037f31bcd0c, type: 2}
+  - {fileID: 11400000, guid: 70ac95496e386114f8a12480c1f26af0, type: 2}
+  - {fileID: 11400000, guid: 0b6fbace736c67540baeae5ffbcce14a, type: 2}
+  - {fileID: 11400000, guid: b4892eaa82ca7054e87f1327497867f9, type: 2}
+  - {fileID: 11400000, guid: 1f17d0714ffaa234f83879b2bfb74dec, type: 2}
   _sidekicks:
   - {fileID: 11400000, guid: 791b21f058ab3f243aff28f45694d5d7, type: 2}
   - {fileID: 11400000, guid: 531fa21496d33f643a6e7748fe80eab1, type: 2}

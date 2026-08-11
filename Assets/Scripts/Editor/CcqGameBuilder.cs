@@ -3,6 +3,7 @@ using CCQ.Combat;
 using CCQ.Core;
 using CCQ.Data;
 using CCQ.Enemies;
+using CCQ.Localization;
 using CCQ.Planets;
 using CCQ.Sidekicks;
 using CCQ.UI;
@@ -41,11 +42,23 @@ namespace CCQ.EditorTools
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Button/";
         private const string FontTtf =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular.ttf";
+        // LilitaOne carries no Vietnamese glyphs, so localized languages get their own font
+        private const string WideCharsetTtf = "Assets/Data/UI/Fonts/Roboto-Bold.ttf";
+        private const string WideCharsetFallbackTtf = "Assets/TextMesh Pro/Fonts/LiberationSans.ttf";
 
         private class Content
         {
             public GameConfig Config;
             public NarrativeConfig Narrative;
+        }
+
+        /// <summary>Display font plus the wide-charset font used by languages it cannot render.</summary>
+        private class Fonts
+        {
+            public TMP_FontAsset Default;
+            public TMP_FontAsset WideCharset;
+            public Material DefaultWorld;
+            public Material WideCharsetWorld;
         }
 
         private class Prefabs
@@ -68,15 +81,20 @@ namespace CCQ.EditorTools
             EnsureFolder(DataDir + "/Sidekicks");
             EnsureFolder(DataDir + "/Planets");
             EnsureFolder(PrefabDir);
+            EnsureFolder(UiDataDir + "/Fonts");
             EnsureFolder("Assets/Scenes");
 
-            TMP_FontAsset font = BuildFont(out Material worldTextMat);
+            // translations first: the configs below only store term keys, and the scene is
+            // authored with the strings this asset resolves them to
+            CcqLocalizationImporter.Import();
+
+            Fonts fonts = BuildFonts();
             Content content = BuildConfigs();
             // Bake every procedural sprite to a .png asset first — prefabs and the scene only
             // ever reference these, nothing paints at runtime.
             CcqSpriteBaker.Sprites art = CcqSpriteBaker.BakeAll(content.Config);
-            Prefabs prefabs = BuildPrefabs(content, art, font, worldTextMat);
-            BuildScene(content, art, prefabs, font, worldTextMat);
+            Prefabs prefabs = BuildPrefabs(content, art, fonts.Default, fonts.DefaultWorld);
+            BuildScene(content, art, prefabs, fonts);
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
@@ -85,45 +103,70 @@ namespace CCQ.EditorTools
 
         // ================= font =================
 
-        private static TMP_FontAsset BuildFont(out Material worldTextMat)
+        private static Fonts BuildFonts()
         {
-            string fontPath = UiDataDir + "/LilitaOne SDF.asset";
-            var fa = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fontPath);
-            if (fa == null)
+            var fonts = new Fonts
             {
-                var ttf = AssetDatabase.LoadAssetAtPath<Font>(FontTtf);
-                if (ttf != null)
-                {
-                    fa = TMP_FontAsset.CreateFontAsset(ttf, 70, 7, GlyphRenderMode.SDFAA,
-                        1024, 1024, AtlasPopulationMode.Dynamic, true);
-                }
-                if (fa != null)
-                {
-                    fa.name = "LilitaOne SDF";
-                    AssetDatabase.CreateAsset(fa, fontPath);
-                    fa.material.name = "LilitaOne SDF Material";
-                    fa.atlasTexture.name = "LilitaOne SDF Atlas";
-                    AssetDatabase.AddObjectToAsset(fa.material, fa);
-                    AssetDatabase.AddObjectToAsset(fa.atlasTexture, fa);
-                    AssetDatabase.SaveAssets();
-                }
-            }
-            if (fa == null)
+                Default = LoadOrCreateFont(FontTtf, UiDataDir + "/LilitaOne SDF.asset",
+                    "LilitaOne SDF")
+            };
+            if (fonts.Default == null)
             {
                 Debug.LogWarning("[Builder] LilitaOne unavailable — falling back to TMP default font");
-                fa = TMP_Settings.defaultFontAsset;
+                fonts.Default = TMP_Settings.defaultFontAsset;
             }
 
-            string matPath = UiDataDir + "/CcqWorldText.mat";
-            worldTextMat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-            if (worldTextMat == null)
+            fonts.WideCharset = LoadOrCreateFont(WideCharsetTtf, UiDataDir + "/RobotoVN SDF.asset",
+                                   "RobotoVN SDF")
+                               ?? LoadOrCreateFont(WideCharsetFallbackTtf,
+                                   UiDataDir + "/LiberationVN SDF.asset", "LiberationVN SDF");
+            if (fonts.WideCharset == null)
             {
-                worldTextMat = new Material(fa.material);
-                worldTextMat.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.22f);
-                worldTextMat.SetColor(ShaderUtilities.ID_OutlineColor, new Color(0f, 0f, 0f, 0.85f));
-                AssetDatabase.CreateAsset(worldTextMat, matPath);
+                Debug.LogWarning("[Builder] No diacritic-capable font found — " +
+                                 "Vietnamese text will show as missing glyphs");
+                fonts.WideCharset = fonts.Default;
             }
+
+            fonts.DefaultWorld = LoadOrCreateWorldMaterial(fonts.Default,
+                UiDataDir + "/CcqWorldText.mat");
+            fonts.WideCharsetWorld = fonts.WideCharset == fonts.Default
+                ? fonts.DefaultWorld
+                : LoadOrCreateWorldMaterial(fonts.WideCharset, UiDataDir + "/CcqWorldTextVN.mat");
+            return fonts;
+        }
+
+        /// <summary>Dynamic SDF font asset for a TTF, created once and reused afterwards.</summary>
+        private static TMP_FontAsset LoadOrCreateFont(string ttfPath, string assetPath, string name)
+        {
+            var fa = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
+            if (fa != null) return fa;
+
+            var ttf = AssetDatabase.LoadAssetAtPath<Font>(ttfPath);
+            if (ttf == null) return null;
+            fa = TMP_FontAsset.CreateFontAsset(ttf, 70, 7, GlyphRenderMode.SDFAA,
+                1024, 1024, AtlasPopulationMode.Dynamic, true);
+            if (fa == null) return null;
+
+            fa.name = name;
+            AssetDatabase.CreateAsset(fa, assetPath);
+            fa.material.name = name + " Material";
+            fa.atlasTexture.name = name + " Atlas";
+            AssetDatabase.AddObjectToAsset(fa.material, fa);
+            AssetDatabase.AddObjectToAsset(fa.atlasTexture, fa);
+            AssetDatabase.SaveAssets();
             return fa;
+        }
+
+        /// <summary>Outlined variant of a font's material, used by all world-space text.</summary>
+        private static Material LoadOrCreateWorldMaterial(TMP_FontAsset font, string path)
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (mat != null) return mat;
+            mat = new Material(font.material);
+            mat.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.22f);
+            mat.SetColor(ShaderUtilities.ID_OutlineColor, new Color(0f, 0f, 0f, 0.85f));
+            AssetDatabase.CreateAsset(mat, path);
+            return mat;
         }
 
         // ================= configs =================
@@ -145,129 +188,68 @@ namespace CCQ.EditorTools
 
             // ---- sidekicks ----
             var sidekicks = new Sidekick[4];
-            sidekicks[0] = MakeSidekick("blob", "Gloop", "adds +15% of your ATK each strike",
+            sidekicks[0] = MakeSidekick("blob", "Gloop",
                 PictoIcons + "Pictoicon_Fist.Png", "#6ee7ff", SidekickType.Damage, 0.15f);
-            sidekicks[1] = MakeSidekick("medic", "Sporeling", "heals 2% Max HP each beat",
+            sidekicks[1] = MakeSidekick("medic", "Sporeling",
                 PictoIcons + "Pictoicon_Mushroom.Png", "#8bf07a", SidekickType.Heal, 0.02f);
-            sidekicks[2] = MakeSidekick("shield", "Orbit", "blocks 12% incoming damage",
+            sidekicks[2] = MakeSidekick("shield", "Orbit",
                 PictoIcons + "Pictoicon_Magic_Ball.Png", "#c79bff", SidekickType.Block, 0.12f);
-            sidekicks[3] = MakeSidekick("spark", "Zappy", "crit chance +6%",
+            sidekicks[3] = MakeSidekick("spark", "Zappy",
                 PictoIcons + "Pictoicon_Thunder.Png", "#ffd35c", SidekickType.Crit, 0.06f);
 
             // ---- fortunes ----
             var fortunes = new Fortune[5];
-            fortunes[0] = MakeFortune("Max HP +7%", ItemIcons + "Icon_Heart.png",
+            fortunes[0] = MakeFortune("MaxHp", ItemIcons + "Icon_Heart.png",
                 new StatMod(StatModType.MaxHpPct, 0.07f));
-            fortunes[1] = MakeFortune("ATK +5%", ItemIcons + "Icon_Sword.png",
+            fortunes[1] = MakeFortune("Atk", ItemIcons + "Icon_Sword.png",
                 new StatMod(StatModType.AtkPct, 0.05f));
-            fortunes[2] = MakeFortune("DEF +2", ItemIcons + "Icon_Shield.png",
+            fortunes[2] = MakeFortune("Def", ItemIcons + "Icon_Shield.png",
                 new StatMod(StatModType.DefFlat, 2f));
-            fortunes[3] = MakeFortune("Crit +3%", ItemIcons + "Icon_Clover.png",
+            fortunes[3] = MakeFortune("Crit", ItemIcons + "Icon_Clover.png",
                 new StatMod(StatModType.CritChance, 0.03f));
-            fortunes[4] = MakeFortune("Heal 20% HP", ItemIcons + "Icon_Potion02_Green.png",
+            fortunes[4] = MakeFortune("Heal", ItemIcons + "Icon_Potion02_Green.png",
                 new StatMod(StatModType.HealNowPct, 0.20f));
 
             // ---- upgrades ----
             var upgrades = new UpgradeCard[8];
-            upgrades[0] = MakeUpgrade("Plasma Cell", "Cosmic ATK +18%",
+            upgrades[0] = MakeUpgrade("PlasmaCell",
                 ItemIcons + "Icon_Energy_Green.png", new StatMod(StatModType.AtkPct, 0.18f));
-            upgrades[1] = MakeUpgrade("Gene Splice", "Max HP +22%",
+            upgrades[1] = MakeUpgrade("GeneSplice",
                 PictoIcons + "Pictoicon_Life.Png", new StatMod(StatModType.MaxHpPct, 0.22f));
-            upgrades[2] = MakeUpgrade("Orbital Plating", "Shield DEF +4",
+            upgrades[2] = MakeUpgrade("OrbitalPlating",
                 ItemIcons + "Icon_Shield.png", new StatMod(StatModType.DefFlat, 4f));
-            upgrades[3] = MakeUpgrade("Symbiote Fangs", "Lifesteal 8% of damage",
+            upgrades[3] = MakeUpgrade("SymbioteFangs",
                 ItemIcons + "Icon_Tooth.png", new StatMod(StatModType.Lifesteal, 0.08f));
-            upgrades[4] = MakeUpgrade("Targeting Visor", "Crit chance +8%",
+            upgrades[4] = MakeUpgrade("TargetingVisor",
                 ItemIcons + "Icon_Target.png", new StatMod(StatModType.CritChance, 0.08f));
-            upgrades[5] = MakeUpgrade("Spike Membrane", "Thorns: reflect 20% dmg",
+            upgrades[5] = MakeUpgrade("SpikeMembrane",
                 PictoIcons + "Pictoicon_Cactus.Png", new StatMod(StatModType.Thorns, 0.20f));
-            upgrades[6] = MakeUpgrade("Unstable Core", "ATK +30% but Max HP -10%",
+            upgrades[6] = MakeUpgrade("UnstableCore",
                 PictoIcons + "Pictoicon_Boom.Png", new StatMod(StatModType.AtkPct, 0.30f),
                 new StatMod(StatModType.MaxHpMult, 0.9f));
-            upgrades[7] = MakeUpgrade("Nano Serum", "Heal 45% HP instantly",
+            upgrades[7] = MakeUpgrade("NanoSerum",
                 ItemIcons + "Icon_Potion01_Red.png", new StatMod(StatModType.HealNowPct, 0.45f));
 
-            // ---- narrative ----
+            // ---- narrative (term keys only — the sentences live in CCQ_Localization.csv) ----
             var narrative = LoadOrCreateAsset<NarrativeConfig>(DataDir + "/NarrativeConfig.asset");
-            SetPrivate(narrative, "_battleIntros", new[]
-            {
-                "*Cosmic Critters* emerge from the bio-luminescent flora; engage defensive protocols!",
-                "A wild *{e}* blocks the trail, hissing static; you have no choice but to strike first.",
-                "Sensors ping - *{e}* burrows out of the glowshroom bed, fangs first!",
-                "The lake bubbles... a hungry *{e}* surfaces and charges!",
-                "Your translator crackles: \"*{e}* claims this territory. Prepare!\""
-            });
-            SetPrivate(narrative, "_eliteIntros", new[]
-            {
-                "An *irradiated {e}* looms ahead, crackling with unstable energy!",
-                "This *{e}* has feasted on starlight - larger, meaner, hungrier."
-            });
-            SetPrivate(narrative, "_bossIntros", new[]
-            {
-                "The ground trembles. *{e}*, tyrant of this world, descends!",
-                "All flora dims. *{e}* has found you."
-            });
-            SetPrivate(narrative, "_winTexts", new[]
-            {
-                "The *{e}* dissolves into stardust. You absorb <b>+{xp} XP</b>.",
-                "*{e}* flees into the flora, defeated. <b>+{xp} XP</b> gathered.",
-                "Threat neutralized. Cosmic residue grants <b>+{xp} XP</b>."
-            });
-            SetPrivate(narrative, "_fortuneTexts", new[]
-            {
-                "A drifting *spore of luck* settles on your antenna.",
-                "You sip glowing dew from a crystal leaf. Refreshing!",
-                "A tiny *star fragment* fuses with your suit."
-            });
-            SetPrivate(narrative, "_choiceTexts", new[]
-            {
-                "A derelict *supply pod* cracks open, offering strange tech...",
-                "The flora whispers of *mutation*. Choose your evolution:",
-                "An ancient vending machine hums to life. *Pick one:*"
-            });
-            SetPrivate(narrative, "_springTexts", new[]
-            {
-                "You discover a *bio-luminescent spring* and soak your weary tentacles. <b>+{heal} HP</b>.",
-                "Friendly micro-critters knit your wounds. <b>+{heal} HP</b>."
-            });
-            SetPrivate(narrative, "_sidekickTexts", new[]
-            {
-                "A curious *{s}* bobs out of the flora and decides you are its best friend!",
-                "*{s}* the cosmic critter joins your voyage!"
-            });
-            SetPrivate(narrative, "_sidekickFullTexts", new[]
-            {
-                "It waves goodbye and gifts you a *snack* instead. <b>+{heal} HP</b>."
-            });
-            SetPrivate(narrative, "_trapTexts", new[]
-            {
-                "You step on a *snapvine*! It lashes out before you break free. <b>-{dmg} HP</b>.",
-                "A gas bloom bursts - *toxic spores*! <b>-{dmg} HP</b>."
-            });
-            SetPrivate(narrative, "_treasureTexts", new[]
-            {
-                "Half-buried in the moss: an *alien artifact*! Analyzing grants <b>+{xp} XP</b>.",
-                "You crack open a *meteor geode* full of knowledge crystals. <b>+{xp} XP</b>."
-            });
-            SetPrivate(narrative, "_planetClearTexts", new[]
-            {
-                "The skies calm. *{p}* is pacified - your ship beams you to the next world."
-            });
-            SetPrivate(narrative, "_levelUpSuffix", " <b>Level up! Lv.{lv}</b>");
-            SetPrivate(narrative, "_introNewRun",
-                "You beam down onto *{p}* - bio-luminescent flora hums in the dusk. Tap <b>ENGAGE</b> to explore.");
-            SetPrivate(narrative, "_introResume",
-                "Signal restored - your voyage on *{p}* continues. Tap <b>ENGAGE</b>.");
-            SetPrivate(narrative, "_deathText",
-                "Your suit's life support fades... the *{e}* was too much. The mothership retrieves your escape pod.");
-            SetPrivate(narrative, "_critterNames", new[]
-            {
-                "Wobblor", "Zorp", "Muncher", "Blinkoid", "Squishex", "Gnarp", "Floob", "Krellik"
-            });
-            SetPrivate(narrative, "_bossNames", new[]
-            {
-                "Overmind Gluttox", "Warden Xal", "The Devourer", "Empress Vex", "Null Titan"
-            });
+            SetPrivate(narrative, "_battleIntroKeys", Keys("Narrative/BattleIntro/", 5));
+            SetPrivate(narrative, "_eliteIntroKeys", Keys("Narrative/EliteIntro/", 2));
+            SetPrivate(narrative, "_bossIntroKeys", Keys("Narrative/BossIntro/", 2));
+            SetPrivate(narrative, "_winKeys", Keys("Narrative/Win/", 3));
+            SetPrivate(narrative, "_fortuneKeys", Keys("Narrative/Fortune/", 3));
+            SetPrivate(narrative, "_choiceKeys", Keys("Narrative/Choice/", 3));
+            SetPrivate(narrative, "_springKeys", Keys("Narrative/Spring/", 2));
+            SetPrivate(narrative, "_sidekickKeys", Keys("Narrative/Sidekick/", 2));
+            SetPrivate(narrative, "_sidekickFullKeys", Keys("Narrative/SidekickFull/", 1));
+            SetPrivate(narrative, "_trapKeys", Keys("Narrative/Trap/", 2));
+            SetPrivate(narrative, "_treasureKeys", Keys("Narrative/Treasure/", 2));
+            SetPrivate(narrative, "_planetClearKeys", Keys("Narrative/PlanetClear/", 1));
+            SetPrivate(narrative, "_levelUpSuffixKey", "Narrative/LevelUpSuffix");
+            SetPrivate(narrative, "_introNewRunKey", "Narrative/IntroNewRun");
+            SetPrivate(narrative, "_introResumeKey", "Narrative/IntroResume");
+            SetPrivate(narrative, "_deathKey", "Narrative/Death");
+            SetPrivate(narrative, "_critterNameKeys", Keys("Narrative/CritterName/", 8));
+            SetPrivate(narrative, "_bossNameKeys", Keys("Narrative/BossName/", 5));
             SetPrivate(narrative, "_glyphChars", "0123456789<>/|+=*#@%&?!~^");
 
             // ---- game config (content arrays only; numbers keep asset values) ----
@@ -285,12 +267,20 @@ namespace CCQ.EditorTools
             return new Content { Config = config, Narrative = narrative };
         }
 
+        /// <summary>Numbered pool of term keys, e.g. "Narrative/Win/1".."Narrative/Win/3".</summary>
+        private static string[] Keys(string prefix, int count)
+        {
+            var keys = new string[count];
+            for (int i = 0; i < count; i++) keys[i] = prefix + (i + 1);
+            return keys;
+        }
+
         private static Planet MakePlanet(string name, string sky1, string sky2, string lake,
             string lakeDeep, string ground, string rock, string moon, string[] flora,
             float rootHz, bool minor)
         {
             var p = LoadOrCreateAsset<Planet>(DataDir + "/Planets/Planet_" + name + ".asset");
-            SetPrivate(p, "_displayName", name);
+            SetPrivate(p, "_nameKey", "Planet/" + name);
             SetPrivate(p, "_skyTop", Hex(sky1));
             SetPrivate(p, "_skyBottom", Hex(sky2));
             SetPrivate(p, "_lake", Hex(lake));
@@ -306,13 +296,13 @@ namespace CCQ.EditorTools
             return p;
         }
 
-        private static Sidekick MakeSidekick(string id, string name, string desc, string iconPath,
+        private static Sidekick MakeSidekick(string id, string name, string iconPath,
             string colorHex, SidekickType type, float value)
         {
             var s = LoadOrCreateAsset<Sidekick>(DataDir + "/Sidekicks/Sidekick_" + name + ".asset");
             SetPrivate(s, "_id", id);
-            SetPrivate(s, "_displayName", name);
-            SetPrivate(s, "_description", desc);
+            SetPrivate(s, "_nameKey", "Sidekick/" + name + "/Name");
+            SetPrivate(s, "_descriptionKey", "Sidekick/" + name + "/Desc");
             SetPrivate(s, "_icon", LoadSprite(iconPath));
             SetPrivate(s, "_color", Hex(colorHex));
             SetPrivate(s, "_type", type);
@@ -320,23 +310,21 @@ namespace CCQ.EditorTools
             return s;
         }
 
-        private static Fortune MakeFortune(string name, string iconPath, params StatMod[] mods)
+        private static Fortune MakeFortune(string id, string iconPath, params StatMod[] mods)
         {
-            string file = name.Replace(" ", "").Replace("%", "").Replace("+", "");
-            var f = LoadOrCreateAsset<Fortune>(DataDir + "/Fortunes/Fortune_" + file + ".asset");
-            SetPrivate(f, "_displayName", name);
+            var f = LoadOrCreateAsset<Fortune>(DataDir + "/Fortunes/Fortune_" + id + ".asset");
+            SetPrivate(f, "_nameKey", "Fortune/" + id);
             SetPrivate(f, "_icon", LoadSprite(iconPath));
             SetPrivate(f, "_mods", mods);
             return f;
         }
 
-        private static UpgradeCard MakeUpgrade(string name, string desc, string iconPath,
-            params StatMod[] mods)
+        private static UpgradeCard MakeUpgrade(string id, string iconPath, params StatMod[] mods)
         {
             var u = LoadOrCreateAsset<UpgradeCard>(
-                DataDir + "/Upgrades/Upgrade_" + name.Replace(" ", "") + ".asset");
-            SetPrivate(u, "_displayName", name);
-            SetPrivate(u, "_description", desc);
+                DataDir + "/Upgrades/Upgrade_" + id + ".asset");
+            SetPrivate(u, "_nameKey", "Upgrade/" + id + "/Name");
+            SetPrivate(u, "_descriptionKey", "Upgrade/" + id + "/Desc");
             SetPrivate(u, "_icon", LoadSprite(iconPath));
             SetPrivate(u, "_mods", mods);
             return u;
@@ -486,8 +474,10 @@ namespace CCQ.EditorTools
         // ================= scene =================
 
         private static void BuildScene(Content content, CcqSpriteBaker.Sprites art,
-            Prefabs prefabs, TMP_FontAsset font, Material worldMat)
+            Prefabs prefabs, Fonts fonts)
         {
+            TMP_FontAsset font = fonts.Default;
+            Material worldMat = fonts.DefaultWorld;
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             // ---- camera ----
@@ -661,6 +651,18 @@ namespace CCQ.EditorTools
             SetPrivate(gm, "_screenLock", screenLock);
             SetPrivate(gm, "_warpBannerIcon", LoadSprite(PictoIcons + "Pictoicon_Planet.Png"));
 
+            // ---- per-language font swap (must run last: it collects every text in the scene) ----
+            var fontView = uiRoot.AddComponent<LocalizedFontView>();
+            SetPrivate(fontView, "_defaultFont", fonts.Default);
+            SetPrivate(fontView, "_wideCharsetFont", fonts.WideCharset);
+            SetPrivate(fontView, "_wideCharsetCodes", new[] { Loc.VietnameseCode });
+            SetPrivate(fontView, "_defaultWorldMaterial", fonts.DefaultWorld);
+            SetPrivate(fontView, "_wideCharsetWorldMaterial", fonts.WideCharsetWorld);
+            SetPrivate(fontView, "_uiTexts", uiRoot.GetComponentsInChildren<TextMeshProUGUI>(true));
+            SetPrivate(fontView, "_worldTexts", Object.FindObjectsByType<TextMeshPro>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None));
+            SetPrivate(ui, "_fonts", fontView);
+
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
         }
@@ -768,7 +770,7 @@ namespace CCQ.EditorTools
 
             TextMeshProUGUI levelLabel = null, hpLabel = null, atkLabel = null, defLabel = null;
             Image xpFill = null;
-            string[] titles = { "XP", "ALIEN HP", "COSMIC ATK", "SHIELD DEF" };
+            var statTitles = new TextMeshProUGUI[4];
             string[] iconPaths =
             {
                 ItemIcons + "Icon_Star.png", ItemIcons + "Icon_Heart.png",
@@ -777,9 +779,10 @@ namespace CCQ.EditorTools
             for (int i = 0; i < 4; i++)
             {
                 float x = -405f + i * 270f;
-                var title = AddTmp(Place(NewUiChild(bar, "Title" + i), new Vector2(0.5f, 0.5f),
+                statTitles[i] = AddTmp(Place(NewUiChild(bar, "Title" + i), new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f), new Vector2(x, 58f), new Vector2(250f, 30f)),
-                    titles[i], 20f, Hex("#8f9bd4"), font, TextAlignmentOptions.Center);
+                    Loc.Get(LocKeys.HudStatTitles[i]), 20f, Hex("#8f9bd4"), font,
+                    TextAlignmentOptions.Center);
                 RectTransform pill = Place(NewUiChild(bar, "Pill" + i), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(x, -14f), new Vector2(252f, 86f));
                 AddImage(pill, BuiltinUiSprite(), Hex("#241b4d"));
@@ -826,6 +829,7 @@ namespace CCQ.EditorTools
             SetPrivate(hud, "_hpLabel", hpLabel);
             SetPrivate(hud, "_atkLabel", atkLabel);
             SetPrivate(hud, "_defLabel", defLabel);
+            SetPrivate(hud, "_statTitles", statTitles);
             return hud;
         }
 
@@ -925,7 +929,7 @@ namespace CCQ.EditorTools
                 Color.white, true);
             Button engageBtn = AddButton(engageRt, engageImg);
             var engageLabel = AddTmp(Stretch(NewUiChild(engageRt, "Label"), 0f, 0f, 0f, 14f),
-                "ENGAGE", 62f, Color.white, font, TextAlignmentOptions.Center);
+                Loc.Get(LocKeys.EngageEngage), 62f, Color.white, font, TextAlignmentOptions.Center);
             SetPrivate(engage, "_button", engageBtn);
             SetPrivate(engage, "_background", engageImg);
             SetPrivate(engage, "_label", engageLabel);
@@ -950,7 +954,8 @@ namespace CCQ.EditorTools
                 "", 36f, Color.white, font, TextAlignmentOptions.MidlineLeft);
             var bannerTag = AddTmp(Place(NewUiChild(bannerRt, "Tag"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(116f, -30f), new Vector2(700f, 36f)),
-                "Small fortune", 24f, Hex("#ffd35c"), font, TextAlignmentOptions.MidlineLeft);
+                Loc.Get(LocKeys.BannerSmallFortune), 24f, Hex("#ffd35c"), font,
+                TextAlignmentOptions.MidlineLeft);
             SetPrivate(banner, "_group", group);
             SetPrivate(banner, "_root", bannerRt);
             SetPrivate(banner, "_icon", bannerIcon);
@@ -1020,27 +1025,30 @@ namespace CCQ.EditorTools
 
             var title = AddTmp(Place(NewUiChild(card, "Title"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -50f), new Vector2(780f, 80f)),
-                "Settings", 58f, Hex("#ffd35c"), font, TextAlignmentOptions.Center);
+                Loc.Get(LocKeys.OverlaySettings), 58f, Hex("#ffd35c"), font,
+                TextAlignmentOptions.Center);
             var body = AddTmp(Place(NewUiChild(card, "Body"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(760f, 560f)),
                 "", 33f, Hex("#e8eaf6"), font, TextAlignmentOptions.Top, true);
             body.richText = true;
             body.lineSpacing = 10f;
 
+            // Resume / Music / SFX / Language / Restart / Reset — see GameManager.ShowSettings
             string[] btnSprites =
             {
                 ButtonsDir + "Btn_MainButton_Green.Png",
                 ButtonsDir + "Btn_MainButton_Sky.Png",
                 ButtonsDir + "Btn_MainButton_Sky.Png",
+                ButtonsDir + "Btn_MainButton_Sky.Png",
                 ButtonsDir + "Btn_MainButton_Orange.Png",
                 ButtonsDir + "Btn_MainButton_Red.Png"
             };
-            var buttons = new Button[5];
-            var labels = new TextMeshProUGUI[5];
-            for (int i = 0; i < 5; i++)
+            var buttons = new Button[OverlayView.MaxButtons];
+            var labels = new TextMeshProUGUI[OverlayView.MaxButtons];
+            for (int i = 0; i < OverlayView.MaxButtons; i++)
             {
                 RectTransform b = Place(NewUiChild(card, "Button" + i), new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f), new Vector2(0f, 570f - i * 118f), new Vector2(600f, 104f));
+                    new Vector2(0.5f, 0f), new Vector2(0f, 620f - i * 112f), new Vector2(600f, 104f));
                 Image img = AddImage(b, LoadSprite(btnSprites[i]), Color.white, true);
                 buttons[i] = AddButton(b, img);
                 labels[i] = AddTmp(Stretch(NewUiChild(b, "Label"), 0f, 0f, 0f, 10f), "Button",

@@ -1,3 +1,4 @@
+using CCQ.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,34 +37,37 @@ namespace CCQ.UI
             switch (mode)
             {
                 case Mode.Engage:
-                    _label.text = "ENGAGE";
+                    _label.text = Loc.Get(LocKeys.EngageEngage);
                     _background.sprite = _readySprite;
                     _button.interactable = true;
                     break;
                 case Mode.Traveling:
                     // looks locked, but stays tappable so mashing ENGAGE cuts the walk short
-                    _label.text = "TRAVELING...";
+                    _label.text = Loc.Get(LocKeys.EngageTraveling);
                     _background.sprite = _lockedSprite;
                     _button.interactable = true;
                     break;
                 case Mode.Battling:
-                    _label.text = "BATTLING...";
+                    _label.text = Loc.Get(LocKeys.EngageBattling);
                     _background.sprite = _lockedSprite;
                     _button.interactable = false;
                     break;
                 case Mode.Choosing:
-                    _label.text = "CHOOSE...";
+                    _label.text = Loc.Get(LocKeys.EngageChoosing);
                     _background.sprite = _lockedSprite;
                     _button.interactable = false;
                     break;
                 case Mode.Dead:
-                    _label.text = "NEW VOYAGE";
+                    _label.text = Loc.Get(LocKeys.EngageNewVoyage);
                     _background.sprite = _deadSprite;
                     _button.interactable = true;
                     break;
             }
             if (mode != Mode.Engage) transform.localScale = Vector3.one;
         }
+
+        /// <summary>Re-pulls the label for the current mode after a language switch.</summary>
+        public void RefreshLabel() => SetMode(_mode);
 
         public void Tick(float time)
         {

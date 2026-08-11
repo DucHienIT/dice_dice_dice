@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42320a5e161223d4daed7e1ba9148c83, type: 3}
-  m_Name: Fortune_Crit3
+  m_Name: Fortune_Heal
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Fortune
-  _displayName: Crit +3%
-  _icon: {fileID: 21300000, guid: b42a6f8c260364826aabac44f61576b2, type: 3}
+  _nameKey: Fortune/Heal
+  _icon: {fileID: 21300000, guid: b3726215a307342c5be67d918f4e2b63, type: 3}
   _mods:
-  - Type: 3
-    Value: 0.03
+  - Type: 6
+    Value: 0.2

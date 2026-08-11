@@ -1,4 +1,5 @@
 using CCQ.Data;
+using CCQ.Localization;
 
 namespace CCQ.Events
 {
@@ -8,9 +9,13 @@ namespace CCQ.Events
     /// </summary>
     public class EventOutcome
     {
-        public string Text;
+        // Console text, kept unresolved so it survives a language switch. Suffix is an
+        // optional second sentence appended to Line (level-up, "pod is full", ...).
+        public LocLine Line;
+        public LocLine Suffix;
 
-        // Banner (fortune / new sidekick), null icon = no banner
+        // Banner (fortune / new sidekick), null icon = no banner. Banners live ~3s, so
+        // their text is resolved up front instead of being re-rendered on a language switch.
         public UnityEngine.Sprite BannerIcon;
         public string BannerTitle;
         public string BannerTag;

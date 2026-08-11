@@ -1,5 +1,6 @@
 using CCQ.Core;
 using CCQ.Data;
+using CCQ.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,6 +28,8 @@ namespace CCQ.UI
         [SerializeField] private TextMeshProUGUI _hpLabel;
         [SerializeField] private TextMeshProUGUI _atkLabel;
         [SerializeField] private TextMeshProUGUI _defLabel;
+        [Tooltip("Static stats-bar captions, in the LocKeys.HudStatTitles order (XP/HP/ATK/DEF).")]
+        [SerializeField] private TextMeshProUGUI[] _statTitles;
 
         private static readonly Color HpOk = new Color(0.55f, 0.94f, 0.48f);
         private static readonly Color HpLow = new Color(1f, 0.36f, 0.48f);
@@ -34,14 +37,34 @@ namespace CCQ.UI
         private int _lastRound = -1, _lastHits = -1, _lastLevel = -1, _lastHp = -1,
             _lastMaxHp = -1, _lastAtk = -1, _lastDef = -1, _lastXp = -1, _lastSpeed = -1;
 
+        // format strings pulled once per language so battle-rate setters stay allocation-free
+        private string _roundFormat = "{0}/{1}", _levelFormat = "{0}", _speedFormat = "x{0}";
+
         public Button SpeedButton => _speedButton;
         public Button GearButton => _gearButton;
+
+        /// <summary>
+        /// Re-pulls every translated caption and drops the change guards so the next
+        /// RefreshRun re-writes all values. Called at start-up and on a language switch.
+        /// </summary>
+        public void RefreshStaticText()
+        {
+            _roundFormat = Loc.Get(LocKeys.HudRound);
+            _levelFormat = Loc.Get(LocKeys.HudLevel);
+            _speedFormat = Loc.Get(LocKeys.HudSpeed);
+            for (int i = 0; i < _statTitles.Length && i < LocKeys.HudStatTitles.Length; i++)
+            {
+                _statTitles[i].text = Loc.Get(LocKeys.HudStatTitles[i]);
+            }
+            _lastRound = _lastHits = _lastLevel = _lastHp = _lastMaxHp = -1;
+            _lastAtk = _lastDef = _lastXp = _lastSpeed = -1;
+        }
 
         public void SetRound(int round, int total)
         {
             if (round == _lastRound) return;
             _lastRound = round;
-            _roundLabel.SetText("Round {0}/{1}", Mathf.Max(1, round), total);
+            _roundLabel.SetText(_roundFormat, Mathf.Max(1, round), total);
         }
 
         public void SetHits(int hits)
@@ -60,7 +83,7 @@ namespace CCQ.UI
         {
             if (mult == _lastSpeed) return;
             _lastSpeed = mult;
-            _speedLabel.SetText("x{0}", mult);
+            _speedLabel.SetText(_speedFormat, mult);
         }
 
         public void SetStats(PlayerState p)
@@ -69,7 +92,7 @@ namespace CCQ.UI
             if (levelChanged)
             {
                 _lastLevel = p.Level;
-                _levelLabel.SetText("Lv.{0}", p.Level);
+                _levelLabel.SetText(_levelFormat, p.Level);
             }
             if (p.Xp != _lastXp || levelChanged)
             {

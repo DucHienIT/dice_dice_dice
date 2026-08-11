@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
   m_Name: Upgrade_SymbioteFangs
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _displayName: Symbiote Fangs
-  _description: Lifesteal 8% of damage
+  _nameKey: Upgrade/SymbioteFangs/Name
+  _descriptionKey: Upgrade/SymbioteFangs/Desc
   _icon: {fileID: 21300000, guid: f1badda9edf02426bab7919f04fb5967, type: 3}
   _mods:
   - Type: 4

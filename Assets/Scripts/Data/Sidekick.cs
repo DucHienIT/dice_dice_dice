@@ -1,3 +1,4 @@
+using CCQ.Localization;
 using CCQ.Sidekicks;
 using UnityEngine;
 
@@ -7,8 +8,9 @@ namespace CCQ.Data
     public class Sidekick : ScriptableObject
     {
         [SerializeField] private string _id;
-        [SerializeField] private string _displayName;
-        [SerializeField, TextArea] private string _description;
+        [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]
+        [SerializeField] private string _nameKey;
+        [SerializeField] private string _descriptionKey;
         [SerializeField] private Sprite _icon;
         [Tooltip("Battle orb baked from the color below by Tools > CCQ > Build Game (Full).")]
         [SerializeField] private Sprite _orbSprite;
@@ -17,8 +19,8 @@ namespace CCQ.Data
         [SerializeField] private float _value;
 
         public string Id => _id;
-        public string DisplayName => _displayName;
-        public string Description => _description;
+        public string DisplayName => Loc.Get(_nameKey);
+        public string Description => Loc.Get(_descriptionKey);
         public Sprite Icon => _icon;
         public Sprite OrbSprite => _orbSprite;
         public Color Color => _color;

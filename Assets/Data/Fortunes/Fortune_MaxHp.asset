@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42320a5e161223d4daed7e1ba9148c83, type: 3}
-  m_Name: Fortune_ATK5
+  m_Name: Fortune_MaxHp
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Fortune
-  _displayName: ATK +5%
-  _icon: {fileID: 21300000, guid: 5c0f356e8fdb749c292f0a699fde4480, type: 3}
+  _nameKey: Fortune/MaxHp
+  _icon: {fileID: 21300000, guid: 21cb8c775421e4096915fe18192a6f63, type: 3}
   _mods:
-  - Type: 1
-    Value: 0.05
+  - Type: 0
+    Value: 0.07

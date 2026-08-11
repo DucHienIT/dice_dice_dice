@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
   m_Name: Upgrade_NanoSerum
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _displayName: Nano Serum
-  _description: Heal 45% HP instantly
+  _nameKey: Upgrade/NanoSerum/Name
+  _descriptionKey: Upgrade/NanoSerum/Desc
   _icon: {fileID: 21300000, guid: 8d42612723928446cb0f94f140e0f303, type: 3}
   _mods:
   - Type: 6

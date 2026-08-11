@@ -20,6 +20,7 @@ namespace CCQ.UI
         [SerializeField] private SidekickChipsView _chips;
         [SerializeField] private EngageButton _engage;
         [SerializeField] private OverlayView _overlay;
+        [SerializeField] private LocalizedFontView _fonts;
 
         public event Action EngagePressed;
         public event Action SpeedPressed;
@@ -37,6 +38,19 @@ namespace CCQ.UI
             _choices.Hide();
             _banner.Hide();
             _overlay.Hide();
+            RefreshStaticText();
+        }
+
+        /// <summary>
+        /// Re-applies the per-language font and every translated caption that is not
+        /// re-sent by RefreshRun. Called at start-up and after a language switch.
+        /// </summary>
+        public void RefreshStaticText()
+        {
+            _fonts.Apply();
+            _hud.RefreshStaticText();
+            _console.RefreshStaticText();
+            _engage.RefreshLabel();
         }
 
         public void Tick(float time, float dt)
