@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94320bd62fd54d64dbd2cb0b2c493cf9, type: 3}
+  m_Name: Planet_Verdania
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Planet
+  _displayName: Verdania
+  _skyTop: {r: 0.16862746, g: 0.105882354, b: 0.36862746, a: 1}
+  _skyBottom: {r: 0.07058824, g: 0.22745098, b: 0.41960785, a: 1}
+  _lake: {r: 0.12156863, g: 0.65882355, b: 0.627451, a: 1}
+  _lakeDeep: {r: 0.05882353, g: 0.4862745, b: 0.5254902, a: 1}
+  _ground: {r: 0.105882354, g: 0.42745098, b: 0.40784314, a: 1}
+  _rock: {r: 0.15294118, g: 0.29411766, b: 0.47843137, a: 1}
+  _moon: {r: 1, g: 0.8509804, b: 0.5411765, a: 1}
+  _flora:
+  - {r: 1, g: 0.37254903, b: 0.68235296, a: 1}
+  - {r: 0.7882353, g: 0.37254903, b: 1, a: 1}
+  - {r: 0.21568628, g: 0.8784314, b: 0.72156864, a: 1}
+  _skyLayer: {fileID: 21300000, guid: 4dfb0cab40b58a94fab3540343a39c32, type: 3}
+  _groundLayer: {fileID: 21300000, guid: e9f5229fa043dd74a8cd7cc36438241f, type: 3}
+  _musicRootHz: 110
+  _minorMood: 0

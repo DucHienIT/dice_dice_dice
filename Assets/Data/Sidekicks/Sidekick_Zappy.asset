@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 261a7fd1f69c4bc46b6db2ef594e74cd, type: 3}
+  m_Name: Sidekick_Zappy
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Sidekick
+  _id: spark
+  _displayName: Zappy
+  _description: crit chance +6%
+  _icon: {fileID: 21300000, guid: dfc9a525fbb2c432287a50678b1eb0b3, type: 3}
+  _orbSprite: {fileID: 21300000, guid: f406099d888d45a47a38a24f893ee8ca, type: 3}
+  _color: {r: 1, g: 0.827451, b: 0.36078432, a: 1}
+  _type: 3
+  _value: 0.06

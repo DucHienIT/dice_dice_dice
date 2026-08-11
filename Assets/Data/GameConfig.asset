@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4d6ea626698555409fc2c2e2dd63ed2, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.GameConfig
+  _roundsPerPlanet: 30
+  _bossEvery: 10
+  _eliteChance: 0.12
+  _speeds: 010000000200000004000000
+  _beatMs: 550
+  _playerHp: 160
+  _playerAtk: 15
+  _playerDef: 3
+  _playerCrit: 0.08
+  _playerCritMult: 1.6
+  _regenPct: 0.12
+  _xpNeedBase: 16
+  _xpNeedPow: 1.55
+  _levelHpPct: 0.14
+  _levelAtkPct: 0.11
+  _levelDefFlat: 1
+  _levelHealPct: 0.35
+  _enemyHpBase: 26
+  _enemyHpLinear: 9
+  _enemyHpQuad: 0.15
+  _enemyHpExp: 1.015
+  _enemyAtkBase: 6
+  _enemyAtkLinear: 0.9
+  _enemyAtkExp: 1.013
+  _enemyDefBase: 1
+  _enemyDefLinear: 0.35
+  _enemyXpBase: 8
+  _enemyXpLinear: 3
+  _bossMult: {x: 1.8, y: 1.15, z: 3}
+  _eliteMult: {x: 1.7, y: 1.25, z: 1.8}
+  _dmgVariance: 0.15
+  _enemyCritChance: 0.05
+  _enemyCritMult: 1.5
+  _enrageAfterBeats: 40
+  _enrageRamp: 0.05
+  _eventWeights:
+    Battle: 46
+    Fortune: 13
+    Choice: 12
+    Spring: 8
+    Sidekick: 8
+    Trap: 6
+    Treasure: 7
+  _maxNonBattleStreak: 2
+  _springHeal: {x: 0.3, y: 0.5}
+  _trapDmg: {x: 0.08, y: 0.15}
+  _treasureXp: {x: 0.5, y: 1.2}
+  _maxSidekicks: 3
+  _snackHeal: 0.15
+  _planetClearHeal: 0.5
+  _upgrades:
+  - {fileID: 11400000, guid: 5369a1fe62c0a1047ae969fedc355f91, type: 2}
+  - {fileID: 11400000, guid: ac17fd3c3ebc914439ae6edfacde63d7, type: 2}
+  - {fileID: 11400000, guid: 49cffe81ef1c4074c960473398050371, type: 2}
+  - {fileID: 11400000, guid: 043b8d3ce3d7520498cc0c5074a022e7, type: 2}
+  - {fileID: 11400000, guid: 2800f2ab2176f7546befb0828709e7a0, type: 2}
+  - {fileID: 11400000, guid: fd7e5cad4435b3341ae6f5a1cbbb32b5, type: 2}
+  - {fileID: 11400000, guid: 2a3d45e61b4d1e74b96afb7add1ca3e4, type: 2}
+  - {fileID: 11400000, guid: 64fa9db74d5bf9249a3ed6952b41c377, type: 2}
+  _fortunes:
+  - {fileID: 11400000, guid: b38046841d70aea498a83aefcbfad9e7, type: 2}
+  - {fileID: 11400000, guid: d9bc6057f0a380646b552e727728eb9e, type: 2}
+  - {fileID: 11400000, guid: 8b32b5cfbffe20145be55766d01366c9, type: 2}
+  - {fileID: 11400000, guid: 59ec590238ff9f64cae718233ff87339, type: 2}
+  - {fileID: 11400000, guid: 925bcce2f7d08ad4c82321f140cb4179, type: 2}
+  _sidekicks:
+  - {fileID: 11400000, guid: 791b21f058ab3f243aff28f45694d5d7, type: 2}
+  - {fileID: 11400000, guid: 531fa21496d33f643a6e7748fe80eab1, type: 2}
+  - {fileID: 11400000, guid: 021359b4d74c3d5418fc4aa83b487ce6, type: 2}
+  - {fileID: 11400000, guid: 64d0cbbe9ffc23c4297cedc42bd226ea, type: 2}
+  _planets:
+  - {fileID: 11400000, guid: 284e4cddd3a8bf742811b171d9dcd948, type: 2}
+  - {fileID: 11400000, guid: 519ea3dc64912ea4f93d2278171bfb69, type: 2}
+  - {fileID: 11400000, guid: ac31343f4ef1b7844b325a2f1cbaad01, type: 2}
+  - {fileID: 11400000, guid: e11603e82877e4f4a882cd8172f9ff94, type: 2}
+  - {fileID: 11400000, guid: 88c25d1c85cbd594abc051653ab60c95, type: 2}
+  _critterColors:
+  - {r: 1, g: 0.41960785, b: 0.56078434, a: 1}
+  - {r: 1, g: 0.64705884, b: 0.23921569, a: 1}
+  - {r: 0.56078434, g: 0.41960785, b: 1, a: 1}
+  - {r: 0.2901961, g: 0.83137256, b: 0.56078434, a: 1}
+  - {r: 1, g: 0.36078432, b: 0.36078432, a: 1}
+  - {r: 0.36078432, g: 0.72156864, b: 1, a: 1}
+  - {r: 0.9098039, g: 0.83137256, b: 0.23921569, a: 1}
+  _lungeDuration: 0.35
+  _hitPoint: 0.45
+  _winDelay: 0.45
+  _floaterLife: 1.1
+  _floaterRise: 0.75
+  _bobAmplitude: 0.05
+  _bobFrequency: 2.2
+  _lungeDistance: 0.95
+  _shakeHit: 0.06
+  _shakeBoss: 0.22
+  _targetFrameRate: 60
+  _travelDuration: 0.7
+  _travelDistance: 3.4
+  _walkHopsPerSecond: 2.6
+  _enemyEnterDuration: 0.32
+  _enemyEnterOffset: 5.2
