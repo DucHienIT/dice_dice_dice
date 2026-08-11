@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Cosmic Critter Quest</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="phone">
+
+  <!-- ===== TOP : auto-battle panel ===== -->
+  <div id="battle-panel">
+    <canvas id="cv" width="460" height="330"></canvas>
+
+    <div id="round-banner"><span id="round-label">Round 1/30</span></div>
+    <button id="btn-gear" title="Settings">⚙</button>
+    <div id="hits-box"><span class="hits-title">Hits</span><span id="hits-num">0</span></div>
+    <button id="btn-speed">x1</button>
+    <div id="planet-tag">🪐 <span id="planet-name">Verdania</span></div>
+  </div>
+
+  <!-- ===== stats bar ===== -->
+  <div id="stats-bar">
+    <div class="stat">
+      <div class="stat-title">XP</div>
+      <div class="stat-pill xp"><span class="stat-ico">EXP</span><span id="st-lv">Lv.1</span>
+        <div class="xp-fill" id="xp-fill"></div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Alien HP</div>
+      <div class="stat-pill"><span class="stat-ico">❤️</span><span id="st-hp">100/100</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Cosmic ATK</div>
+      <div class="stat-pill"><span class="stat-ico">⚔️</span><span id="st-atk">14</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Shield DEF</div>
+      <div class="stat-pill"><span class="stat-ico">🛡️</span><span id="st-def">2</span></div>
+    </div>
+  </div>
+
+  <!-- ===== BOTTOM : narrative console ===== -->
+  <div id="console-panel">
+
+    <div id="glyph-box">
+      <div class="glyph-line" id="gl-1"></div>
+      <div class="glyph-line" id="gl-2"></div>
+      <div class="glyph-line" id="gl-3"></div>
+      <div class="glyph-line" id="gl-4"></div>
+    </div>
+
+    <div id="fortune-banner" class="hidden">
+      <span id="fortune-text">❤️ Max HP +7%</span>
+      <span class="fortune-tag">Small fortune</span>
+    </div>
+
+    <div id="day-header"><span id="day-label">Star Cycle 1</span><span class="day-rule"></span></div>
+
+    <div id="event-box"><p id="event-text">You beam down onto an uncharted world…</p></div>
+
+    <div id="choice-box" class="hidden"></div>
+
+    <div id="sidekick-row"></div>
+
+    <button id="btn-engage"><span id="engage-label">ENGAGE</span></button>
+  </div>
+
+  <!-- ===== overlay (settings / game over / planet clear) ===== -->
+  <div id="overlay" class="hidden">
+    <div id="overlay-card">
+      <div id="ov-title">Settings</div>
+      <div id="ov-body"></div>
+      <div id="ov-buttons"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
