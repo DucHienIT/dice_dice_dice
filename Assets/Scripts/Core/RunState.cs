@@ -1,4 +1,5 @@
 using CCQ.Data;
+using CCQ.Progression;
 
 namespace CCQ.Core
 {
@@ -13,11 +14,17 @@ namespace CCQ.Core
         public int SpeedIndex;
         public RunStats Stats = new RunStats();
 
-        public static RunState CreateNew(GameConfig config, int keepSpeedIndex = 0)
+        /// <summary>
+        /// A fresh voyage. Star Forge ranks are baked into the hero here — the only place
+        /// meta progression touches a run, so a loaded save is never boosted twice.
+        /// </summary>
+        public static RunState CreateNew(GameConfig config, MetaState meta, int keepSpeedIndex = 0)
         {
+            PlayerState player = PlayerState.CreateNew(config);
+            meta?.ApplyTo(config, player);
             return new RunState
             {
-                Player = PlayerState.CreateNew(config),
+                Player = player,
                 StarCycle = 0,
                 Round = 0,
                 PlanetIndex = 0,

@@ -21,6 +21,8 @@ namespace CCQ.UI
         [SerializeField] private TextMeshProUGUI _speedLabel;
         [SerializeField] private Button _speedButton;
         [SerializeField] private Button _gearButton;
+        [Tooltip("Back to the front screen — the tab bar only exists there.")]
+        [SerializeField] private Button _homeButton;
         [SerializeField] private TextMeshProUGUI _levelLabel;
         [SerializeField] private Image _xpFill;
         [Tooltip("Fill ratios below this are hidden — too narrow for the pill's rounded caps.")]
@@ -42,6 +44,7 @@ namespace CCQ.UI
 
         public Button SpeedButton => _speedButton;
         public Button GearButton => _gearButton;
+        public Button HomeButton => _homeButton;
 
         /// <summary>
         /// Re-pulls every translated caption and drops the change guards so the next

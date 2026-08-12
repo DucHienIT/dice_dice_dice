@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
+  m_Name: Meta_AegisWeave
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
+  _id: AegisWeave
+  _nameKey: Meta/AegisWeave/Name
+  _descriptionKey: Meta/AegisWeave/Desc
+  _rankIcons:
+  - {fileID: 21300000, guid: 449419108ff8f4676943e837eb13abb5, type: 3}
+  - {fileID: 21300000, guid: 14a650a5a7d1b4f35a7398afea992d85, type: 3}
+  - {fileID: 21300000, guid: b3720b27f54a541ca8bab5f5332bce2a, type: 3}
+  - {fileID: 21300000, guid: d0e76a9dad7a24e95b7ab107e33e00f0, type: 3}
+  - {fileID: 21300000, guid: 38830bb070a174e60938107f2c350361, type: 3}
+  - {fileID: 21300000, guid: 47b2a02a27c134879a2f15c839b8c771, type: 3}
+  _maxRank: 3
+  _costBase: 36
+  _costStep: 20
+  _modsPerRank:
+  - Type: 2
+    Value: 2
+  _requires: {fileID: 11400000, guid: dce5a2f741d138642819e293e2f6b757, type: 2}
+  _requiredRank: 3

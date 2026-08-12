@@ -296,9 +296,10 @@ MonoBehaviour:
       Description: 
       Languages:
       - The skies calm. *{p}* is pacified - your ship beams you to the next world.
+        <b>+{n} star shards</b>.
       - "B\u1EA7u tr\u1EDDi l\u1EB7ng xu\u1ED1ng. *{p}* \u0111\xE3 b\xECnh y\xEAn
         - phi thuy\u1EC1n d\u1ECBch chuy\u1EC3n b\u1EA1n t\u1EDBi th\u1EBF gi\u1EDBi
-        k\u1EBF ti\u1EBFp."
+        k\u1EBF ti\u1EBFp. <b>+{n} m\u1EA3nh sao</b>."
       Flags: 0000
       Languages_Touch: []
     - Term: Narrative/LevelUpSuffix
@@ -723,6 +724,102 @@ MonoBehaviour:
       - "H\u1ED3i ngay 45% HP"
       Flags: 0000
       Languages_Touch: []
+    - Term: Meta/StarHull/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Star Hull
+      - "V\u1ECF Sao"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/StarHull/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Max HP +8% per rank
+      - "HP t\u1ED1i \u0111a +8% m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/IonEdge/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Ion Edge
+      - "L\u01B0\u1EE1i Ion"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/IonEdge/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - ATK +7% per rank
+      - "ATK +7% m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/AegisWeave/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Aegis Weave
+      - "L\u01B0\u1EDBi Ch\u1EAFn"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/AegisWeave/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - DEF +2 per rank
+      - "DEF +2 m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/VoidFangs/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Void Fangs
+      - "Nanh H\u01B0 V\xF4"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/VoidFangs/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Lifesteal +2% per rank
+      - "H\xFAt m\xE1u +2% m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/QuillPlate/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Quill Plate
+      - "Gi\xE1p L\xF4ng Nh\xEDm"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/QuillPlate/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Thorns +6% per rank
+      - "Ph\u1EA3n \u0111\xF2n +6% m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/LuckyNova/Name
+      TermType: 0
+      Description: 
+      Languages:
+      - Lucky Nova
+      - Sao May
+      Flags: 0000
+      Languages_Touch: []
+    - Term: Meta/LuckyNova/Desc
+      TermType: 0
+      Description: 
+      Languages:
+      - Crit +3% per rank
+      - "Ch\xED m\u1EA1ng +3% m\u1ED7i b\u1EADc"
+      Flags: 0000
+      Languages_Touch: []
     - Term: UI/Engage/Engage
       TermType: 0
       Description: 
@@ -948,12 +1045,124 @@ MonoBehaviour:
       - "C\xE0i \u0111\u1EB7t"
       Flags: 0000
       Languages_Touch: []
-    - Term: UI/Overlay/Resume
+    - Term: UI/Nav/Forge
       TermType: 0
       Description: 
       Languages:
-      - Resume
-      - "Ti\u1EBFp t\u1EE5c"
+      - Forge
+      - "L\xF2 R\xE8n"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Nav/Profile
+      TermType: 0
+      Description: 
+      Languages:
+      - Profile
+      - "H\u1ED3 s\u01A1"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Nav/Records
+      TermType: 0
+      Description: 
+      Languages:
+      - Records
+      - "B\u1EA3ng v\xE0ng"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Nav/Settings
+      TermType: 0
+      Description: 
+      Languages:
+      - Settings
+      - "C\xE0i \u0111\u1EB7t"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Title
+      TermType: 0
+      Description: 
+      Languages:
+      - Profile
+      - "H\u1ED3 s\u01A1"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Level
+      TermType: 0
+      Description: 
+      Languages:
+      - <b>Level {0}</b>   XP {1}/{2}
+      - "<b>C\u1EA5p {0}</b>   XP {1}/{2}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Vitals
+      TermType: 0
+      Description: 
+      Languages:
+      - HP {0}/{1}    ATK {2}    DEF {3}
+      - "HP {0}/{1}    ATK {2}    GI\xC1P {3}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Edge
+      TermType: 0
+      Description: 
+      Languages:
+      - Crit {0}%    Lifesteal {1}%    Thorns {2}%
+      - "Ch\xED m\u1EA1ng {0}%    H\xFAt m\xE1u {1}%    Ph\u1EA3n \u0111\xF2n {2}%"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Crew
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Crew: {0}'
+      - "\u0110\u1ED3ng h\xE0nh: {0}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/CrewNone
+      TermType: 0
+      Description: 
+      Languages:
+      - flying solo
+      - "ch\u01B0a c\xF3 ai"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Profile/Where
+      TermType: 0
+      Description: 
+      Languages:
+      - '{0}   Round {1}/{2}   Star Cycle {3}'
+      - "{0}   V\xF2ng {1}/{2}   Chu K\u1EF3 Sao {3}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Records/Title
+      TermType: 0
+      Description: 
+      Languages:
+      - Records
+      - "B\u1EA3ng v\xE0ng"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Records/NoBest
+      TermType: 0
+      Description: 
+      Languages:
+      - No voyage recorded yet.
+      - "Ch\u01B0a c\xF3 h\xE0nh tr\xECnh n\xE0o \u0111\u01B0\u1EE3c ghi nh\u1EADn."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Records/Lifetime
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Star shards earned all-time: <b>{0}</b>'
+      - "T\u1ED5ng m\u1EA3nh sao \u0111\xE3 ki\u1EBFm: <b>{0}</b>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Records/ThisRun
+      TermType: 0
+      Description: 
+      Languages:
+      - <b>This voyage</b>
+      - "<b>H\xE0nh tr\xECnh n\xE0y</b>"
       Flags: 0000
       Languages_Touch: []
     - Term: UI/Overlay/MusicOn
@@ -1029,6 +1238,129 @@ MonoBehaviour:
       - "K\u1EF7 l\u1EE5c: H\xE0nh tinh {0} - V\xF2ng {1}"
       Flags: 0000
       Languages_Touch: []
+    - Term: UI/Overlay/Shards
+      TermType: 0
+      Description: 
+      Languages:
+      - 'Star shards: <b>{0}</b>'
+      - "M\u1EA3nh sao: <b>{0}</b>"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/Title
+      TermType: 0
+      Description: 
+      Languages:
+      - Cosmic Critter Quest
+      - Cosmic Critter Quest
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/Subtitle
+      TermType: 0
+      Description: 
+      Languages:
+      - A one-tap roguelite voyage
+      - "H\xE0nh tr\xECnh roguelite ch\u1EC9 m\u1ED9t ch\u1EA1m"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/Continue
+      TermType: 0
+      Description: 
+      Languages:
+      - CONTINUE
+      - "\u0110I TI\u1EBEP"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/Progress
+      TermType: 0
+      Description: 
+      Languages:
+      - "{0}  \xB7  Round {1}/{2}"
+      - "{0}  \xB7  V\xF2ng {1}/{2}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/NewRun
+      TermType: 0
+      Description: 
+      Languages:
+      - New voyage
+      - "H\xE0nh tr\xECnh m\u1EDBi"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Menu/Entry
+      TermType: 0
+      Description: 
+      Languages:
+      - Main menu
+      - "M\xE0n h\xECnh ch\xEDnh"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Title
+      TermType: 0
+      Description: 
+      Languages:
+      - Star Forge
+      - "L\xF2 R\xE8n Sao"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Entry
+      TermType: 0
+      Description: 
+      Languages:
+      - Star Forge
+      - "L\xF2 R\xE8n Sao"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Intro
+      TermType: 0
+      Description: 
+      Languages:
+      - Climb the path one rank at a time. Finish a step to open the next - every
+        rank is permanent.
+      - "Leo l\xEAn t\u1EEBng b\u1EADc m\u1ED9t. Ho\xE0n t\u1EA5t m\u1ED9t b\u01B0\u1EDBc
+        \u0111\u1EC3 m\u1EDF b\u01B0\u1EDBc k\u1EBF - m\u1ECDi b\u1EADc \u0111\u1EC1u
+        l\xE0 v\u0129nh vi\u1EC5n."
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Shards
+      TermType: 0
+      Description: 
+      Languages:
+      - <b>{0}</b>
+      - <b>{0}</b>
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Cost
+      TermType: 0
+      Description: 
+      Languages:
+      - '{0}'
+      - '{0}'
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Maxed
+      TermType: 0
+      Description: 
+      Languages:
+      - MAX
+      - "T\u1ED0I \u0110A"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Locked
+      TermType: 0
+      Description: 
+      Languages:
+      - Locked
+      - "Ch\u01B0a m\u1EDF"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Forge/Back
+      TermType: 0
+      Description: 
+      Languages:
+      - Back
+      - "Quay l\u1EA1i"
+      Flags: 0000
+      Languages_Touch: []
     - Term: UI/Death/Title
       TermType: 0
       Description: 
@@ -1084,6 +1416,15 @@ MonoBehaviour:
       Languages:
       - Elites {0} - Bosses {1}
       - "Tinh anh {0} - Tr\xF9m {1}"
+      Flags: 0000
+      Languages_Touch: []
+    - Term: UI/Death/Shards
+      TermType: 0
+      Description: 
+      Languages:
+      - Star shards <color=#FFD35C><b>+{0}</b></color> - you now hold {1}
+      - "M\u1EA3nh sao <color=#FFD35C><b>+{0}</b></color> - b\u1EA1n \u0111ang c\xF3
+        {1}"
       Flags: 0000
       Languages_Touch: []
     - Term: UI/Death/NewBest

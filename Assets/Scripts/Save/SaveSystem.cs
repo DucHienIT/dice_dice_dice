@@ -1,5 +1,6 @@
 using CCQ.Core;
 using CCQ.Data;
+using CCQ.Progression;
 using UnityEngine;
 
 namespace CCQ.Save
@@ -9,6 +10,7 @@ namespace CCQ.Save
     {
         private const string RunKey = "ccq_run";
         private const string BestKey = "ccq_best";
+        private const string MetaKey = "ccq_meta";
         private const string MusicKey = "ccq_music";
         private const string SfxKey = "ccq_sfx";
 
@@ -159,6 +161,75 @@ namespace CCQ.Save
         {
             PlayerPrefs.DeleteKey(BestKey);
             PlayerPrefs.Save();
+        }
+
+        // ---------------- meta progression (ccq_meta) ----------------
+
+        public static void SaveMeta(GameConfig config, MetaState meta)
+        {
+            MetaUpgrade[] tracks = config.MetaUpgrades;
+            var data = new MetaSaveData
+            {
+                shards = meta.Shards,
+                lifetime = meta.LifetimeShards,
+                upgradeIds = new string[tracks.Length],
+                ranks = new int[tracks.Length]
+            };
+            for (int i = 0; i < tracks.Length && i < meta.Ranks.Length; i++)
+            {
+                data.upgradeIds[i] = tracks[i].Id;
+                data.ranks[i] = meta.Ranks[i];
+            }
+            PlayerPrefs.SetString(MetaKey, JsonUtility.ToJson(data));
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>Never null — an empty forge when nothing has been saved yet.</summary>
+        public static MetaState LoadMeta(GameConfig config)
+        {
+            var meta = new MetaState(config.MetaUpgrades.Length);
+            string raw = PlayerPrefs.GetString(MetaKey, string.Empty);
+            if (string.IsNullOrEmpty(raw)) return meta;
+
+            MetaSaveData data;
+            try
+            {
+                data = JsonUtility.FromJson<MetaSaveData>(raw);
+            }
+            catch
+            {
+                return meta;
+            }
+            if (data == null) return meta;
+
+            meta.Shards = Mathf.Max(0, data.shards);
+            meta.LifetimeShards = Mathf.Max(meta.Shards, data.lifetime);
+            if (data.upgradeIds == null || data.ranks == null) return meta;
+            // matched by id, so reordering or inserting a track never re-assigns ranks
+            for (int i = 0; i < data.upgradeIds.Length && i < data.ranks.Length; i++)
+            {
+                int index = IndexOfMetaUpgrade(config, data.upgradeIds[i]);
+                if (index < 0) continue;
+                meta.Ranks[index] =
+                    Mathf.Clamp(data.ranks[i], 0, config.MetaUpgrades[index].MaxRank);
+            }
+            return meta;
+        }
+
+        public static void ClearMeta()
+        {
+            PlayerPrefs.DeleteKey(MetaKey);
+            PlayerPrefs.Save();
+        }
+
+        private static int IndexOfMetaUpgrade(GameConfig config, string id)
+        {
+            MetaUpgrade[] tracks = config.MetaUpgrades;
+            for (int i = 0; i < tracks.Length; i++)
+            {
+                if (tracks[i].Id == id) return i;
+            }
+            return -1;
         }
 
         public static bool MusicOn

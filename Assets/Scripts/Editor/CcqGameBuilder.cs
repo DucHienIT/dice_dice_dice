@@ -38,6 +38,13 @@ namespace CCQ.EditorTools
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/";
         private const string PictoIcons =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_PictoIcons(x2)/128/";
+        // rune icons come in six rarity tiers, which map 1:1 onto a forge node's 0..5 ranks
+        private const string RuneIcons =
+            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_RuneIcons(x2)/128/";
+        private const string SoftGlow =
+            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Popup/Popup_00_Glow_white.png";
+        private const string ShardIcon =
+            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Star.png";
         private const string ButtonsDir =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Button/";
         private const string FontTtf =
@@ -78,6 +85,7 @@ namespace CCQ.EditorTools
             EnsureFolder(UiDataDir);
             EnsureFolder(DataDir + "/Upgrades");
             EnsureFolder(DataDir + "/Fortunes");
+            EnsureFolder(DataDir + "/Meta");
             EnsureFolder(DataDir + "/Sidekicks");
             EnsureFolder(DataDir + "/Planets");
             EnsureFolder(PrefabDir);
@@ -230,6 +238,24 @@ namespace CCQ.EditorTools
             upgrades[7] = MakeUpgrade("NanoSerum",
                 ItemIcons + "Icon_Potion01_Red.png", new StatMod(StatModType.HealNowPct, 0.45f));
 
+            // ---- star forge path (permanent, bought with shards between runs) ----
+            // One chain, climbed bottom to top: array order is climb order and each step
+            // costs more than the last. ChainSteps below gates every step on the one under it.
+            var metaUpgrades = new MetaUpgrade[6];
+            metaUpgrades[0] = MakeMetaUpgrade("StarHull", "Ball_Health", 20, 12,
+                new StatMod(StatModType.MaxHpPct, 0.08f));
+            metaUpgrades[1] = MakeMetaUpgrade("IonEdge", "Damage", 28, 16,
+                new StatMod(StatModType.AtkPct, 0.07f));
+            metaUpgrades[2] = MakeMetaUpgrade("AegisWeave", "Buff", 36, 20,
+                new StatMod(StatModType.DefFlat, 2f));
+            metaUpgrades[3] = MakeMetaUpgrade("VoidFangs", "Passive", 44, 24,
+                new StatMod(StatModType.Lifesteal, 0.02f));
+            metaUpgrades[4] = MakeMetaUpgrade("QuillPlate", "Debuff", 52, 28,
+                new StatMod(StatModType.Thorns, 0.06f));
+            metaUpgrades[5] = MakeMetaUpgrade("LuckyNova", "Critical_Chance", 60, 32,
+                new StatMod(StatModType.CritChance, 0.03f));
+            ChainSteps(metaUpgrades);
+
             // ---- narrative (term keys only — the sentences live in CCQ_Localization.csv) ----
             var narrative = LoadOrCreateAsset<NarrativeConfig>(DataDir + "/NarrativeConfig.asset");
             SetPrivate(narrative, "_battleIntroKeys", Keys("Narrative/BattleIntro/", 5));
@@ -255,6 +281,7 @@ namespace CCQ.EditorTools
             // ---- game config (content arrays only; numbers keep asset values) ----
             var config = LoadOrCreateAsset<GameConfig>(DataDir + "/GameConfig.asset");
             SetPrivate(config, "_upgrades", upgrades);
+            SetPrivate(config, "_metaUpgrades", metaUpgrades);
             SetPrivate(config, "_fortunes", fortunes);
             SetPrivate(config, "_sidekicks", sidekicks);
             SetPrivate(config, "_planets", planets);
@@ -328,6 +355,45 @@ namespace CCQ.EditorTools
             SetPrivate(u, "_icon", LoadSprite(iconPath));
             SetPrivate(u, "_mods", mods);
             return u;
+        }
+
+        private const int MetaRanks = 3;
+        private const int RuneTiers = 6;
+
+        /// <summary>
+        /// A forge step. Its rank icons are the six rarity tiers of one rune motif, so the
+        /// rune visibly levels up: the dullest stone is rank 0, the finest is maxed.
+        /// </summary>
+        private static MetaUpgrade MakeMetaUpgrade(string id, string runeMotif, int costBase,
+            int costStep, params StatMod[] modsPerRank)
+        {
+            var icons = new Sprite[RuneTiers];
+            for (int tier = 0; tier < RuneTiers; tier++)
+            {
+                icons[tier] = LoadSprite(RuneIcons + "RuneIcon" + tier + "_" + runeMotif + ".Png");
+            }
+            var m = LoadOrCreateAsset<MetaUpgrade>(DataDir + "/Meta/Meta_" + id + ".asset");
+            SetPrivate(m, "_id", id);
+            SetPrivate(m, "_nameKey", "Meta/" + id + "/Name");
+            SetPrivate(m, "_descriptionKey", "Meta/" + id + "/Desc");
+            SetPrivate(m, "_rankIcons", icons);
+            SetPrivate(m, "_maxRank", MetaRanks);
+            SetPrivate(m, "_costBase", costBase);
+            SetPrivate(m, "_costStep", costStep);
+            SetPrivate(m, "_modsPerRank", modsPerRank);
+            return m;
+        }
+
+        /// <summary>Gates every step on the one below it being finished — the single path.</summary>
+        private static void ChainSteps(MetaUpgrade[] steps)
+        {
+            SetPrivate(steps[0], "_requires", null);
+            SetPrivate(steps[0], "_requiredRank", 0);
+            for (int i = 1; i < steps.Length; i++)
+            {
+                SetPrivate(steps[i], "_requires", steps[i - 1]);
+                SetPrivate(steps[i], "_requiredRank", MetaRanks);
+            }
         }
 
         // ================= prefabs =================
@@ -611,6 +677,8 @@ namespace CCQ.EditorTools
                 out ConsoleView console, out FortuneBanner banner, out ChoicePanel choices,
                 out SidekickChipsView chips, out EngageButton engage);
             OverlayView overlay = BuildOverlayCanvas(uiRoot.transform, font);
+            StarForgeView forge = BuildForgeCanvas(uiRoot.transform, content, font);
+            MainMenuView menu = BuildMenuCanvas(uiRoot.transform, font, out NavBarView nav);
             SetPrivate(ui, "_config", content.Config);
             SetPrivate(ui, "_hud", hud);
             SetPrivate(ui, "_console", console);
@@ -619,6 +687,9 @@ namespace CCQ.EditorTools
             SetPrivate(ui, "_chips", chips);
             SetPrivate(ui, "_engage", engage);
             SetPrivate(ui, "_overlay", overlay);
+            SetPrivate(ui, "_forge", forge);
+            SetPrivate(ui, "_menu", menu);
+            SetPrivate(ui, "_nav", nav);
 
             // ---- screen lock (portrait pillarbox) ----
             var lockGo = new GameObject("ScreenLock");
@@ -734,6 +805,17 @@ namespace CCQ.EditorTools
             AddImage(gearIcon, LoadSprite(PictoIcons + "Pictoicon_Setting.Png"), Color.white,
                 false, false);
 
+            // home button: the tab bar lives on the front screen, so this is the way back to it
+            RectTransform home = Place(NewUiChild(frame, "HomeBtn"),
+                new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-108f, -14f),
+                new Vector2(76f, 76f));
+            Image homeImg = AddImage(home, LoadSprite(ButtonsDir + "Btn_OtherButton_Circle01_n.png"),
+                Color.white, true, false);
+            Button homeBtn = AddButton(home, homeImg);
+            AddImage(Place(NewUiChild(home, "Icon"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f)),
+                LoadSprite(PictoIcons + "Pictoicon_Home_0.Png"), Color.white, false, false);
+
             // planet tag (bottom-left of viewport, above stats bar)
             RectTransform planet = Place(NewUiChild(frame, "PlanetTag"),
                 new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 1126f),
@@ -824,6 +906,7 @@ namespace CCQ.EditorTools
             SetPrivate(hud, "_speedLabel", speedLabel);
             SetPrivate(hud, "_speedButton", speedBtn);
             SetPrivate(hud, "_gearButton", gearBtn);
+            SetPrivate(hud, "_homeButton", homeBtn);
             SetPrivate(hud, "_levelLabel", levelLabel);
             SetPrivate(hud, "_xpFill", xpFill);
             SetPrivate(hud, "_hpLabel", hpLabel);
@@ -1010,6 +1093,69 @@ namespace CCQ.EditorTools
             return view;
         }
 
+        /// <summary>
+        /// The bottom tab strip, parented into the console panel so it hides with the rest of
+        /// the play HUD. 150 px tall is ~50 dp — above the 48 dp minimum touch target — and
+        /// the whole tab is the button, not just its icon.
+        /// </summary>
+        private static NavBarView BuildNavBar(RectTransform panel, Sprite uiSprite,
+            TMP_FontAsset font)
+        {
+            RectTransform bar = NewUiChild(panel, "NavBar");
+            bar.anchorMin = new Vector2(0f, 0f);
+            bar.anchorMax = new Vector2(1f, 0f);
+            bar.pivot = new Vector2(0.5f, 0f);
+            bar.anchoredPosition = Vector2.zero;
+            bar.sizeDelta = new Vector2(0f, 150f);
+            var nav = bar.gameObject.AddComponent<NavBarView>();
+            AddImage(bar, null, Hex("#0d0820"));
+            RectTransform hairline = NewUiChild(bar, "TopLine");
+            hairline.anchorMin = new Vector2(0f, 1f);
+            hairline.anchorMax = new Vector2(1f, 1f);
+            hairline.pivot = new Vector2(0.5f, 1f);
+            hairline.anchoredPosition = Vector2.zero;
+            hairline.sizeDelta = new Vector2(0f, 2f);
+            AddImage(hairline, null, new Color(0.43f, 0.9f, 1f, 0.22f));
+
+            string[] icons =
+            {
+                PictoIcons + "Pictoicon_Anvil.Png",
+                PictoIcons + "Pictoicon_Profile.Png",
+                PictoIcons + "Pictoicon_Trophy_0.Png",
+                PictoIcons + "Pictoicon_Setting.Png"
+            };
+            var buttons = new Button[NavBarView.TabCount];
+            var labels = new TextMeshProUGUI[NavBarView.TabCount];
+            GameObject badge = null;
+            Color tabBg = Hex("#1a1240");
+            tabBg.a = 0.5f;
+            for (int i = 0; i < NavBarView.TabCount; i++)
+            {
+                RectTransform tab = Place(NewUiChild(bar, "Tab" + i), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2((i - 1.5f) * 268f, 0f),
+                    new Vector2(256f, 130f));
+                Image tabImg = AddImage(tab, uiSprite, tabBg, true);
+                buttons[i] = AddButton(tab, tabImg);
+                RectTransform icon = Place(NewUiChild(tab, "Icon"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, 24f), new Vector2(56f, 56f));
+                AddImage(icon, LoadSprite(icons[i]), Color.white);
+                labels[i] = AddTmp(Place(NewUiChild(tab, "Label"), new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f), new Vector2(0f, -36f), new Vector2(240f, 34f)),
+                    "", 24f, Hex("#c9cff2"), font, TextAlignmentOptions.Center);
+                if (i != 0) continue;
+                // unread-style dot: the forge is the only tab with something to chase
+                RectTransform dot = Place(NewUiChild(tab, "Badge"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(38f, 44f), new Vector2(24f, 24f));
+                AddImage(dot, uiSprite, Hex("#ff4a6b"));
+                badge = dot.gameObject;
+            }
+
+            SetPrivate(nav, "_buttons", buttons);
+            SetPrivate(nav, "_labels", labels);
+            SetPrivate(nav, "_forgeBadge", badge);
+            return nav;
+        }
+
         private static OverlayView BuildOverlayCanvas(Transform uiRoot, TMP_FontAsset font)
         {
             Canvas canvas = NewCanvas(uiRoot, "Canvas_Overlay", 30, out RectTransform frame);
@@ -1032,8 +1178,12 @@ namespace CCQ.EditorTools
                 "", 33f, Hex("#e8eaf6"), font, TextAlignmentOptions.Top, true);
             body.richText = true;
             body.lineSpacing = 10f;
+            RectTransform titleRule = Place(NewUiChild(card, "TitleRule"), new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0f, -120f), new Vector2(700f, 2f));
+            AddImage(titleRule, null, new Color(0.43f, 0.9f, 1f, 0.22f));
 
-            // Resume / Music / SFX / Language / Restart / Reset — see GameManager.ShowSettings
+            // Settings: Resume / Music / SFX / Language / Star Forge / Restart —
+            // see GameManager.ShowSettings. "Reset all data" lives on the forge screen.
             string[] btnSprites =
             {
                 ButtonsDir + "Btn_MainButton_Green.Png",
@@ -1055,12 +1205,304 @@ namespace CCQ.EditorTools
                     36f, Color.white, font, TextAlignmentOptions.Center);
             }
 
+            // round ✕ hanging below the card: thumb-reachable and never over the content
+            RectTransform close = Place(NewUiChild(card, "Close"), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 1f), new Vector2(0f, -34f), new Vector2(112f, 112f));
+            Image closeImg = AddImage(close,
+                LoadSprite(ButtonsDir + "Btn_OtherButton_Circle01_n.png"), Color.white, true);
+            Button closeBtn = AddButton(close, closeImg);
+            AddImage(Place(NewUiChild(close, "X"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(52f, 52f)),
+                LoadSprite(PictoIcons + "Pictoicon_Close.Png"), Color.white);
+
+            SetPrivate(overlay, "_card", card);
             SetPrivate(overlay, "_title", title);
             SetPrivate(overlay, "_body", body);
             SetPrivate(overlay, "_buttons", buttons);
             SetPrivate(overlay, "_buttonLabels", labels);
+            SetPrivate(overlay, "_closeButton", closeBtn);
             root.gameObject.SetActive(false);
             return overlay;
+        }
+
+        // ================= main menu =================
+
+        /// <summary>
+        /// The front screen. Unlike the forge it is only a scrim, because the planet backdrop
+        /// and the idling hero are the art — UIController parks the play HUD while it is up.
+        /// </summary>
+        private static MainMenuView BuildMenuCanvas(Transform uiRoot, TMP_FontAsset font,
+            out NavBarView nav)
+        {
+            Canvas canvas = NewCanvas(uiRoot, "Canvas_Menu", 28, out RectTransform frame);
+            RectTransform root = Stretch(NewUiChild(frame, "Menu"));
+            var menu = root.gameObject.AddComponent<MainMenuView>();
+            AddImage(root, null, new Color(0.02f, 0.01f, 0.08f, 0.55f), true);
+
+            Sprite uiSprite = BuiltinUiSprite();
+            Sprite shard = LoadSprite(ShardIcon);
+            Color chipColor = Hex("#1a1240");
+            chipColor.a = 0.92f;
+
+            // The console canvas is parked while the menu is up, and the planet art does not
+            // reach the bottom of the screen — this plate takes over that half of the frame.
+            Color deckColor = Hex("#120c28");
+            deckColor.a = 0.97f;
+            RectTransform deck = NewUiChild(root, "Deck");
+            deck.anchorMin = new Vector2(0f, 0f);
+            deck.anchorMax = new Vector2(1f, 0f);
+            deck.pivot = new Vector2(0.5f, 0f);
+            deck.anchoredPosition = Vector2.zero;
+            // just tall enough to start where the planet art stops, so no black gap opens up
+            deck.sizeDelta = new Vector2(0f, 800f);
+            AddImage(deck, null, deckColor);
+
+            // ---- status chips, the way a mobile home screen opens ----
+            RectTransform chip = Place(NewUiChild(root, "ProfileChip"), new Vector2(0f, 1f),
+                new Vector2(0f, 1f), new Vector2(22f, -20f), new Vector2(288f, 96f));
+            Image chipImg = AddImage(chip, uiSprite, chipColor, true);
+            Button profileBtn = AddButton(chip, chipImg);
+            AddImage(Place(NewUiChild(chip, "Avatar"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(68f, 68f)),
+                LoadSprite(PictoIcons + "Pictoicon_Profile.Png"), Color.white);
+            var levelLabel = AddTmp(Place(NewUiChild(chip, "Level"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(94f, 0f), new Vector2(180f, 56f)),
+                "Lv.1", 36f, Color.white, font, TextAlignmentOptions.MidlineLeft);
+
+            RectTransform shardChip = Place(NewUiChild(root, "ShardChip"), new Vector2(1f, 1f),
+                new Vector2(1f, 1f), new Vector2(-22f, -20f), new Vector2(236f, 96f));
+            AddImage(shardChip, uiSprite, chipColor);
+            AddImage(Place(NewUiChild(shardChip, "Icon"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(58f, 58f)),
+                shard, Color.white);
+            var shardLabel = AddTmp(Place(NewUiChild(shardChip, "Count"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(84f, 0f), new Vector2(140f, 56f)),
+                "0", 36f, Hex("#ffd35c"), font, TextAlignmentOptions.MidlineLeft);
+
+            // ---- chapter banner: where the voyage stands, plus the record to beat ----
+            Color plateColor = Hex("#0a0620");
+            plateColor.a = 0.8f;
+            RectTransform plate = Place(NewUiChild(root, "Banner"), new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(920f, 212f));
+            AddImage(plate, uiSprite, plateColor);
+            var title = AddTmp(Place(NewUiChild(plate, "Title"), new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f), new Vector2(0f, -20f), new Vector2(850f, 96f)),
+                Loc.Get(LocKeys.MenuTitle), 62f, Hex("#ffd35c"), font,
+                TextAlignmentOptions.Top, true);
+            var progress = AddTmp(Place(NewUiChild(plate, "Progress"), new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f), new Vector2(0f, 68f), new Vector2(850f, 46f)),
+                "", 30f, Hex("#e8eaf6"), font, TextAlignmentOptions.Center);
+            var best = AddTmp(Place(NewUiChild(plate, "Best"), new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(850f, 44f)),
+                "", 26f, Hex("#8bf07a"), font, TextAlignmentOptions.Center);
+
+            // ---- one big thumb-height CTA, with the destructive option demoted below it ----
+            RectTransform start = Place(NewUiChild(root, "Start"), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 520f), new Vector2(700f, 168f));
+            Image startImg = AddImage(start, LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"),
+                Color.white, true);
+            Button startBtn = AddButton(start, startImg);
+            var startLabel = AddTmp(Stretch(NewUiChild(start, "Label"), 0f, 0f, 0f, 14f),
+                Loc.Get(LocKeys.MenuContinue), 58f, Color.white, font,
+                TextAlignmentOptions.Center);
+
+            RectTransform newRun = Place(NewUiChild(root, "NewRun"), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 372f), new Vector2(520f, 96f));
+            Image newRunImg = AddImage(newRun, LoadSprite(ButtonsDir + "Btn_MainButton_Sky.Png"),
+                Color.white, true);
+            Button newRunBtn = AddButton(newRun, newRunImg);
+            var newRunLabel = AddTmp(Stretch(NewUiChild(newRun, "Label"), 0f, 0f, 0f, 8f),
+                Loc.Get(LocKeys.MenuNewRun), 32f, Color.white, font, TextAlignmentOptions.Center);
+
+            nav = BuildNavBar(root, uiSprite, font);
+
+            SetPrivate(menu, "_profileChip", profileBtn);
+            SetPrivate(menu, "_levelLabel", levelLabel);
+            SetPrivate(menu, "_shardLabel", shardLabel);
+            SetPrivate(menu, "_title", title);
+            SetPrivate(menu, "_progress", progress);
+            SetPrivate(menu, "_best", best);
+            SetPrivate(menu, "_startButton", startBtn);
+            SetPrivate(menu, "_startLabel", startLabel);
+            SetPrivate(menu, "_newRunButton", newRunBtn);
+            SetPrivate(menu, "_newRunLabel", newRunLabel);
+            root.gameObject.SetActive(false);
+            return menu;
+        }
+
+        // ================= star forge path =================
+
+        private const float StepSpacing = 195f;   // centre-to-centre between two steps
+        private const float MedallionSize = 124f;
+        private const float RailX = -382f;        // the climb runs up the left edge
+        private const float RailWidth = 14f;
+        private const float BottomStepY = -470f;
+
+        private static float StepY(int index) => BottomStepY + index * StepSpacing;
+
+        /// <summary>
+        /// The Star Forge screen: one rail climbing the left side with a rune medallion per
+        /// step and its detail strip beside it. Step count and order come from
+        /// GameConfig.MetaUpgrades, so re-shaping the path means editing that data, not this.
+        /// </summary>
+        private static StarForgeView BuildForgeCanvas(Transform uiRoot, Content content,
+            TMP_FontAsset font)
+        {
+            Canvas canvas = NewCanvas(uiRoot, "Canvas_Forge", 25, out RectTransform frame);
+            RectTransform root = Stretch(NewUiChild(frame, "Forge"));
+            var forge = root.gameObject.AddComponent<StarForgeView>();
+            // a full screen, not a popup: opaque, so nothing of the run shows through
+            AddImage(root, null, Hex("#0a0620"), true);
+
+            Sprite uiSprite = BuiltinUiSprite();
+            Sprite shard = LoadSprite(ShardIcon);
+            Sprite glowSprite = LoadSprite(SoftGlow);
+            Color pillColor = Hex("#1a1240");
+            pillColor.a = 0.92f;
+
+            var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(900f, 80f)),
+                Loc.Get(LocKeys.ForgeTitle), 62f, Hex("#ffd35c"), font,
+                TextAlignmentOptions.Center);
+
+            // shard balance pill: star glyph + count
+            RectTransform pill = Place(NewUiChild(root, "ShardPill"), new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f), new Vector2(0f, -130f), new Vector2(320f, 76f));
+            AddImage(pill, uiSprite, pillColor);
+            AddImage(Place(NewUiChild(pill, "Icon"), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(18f, 0f), new Vector2(46f, 46f)), shard, Color.white);
+            var shards = AddTmp(Place(NewUiChild(pill, "Count"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(24f, 0f), new Vector2(220f, 56f)),
+                "0", 42f, Hex("#ffd35c"), font, TextAlignmentOptions.Left);
+
+            var hint = AddTmp(Place(NewUiChild(root, "Hint"), new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f), new Vector2(0f, -216f), new Vector2(880f, 90f)),
+                Loc.Get(LocKeys.ForgeIntro), 25f, Hex("#a9aed0"), font,
+                TextAlignmentOptions.Top, true);
+
+            MetaUpgrade[] steps = content.Config.MetaUpgrades;
+            RectTransform path = Place(NewUiChild(root, "Path"), new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -30f), new Vector2(1080f, 1500f));
+
+            // rail segments first, so the medallions sit on top of them
+            float railLength = StepSpacing - MedallionSize + 12f;
+            var railFills = new RectTransform[steps.Length - 1];
+            var railLengths = new float[steps.Length - 1];
+            for (int i = 0; i + 1 < steps.Length; i++)
+            {
+                float bottom = StepY(i) + MedallionSize * 0.5f - 6f;
+                RectTransform track = Place(NewUiChild(path, "Rail" + i),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(RailX, bottom),
+                    new Vector2(RailWidth, railLength));
+                AddImage(track, null, Hex("#3b2f6b")); // must stay readable against #0a0620
+                RectTransform fill = Place(NewUiChild(track, "Fill"), new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f), Vector2.zero, new Vector2(RailWidth, 0f));
+                AddImage(fill, null, Hex("#ffd35c"));
+                railFills[i] = fill;
+                railLengths[i] = railLength;
+            }
+
+            var nodes = new MetaNodeView[steps.Length];
+            for (int i = 0; i < steps.Length; i++)
+            {
+                nodes[i] = BuildForgeStep(path, steps[i], StepY(i), uiSprite, shard, glowSprite,
+                    font);
+            }
+
+            RectTransform close = Place(NewUiChild(root, "Close"), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 176f), new Vector2(600f, 104f));
+            Image closeImg = AddImage(close, LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"),
+                Color.white, true);
+            Button closeBtn = AddButton(close, closeImg);
+            var closeLabel = AddTmp(Stretch(NewUiChild(close, "Label"), 0f, 0f, 0f, 10f),
+                Loc.Get(LocKeys.ForgeBack), 36f, Color.white, font, TextAlignmentOptions.Center);
+
+            RectTransform reset = Place(NewUiChild(root, "Reset"), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 74f), new Vector2(420f, 72f));
+            Image resetImg = AddImage(reset, LoadSprite(ButtonsDir + "Btn_MainButton_Red.Png"),
+                Color.white, true);
+            Button resetBtn = AddButton(reset, resetImg);
+            var resetLabel = AddTmp(Stretch(NewUiChild(reset, "Label"), 0f, 0f, 0f, 8f),
+                Loc.Get(LocKeys.OverlayResetAll), 26f, Color.white, font,
+                TextAlignmentOptions.Center);
+
+            SetPrivate(forge, "_config", content.Config);
+            SetPrivate(forge, "_nodes", nodes);
+            SetPrivate(forge, "_railFills", railFills);
+            SetPrivate(forge, "_railLengths", railLengths);
+            SetPrivate(forge, "_title", title);
+            SetPrivate(forge, "_shards", shards);
+            SetPrivate(forge, "_hint", hint);
+            SetPrivate(forge, "_closeButton", closeBtn);
+            SetPrivate(forge, "_closeLabel", closeLabel);
+            SetPrivate(forge, "_resetButton", resetBtn);
+            SetPrivate(forge, "_resetLabel", resetLabel);
+            root.gameObject.SetActive(false);
+            return forge;
+        }
+
+        /// <summary>
+        /// One step: the detail strip is the button (a comfortable tap target that spans the
+        /// row), with the medallion riding the rail on its left.
+        /// </summary>
+        private static MetaNodeView BuildForgeStep(RectTransform path, MetaUpgrade step,
+            float y, Sprite panelSprite, Sprite shard, Sprite glowSprite, TMP_FontAsset font)
+        {
+            RectTransform rt = Place(NewUiChild(path, "Step_" + step.Id),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(100f, y),
+                new Vector2(800f, 152f));
+            var view = rt.gameObject.AddComponent<MetaNodeView>();
+            Image panel = AddImage(rt, panelSprite, Hex("#1a1240"), true);
+            Button btn = AddButton(rt, panel);
+
+            // the medallion lives outside the strip, centred on the rail
+            RectTransform medallion = Place(NewUiChild(path, "Rune_" + step.Id),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(RailX, y),
+                new Vector2(MedallionSize, MedallionSize));
+            // wide enough to read as an aura, tight enough not to spill off the screen edge
+            float glowSize = MedallionSize * 1.78f;
+            Image glow = AddImage(Place(NewUiChild(medallion, "Glow"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(glowSize, glowSize)),
+                glowSprite, Color.white);
+            glow.enabled = false;
+            Image icon = AddImage(Stretch(NewUiChild(medallion, "Rune")), step.RankIcon(0),
+                Color.white);
+
+            var name = AddTmp(Place(NewUiChild(rt, "Name"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(34f, 36f), new Vector2(470f, 38f)),
+                step.DisplayName, 31f, Color.white, font, TextAlignmentOptions.Left);
+            var desc = AddTmp(Place(NewUiChild(rt, "Desc"), new Vector2(0f, 0.5f),
+                    new Vector2(0f, 0.5f), new Vector2(34f, -2f), new Vector2(470f, 34f)),
+                step.Description, 24f, Hex("#b8bfe8"), font, TextAlignmentOptions.Left);
+
+            // one pip per rank, lit as ranks are bought
+            var pips = new Image[step.MaxRank];
+            for (int i = 0; i < pips.Length; i++)
+            {
+                pips[i] = AddImage(Place(NewUiChild(rt, "Pip" + i), new Vector2(0f, 0.5f),
+                        new Vector2(0f, 0.5f), new Vector2(36f + i * 30f, -44f),
+                        new Vector2(20f, 20f)),
+                    null, Color.white);
+            }
+
+            Image costIcon = AddImage(Place(NewUiChild(rt, "CostIcon"), new Vector2(1f, 0.5f),
+                new Vector2(1f, 0.5f), new Vector2(-186f, 0f), new Vector2(34f, 34f)),
+                shard, Color.white);
+            var cost = AddTmp(Place(NewUiChild(rt, "Cost"), new Vector2(1f, 0.5f),
+                    new Vector2(1f, 0.5f), new Vector2(-30f, 0f), new Vector2(150f, 44f)),
+                "", 30f, Color.white, font, TextAlignmentOptions.Right);
+
+            SetPrivate(view, "_button", btn);
+            SetPrivate(view, "_panel", panel);
+            SetPrivate(view, "_medallion", medallion);
+            SetPrivate(view, "_icon", icon);
+            SetPrivate(view, "_glow", glow);
+            SetPrivate(view, "_name", name);
+            SetPrivate(view, "_description", desc);
+            SetPrivate(view, "_cost", cost);
+            SetPrivate(view, "_costIcon", costIcon);
+            SetPrivate(view, "_pips", pips);
+            return view;
         }
     }
 }

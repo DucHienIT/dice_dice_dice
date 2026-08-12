@@ -77,6 +77,15 @@ namespace CCQ.Data
         [SerializeField, Range(0f, 1f)] private float _snackHeal = 0.15f;
         [SerializeField, Range(0f, 1f)] private float _planetClearHeal = 0.5f;
 
+        [Header("Meta progression (STAR FORGE) — survives death")]
+        [SerializeField] private MetaUpgrade[] _metaUpgrades;
+        [Tooltip("Shards per global round reached when a voyage ends.")]
+        [SerializeField] private float _shardsPerRound = 0.5f;
+        [SerializeField] private int _shardsPerElite = 2;
+        [SerializeField] private int _shardsPerBoss = 6;
+        [Tooltip("Paid the moment a planet is cleared, multiplied by the planet number.")]
+        [SerializeField] private int _shardsPerPlanetClear = 15;
+
         [Header("Content")]
         [SerializeField] private UpgradeCard[] _upgrades;
         [SerializeField] private Fortune[] _fortunes;
@@ -138,6 +147,12 @@ namespace CCQ.Data
         public int MaxSidekicks => _maxSidekicks;
         public float SnackHeal => _snackHeal;
         public float PlanetClearHeal => _planetClearHeal;
+
+        public MetaUpgrade[] MetaUpgrades => _metaUpgrades;
+        public float ShardsPerRound => _shardsPerRound;
+        public int ShardsPerElite => _shardsPerElite;
+        public int ShardsPerBoss => _shardsPerBoss;
+        public int ShardsPerPlanetClear => _shardsPerPlanetClear;
 
         public UpgradeCard[] Upgrades => _upgrades;
         public Fortune[] Fortunes => _fortunes;

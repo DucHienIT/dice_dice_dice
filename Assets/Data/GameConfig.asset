@@ -62,6 +62,17 @@ MonoBehaviour:
   _maxSidekicks: 3
   _snackHeal: 0.15
   _planetClearHeal: 0.5
+  _metaUpgrades:
+  - {fileID: 11400000, guid: b226211d3f879c240a94226ea4042fad, type: 2}
+  - {fileID: 11400000, guid: dce5a2f741d138642819e293e2f6b757, type: 2}
+  - {fileID: 11400000, guid: 0550ef05cea55804fbd27b86820d1d3e, type: 2}
+  - {fileID: 11400000, guid: c7d5bc52e61e1f54e9a1d917127573a3, type: 2}
+  - {fileID: 11400000, guid: 3f7df9c82ac8b9f4b8b3c59c72ae3c64, type: 2}
+  - {fileID: 11400000, guid: afe2c2c73fc1d004da9847177f63152a, type: 2}
+  _shardsPerRound: 0.5
+  _shardsPerElite: 2
+  _shardsPerBoss: 6
+  _shardsPerPlanetClear: 15
   _upgrades:
   - {fileID: 11400000, guid: 5369a1fe62c0a1047ae969fedc355f91, type: 2}
   - {fileID: 11400000, guid: ac17fd3c3ebc914439ae6edfacde63d7, type: 2}

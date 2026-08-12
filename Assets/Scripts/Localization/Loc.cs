@@ -62,6 +62,9 @@ namespace CCQ.Localization
         public static string Format(string key, object arg0, object arg1, object arg2) =>
             string.Format(Get(key), arg0, arg1, arg2);
 
+        public static string Format(string key, object arg0, object arg1, object arg2,
+            object arg3) => string.Format(Get(key), arg0, arg1, arg2, arg3);
+
         /// <summary>Display name of a language in its own tongue, e.g. "Tiếng Việt".</summary>
         public static string LanguageLabel(string code) => Get(LocKeys.LanguagePrefix + code);
 

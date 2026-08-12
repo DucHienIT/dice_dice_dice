@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
+  m_Name: Meta_LuckyNova
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
+  _id: LuckyNova
+  _nameKey: Meta/LuckyNova/Name
+  _descriptionKey: Meta/LuckyNova/Desc
+  _rankIcons:
+  - {fileID: 21300000, guid: 4d69f56420e294687916e6bb7621b018, type: 3}
+  - {fileID: 21300000, guid: 7ca410a5468334b74abfc8bb47ca0530, type: 3}
+  - {fileID: 21300000, guid: e12083999b59b4c03b3cf91102ae734b, type: 3}
+  - {fileID: 21300000, guid: 1f0402d96ce814aa9ae8407e8e1ab68f, type: 3}
+  - {fileID: 21300000, guid: f3c1674967fd2406da77926ef862c62a, type: 3}
+  - {fileID: 21300000, guid: a68ccee3db10d46a4aa8a6bf676e0500, type: 3}
+  _maxRank: 3
+  _costBase: 60
+  _costStep: 32
+  _modsPerRank:
+  - Type: 3
+    Value: 0.03
+  _requires: {fileID: 11400000, guid: 3f7df9c82ac8b9f4b8b3c59c72ae3c64, type: 2}
+  _requiredRank: 3

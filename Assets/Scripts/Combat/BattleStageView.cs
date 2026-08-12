@@ -86,6 +86,22 @@ namespace CCQ.Combat
             _enemyName.gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// Parks the floating bars and the enemy name for the front screen, where they read
+        /// as stray artefacts over the menu. Restoring never revives an enemy bar that has
+        /// no enemy behind it. SetValues re-fills the bars on the way back.
+        /// </summary>
+        public void SetBarsVisible(bool on)
+        {
+            _heroBar.SetVisible(on);
+            bool enemyShown = on && _enemy != null;
+            _enemyBar.SetVisible(enemyShown);
+            if (_enemyName.gameObject.activeSelf != enemyShown)
+            {
+                _enemyName.gameObject.SetActive(enemyShown);
+            }
+        }
+
         /// <summary>Hero walk cycle on/off — blended, so stopping mid-stride still settles.</summary>
         public void SetWalking(bool on)
         {

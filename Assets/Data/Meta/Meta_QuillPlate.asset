@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
+  m_Name: Meta_QuillPlate
+  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
+  _id: QuillPlate
+  _nameKey: Meta/QuillPlate/Name
+  _descriptionKey: Meta/QuillPlate/Desc
+  _rankIcons:
+  - {fileID: 21300000, guid: edca069d5dcdb4311b3b9b1e485b997f, type: 3}
+  - {fileID: 21300000, guid: 191ad806a9e304f57b86ace14615f291, type: 3}
+  - {fileID: 21300000, guid: 9061d32f94df04fa09dc02c3c929c70f, type: 3}
+  - {fileID: 21300000, guid: 4c041efe6d0ed430795caf7917452c84, type: 3}
+  - {fileID: 21300000, guid: 4e34f9307f0e748be96c6e2cac3151b4, type: 3}
+  - {fileID: 21300000, guid: 1951a1d51c0384658b3d42571a3b0cd5, type: 3}
+  _maxRank: 3
+  _costBase: 52
+  _costStep: 28
+  _modsPerRank:
+  - Type: 5
+    Value: 0.06
+  _requires: {fileID: 11400000, guid: c7d5bc52e61e1f54e9a1d917127573a3, type: 2}
+  _requiredRank: 3
