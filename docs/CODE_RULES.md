@@ -1,4 +1,4 @@
-# CODE RULES — Cosmic Critter Quest
+# CODE RULES — One Tap Immortal (Nhất Niệm Thành Tiên)
 
 Quy tắc code bắt buộc cho toàn bộ code first-party trong project. Đọc file này trước khi viết hoặc sửa bất kỳ script nào.
 
@@ -14,7 +14,7 @@ Assets/Scripts/
 ├── Enemies/       # Sinh chỉ số quái theo g, elite/boss, look procedural
 ├── Progression/   # XP, level up, thẻ upgrade và hiệu lực của chúng
 ├── Sidekicks/     # Sidekick passive, giới hạn 3, thay thế
-├── Planets/       # Palette, background theo planet, warp
+├── Worlds/        # Palette, background theo cõi (World), phi thăng
 ├── UI/            # Toàn bộ uGUI code
 ├── Data/          # Class định nghĩa ScriptableObject (.cs)
 ├── Save/          # Save run (ccq_run) và best (ccq_best)
@@ -34,7 +34,7 @@ File `.asset` (instance của ScriptableObject — số liệu cân bằng thậ
 - Constant: `PascalCase` (không `ALL_CAPS`).
 - Enum không dùng prefix (viết `EventType.Battle`, không `EventType.EVENT_BATTLE`).
 - Một class chính mỗi file, tên file trùng tên class.
-- Tên theo domain của spec: `StarCycle`, `EventType` (Battle/Fortune/Choice/Spring/Trap/Treasure/Sidekick), `UpgradeCard`, `Sidekick`, `Planet`, `Enrage` — không tự đặt tên khác cho khái niệm đã có trong spec. (Các tên viết hoa trong spec như `EVENT_WEIGHTS` là tên field/nhóm trong config — trong C# đặt theo `PascalCase`: `EventWeights`.)
+- Tên theo domain của spec: `Cycle`, `EventType` (Battle/Fortune/Choice/Spring/Trap/Treasure/Sidekick), `UpgradeCard`, `Sidekick`, `World`, `Enrage` — không tự đặt tên khác cho khái niệm đã có trong spec. (Các tên viết hoa trong spec như `EVENT_WEIGHTS` là tên field/nhóm trong config — trong C# đặt theo `PascalCase`: `EventWeights`.)
 
 ## 3. Kiến trúc
 
