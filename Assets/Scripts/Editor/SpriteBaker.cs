@@ -79,6 +79,7 @@ namespace Game.EditorTools
             public Sprite HpFrame;
             public Sprite HpFill;
             public Sprite BurstStar;
+            public Sprite Bolt;
             public Sprite Twinkle;
             public Sprite LakeGlow;
 
@@ -127,6 +128,7 @@ namespace Game.EditorTools
             s.HpFill = Save(HpFill(), "hpbar_fill", new Vector2(0f, 0.5f));
             s.BurstStar = Save(BurstStar(), "burst_star", Center, BurstPpu);
             s.Twinkle = Save(Twinkle(), "twinkle", Center);
+            s.Bolt = Save(TribulationBolt(), "fx_bolt", new Vector2(0.5f, 1f));
             s.LakeGlow = Save(LakeGlow(), "lake_glow", Center);
             s.UiCapsule = Save(UiCapsule(), "ui_capsule", Center, Ppu,
                 border: new Vector4(CapsuleRadius, 0f, CapsuleRadius, 0f));
@@ -448,6 +450,32 @@ namespace Game.EditorTools
         }
 
         /// <summary>One artifact silhouette per sidekick id — no faces, these are pháp bảo.</summary>
+        /// <summary>Jagged tribulation bolt, pivot at the top so it hangs from its spawn point.</summary>
+        private static Painter TribulationBolt()
+        {
+            var p = new Painter(96, 300);
+            var violet = new Color(0.62f, 0.45f, 1f);
+            var core = new Color(0.94f, 0.97f, 1f);
+            Vector2[] pts =
+            {
+                new Vector2(50f, 298f), new Vector2(36f, 224f), new Vector2(58f, 168f),
+                new Vector2(40f, 102f), new Vector2(54f, 40f), new Vector2(46f, 2f)
+            };
+            for (int i = 0; i < pts.Length - 1; i++)
+            {
+                p.TaperedLine(pts[i], pts[i + 1], 16f - i * 2f, 12f - i * 2f,
+                    new Color(violet.r, violet.g, violet.b, 0.35f));
+            }
+            for (int i = 0; i < pts.Length - 1; i++)
+            {
+                p.TaperedLine(pts[i], pts[i + 1], 7f - i * 0.8f, 5f - i * 0.8f, core);
+            }
+            p.TaperedLine(new Vector2(58f, 168f), new Vector2(84f, 126f), 5f, 1.4f,
+                new Color(core.r, core.g, core.b, 0.85f));
+            p.Glow(50f, 288f, 26f, violet, 0.5f);
+            return p;
+        }
+
         private static Painter Orb(Color color, string id)
         {
             var p = new Painter(64, 64);

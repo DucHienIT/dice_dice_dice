@@ -728,6 +728,37 @@ namespace Game.EditorTools
             }
             SetPrivate(bursts, "_pool", starPool);
 
+            // ---- tribulation lightning ----
+            var tribGo = new GameObject("TribulationFx");
+            var tribulation = tribGo.AddComponent<TribulationFxView>();
+            var boltPool = new SpriteRenderer[3];
+            for (int i = 0; i < boltPool.Length; i++)
+            {
+                var boltSr = NewChild(tribGo, "Bolt" + i).AddComponent<SpriteRenderer>();
+                boltSr.sprite = art.Bolt;
+                boltSr.sortingOrder = 30;
+                boltSr.enabled = false;
+                boltPool[i] = boltSr;
+            }
+            // the flash lives on its own topmost canvas with no raycaster, so it can cover
+            // every screen without ever eating a tap
+            var flashCanvasGo = new GameObject("Canvas_Flash");
+            var flashCanvas = flashCanvasGo.AddComponent<Canvas>();
+            flashCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            flashCanvas.sortingOrder = 40;
+            var flashGo = NewChild(flashCanvasGo, "Flash");
+            var flashRt = flashGo.AddComponent<RectTransform>();
+            flashRt.anchorMin = Vector2.zero;
+            flashRt.anchorMax = Vector2.one;
+            flashRt.offsetMin = Vector2.zero;
+            flashRt.offsetMax = Vector2.zero;
+            var flashImg = flashGo.AddComponent<Image>();
+            flashImg.color = new Color(1f, 1f, 1f, 0f);
+            flashImg.raycastTarget = false;
+            flashImg.enabled = false;
+            SetPrivate(tribulation, "_bolts", boltPool);
+            SetPrivate(tribulation, "_flash", flashImg);
+
             // ---- audio ----
             var audioGo = new GameObject("AudioManager");
             var audio = audioGo.AddComponent<AudioManager>();
@@ -798,6 +829,7 @@ namespace Game.EditorTools
             SetPrivate(gm, "_background", background);
             SetPrivate(gm, "_floaters", floaters);
             SetPrivate(gm, "_bursts", bursts);
+            SetPrivate(gm, "_tribulationFx", tribulation);
             SetPrivate(gm, "_audio", audio);
             SetPrivate(gm, "_ui", ui);
             SetPrivate(gm, "_screenLock", screenLock);

@@ -32,6 +32,7 @@ namespace Game.Core
         [SerializeField] private WorldBackgroundRenderer _background;
         [SerializeField] private FloaterManager _floaters;
         [SerializeField] private BurstManager _bursts;
+        [SerializeField] private TribulationFxView _tribulationFx;
         [SerializeField] private AudioManager _audio;
         [SerializeField] private UIController _ui;
         [SerializeField] private ScreenLockView _screenLock;
@@ -176,6 +177,7 @@ namespace Game.Core
             _stage.Tick(_time, paused ? 0f : scaledDt, _engine, _run.Player);
             _floaters.Tick(dt);
             _bursts.Tick(dt);
+            _tribulationFx.Tick(dt);
             _shaker.Tick(dt);
             _background.Tick(_time);
             _ui.Tick(_time, dt);
@@ -428,6 +430,9 @@ namespace Game.Core
             {
                 _audio.PlayBossSting();
                 _shaker.Shake(_config.ShakeBoss);
+                // the tribulation announces a realm lord
+                _tribulationFx.PlayStrike(
+                    new Vector3(_stage.EnemyX, _stage.BaseY + 0.6f, 0f), 1f);
             }
 
             _engine.StartBattle(_run.Player, _currentEnemy, _run.Stats);
@@ -560,6 +565,9 @@ namespace Game.Core
             _audio.PlayLevelUp();
             _bursts.Burst(new Vector3(_stage.HeroX, _stage.BaseY + 0.8f, 0f),
                 FloaterManager.NoticeColor, 10, 3f);
+            // a softer bolt marks the breakthrough
+            _tribulationFx.PlayStrike(
+                new Vector3(_stage.HeroX, _stage.BaseY + 0.7f, 0f), 0.7f);
         }
 
         // ---------------- overlays ----------------
@@ -897,8 +905,8 @@ namespace Game.Core
                 // the tree's nodes are pre-placed by the builder — a mismatch would silently
                 // hide a track the player paid for
                 Debug.LogError("[Core] GameManager: GameConfig has " +
-                               _config.MetaUpgrades.Length + " meta upgrades but the Star " +
-                               "MetaPath tree has " + _ui.MetaPath.NodeCount + " nodes");
+                               _config.MetaUpgrades.Length + " meta upgrades but the " +
+                               "cultivation path has " + _ui.MetaPath.NodeCount + " nodes");
             }
             if (_narrative == null) Debug.LogError("[Core] GameManager: NarrativeConfig missing");
             if (_camera == null) Debug.LogError("[Core] GameManager: Camera missing");
@@ -907,6 +915,7 @@ namespace Game.Core
             if (_background == null) Debug.LogError("[Core] GameManager: Background missing");
             if (_floaters == null) Debug.LogError("[Core] GameManager: FloaterManager missing");
             if (_bursts == null) Debug.LogError("[Core] GameManager: BurstManager missing");
+            if (_tribulationFx == null) Debug.LogError("[Core] GameManager: TribulationFxView missing");
             if (_audio == null) Debug.LogError("[Core] GameManager: AudioManager missing");
             if (_ui == null) Debug.LogError("[Core] GameManager: UIController missing");
             if (_screenLock == null) Debug.LogError("[Core] GameManager: ScreenLockView missing");
