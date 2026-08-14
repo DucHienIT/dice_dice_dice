@@ -503,14 +503,18 @@ namespace Game.EditorTools
                 SpriteRenderer shadow = NewSprite(go, "Shadow", 3, art.HeroShadow,
                     new Vector3(0f, 0.02f, 0f));
                 GameObject rig = NewChild(go, "Rig");
-                NewSprite(rig, "Body", 6, art.HeroBody);
+                SpriteRenderer body = NewSprite(rig, "Body", 6, art.HeroBody);
                 SpriteRenderer sword = NewSprite(rig, "Sword", 5, art.HeroSword,
                     new Vector3(0.34f, 0.5f, 0f));
                 sword.transform.localRotation = Quaternion.Euler(0f, 0f, 28f);
                 SpriteRenderer flash = NewSprite(rig, "Flash", 9, art.HeroFlash,
                     new Vector3(0f, 0.85f, 0f));
                 flash.enabled = false;
-                SetPrivate(view, "_rig", rig.transform);
+                
+                SetPrivate(view, "_body", body);
+                SetPrivate(view, "_idleSprite", art.HeroBody);
+                SetPrivate(view, "_runFrames", art.HeroRunFrames);
+SetPrivate(view, "_rig", rig.transform);
                 SetPrivate(view, "_shadow", shadow);
                 SetPrivate(view, "_sword", sword);
                 SetPrivate(view, "_flash", flash);
@@ -970,7 +974,7 @@ namespace Game.EditorTools
             bar.pivot = new Vector2(0.5f, 0f);
             bar.anchoredPosition = new Vector2(0f, 940f);
             bar.sizeDelta = new Vector2(0f, 176f);
-            Color barBg = Hex("#1c1610");
+            Color barBg = Hex("#17120d");
             barBg.a = 0.96f;
             AddImage(bar, null, barBg);
 
@@ -1055,7 +1059,7 @@ namespace Game.EditorTools
             panel.pivot = new Vector2(0.5f, 0f);
             panel.anchoredPosition = Vector2.zero;
             panel.sizeDelta = new Vector2(0f, 940f);
-            Color panelBg = Hex("#1a1410");
+            Color panelBg = Hex("#15110c");
             panelBg.a = 0.97f;
             AddImage(panel, null, panelBg);
             RectTransform topLine = NewUiChild(panel, "TopLine");
@@ -1064,7 +1068,7 @@ namespace Game.EditorTools
             topLine.pivot = new Vector2(0.5f, 1f);
             topLine.anchoredPosition = Vector2.zero;
             topLine.sizeDelta = new Vector2(0f, 3f);
-            AddImage(topLine, null, new Color(0.43f, 0.9f, 1f, 0.3f));
+            AddImage(topLine, null, new Color(0.78f, 0.62f, 0.30f, 0.48f));
 
             // glyph noise
             var glyphLines = new TextMeshProUGUI[4];
@@ -1073,7 +1077,7 @@ namespace Game.EditorTools
                 glyphLines[i] = AddTmp(Place(NewUiChild(panel, "Glyph" + i),
                         new Vector2(0f, 1f), new Vector2(0f, 1f),
                         new Vector2(40f, -18f - i * 33f), new Vector2(1000f, 30f)),
-                    "", 21f, new Color(0.56f, 0.61f, 0.83f, 0.32f), font,
+                    "", 21f, new Color(0.72f, 0.62f, 0.43f, 0.10f), font,
                     TextAlignmentOptions.MidlineLeft);
                 glyphLines[i].characterSpacing = 6f;
             }
@@ -1081,10 +1085,10 @@ namespace Game.EditorTools
             // star cycle header
             var cycleLabel = AddTmp(Place(NewUiChild(panel, "CycleLabel"), new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(40f, -160f), new Vector2(420f, 44f)),
-                "Star Cycle 1", 34f, Hex("#6ee8c4"), font, TextAlignmentOptions.MidlineLeft);
+                "Star Cycle 1", 34f, Hex("#d3b56b"), font, TextAlignmentOptions.MidlineLeft);
             RectTransform rule = Place(NewUiChild(panel, "Rule"), new Vector2(0f, 1f),
                 new Vector2(0f, 1f), new Vector2(470f, -180f), new Vector2(570f, 2f));
-            AddImage(rule, null, new Color(0.43f, 0.9f, 1f, 0.18f));
+            AddImage(rule, null, new Color(0.78f, 0.62f, 0.30f, 0.30f));
 
             // event text box
             RectTransform eventBox = NewUiChild(panel, "EventBox");
@@ -1093,7 +1097,7 @@ namespace Game.EditorTools
             eventBox.pivot = new Vector2(0.5f, 1f);
             eventBox.anchoredPosition = new Vector2(0f, -214f);
             eventBox.sizeDelta = new Vector2(-60f, 252f);
-            Color boxBg = Hex("#241c14");
+            Color boxBg = Hex("#211a12");
             boxBg.a = 0.85f;
             AddImage(eventBox, uiSprite, boxBg);
             var eventText = AddTmp(Stretch(NewUiChild(eventBox, "Text"), 28f, 28f, 22f, 22f),
@@ -1232,7 +1236,7 @@ namespace Game.EditorTools
             bar.sizeDelta = new Vector2(0f, 154f);
             var nav = bar.gameObject.AddComponent<NavBarView>();
 
-            Color navColor = Hex("#0c1814");
+            Color navColor = Hex("#15110c");
             navColor.a = 0.97f;
             AddImage(bar, BuiltinUiSprite(), navColor);
             var navShadow = bar.gameObject.AddComponent<Shadow>();
@@ -1246,7 +1250,7 @@ namespace Game.EditorTools
             topLine.pivot = new Vector2(0.5f, 1f);
             topLine.anchoredPosition = Vector2.zero;
             topLine.sizeDelta = new Vector2(0f, 3f);
-            AddImage(topLine, null, new Color(0.36f, 0.89f, 1f, 0.28f));
+            AddImage(topLine, null, new Color(0.78f, 0.62f, 0.30f, 0.42f));
 
             string[] icons =
             {
@@ -1270,16 +1274,16 @@ namespace Game.EditorTools
                 RectTransform iconPlate = Place(NewUiChild(tab, "IconPlate"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     new Vector2(0f, 20f), new Vector2(64f, 64f));
-                AddImage(iconPlate, BuiltinUiSprite(), Hex("#12211c"));
+                AddImage(iconPlate, BuiltinUiSprite(), Hex("#2a2117"));
                 RectTransform icon = Place(NewUiChild(iconPlate, "Icon"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
                     new Vector2(40f, 40f));
-                AddImage(icon, LoadSprite(icons[i]), Hex("#ece4d0"));
+                AddImage(icon, LoadSprite(icons[i]), Hex("#e9ddc2"));
 
                 labels[i] = AddTmp(Place(NewUiChild(tab, "Label"),
                         new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                         new Vector2(0f, -36f), new Vector2(220f, 30f)),
-                    "", 22f, Hex("#b8ac90"), font, TextAlignmentOptions.Center);
+                    "", 22f, Hex("#cdbf9e"), font, TextAlignmentOptions.Center);
 
                 if (i != 0) continue;
                 RectTransform dot = Place(NewUiChild(tab, "Badge"),
@@ -1391,7 +1395,7 @@ namespace Game.EditorTools
             auraColor.a = 0.10f;
             AddImage(heroAura, LoadSprite(SoftGlow), auraColor, false, false);
 
-            Color hudColor = Hex("#101d18");
+            Color hudColor = Hex("#18130d");
             hudColor.a = 0.94f;
 
             RectTransform chip = Place(NewUiChild(root, "ProfileChip"), new Vector2(0f, 1f),
@@ -1439,14 +1443,16 @@ namespace Game.EditorTools
             var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -140f),
                     new Vector2(600f, 48f)),
-                Loc.Get(LocKeys.MenuTitle), 34f, Hex("#e8dfc8"), font,
+                Loc.Get(LocKeys.MenuTitle), 58f, Hex("#2d2419"), font,
                 TextAlignmentOptions.Center);
-            title.characterSpacing = 2f;
+            title.characterSpacing = 4f;
+            title.outlineColor = new Color32(244, 235, 211, 230);
+            title.outlineWidth = 0.16f;
 
             RectTransform mission = Place(NewUiChild(root, "MissionCard"),
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
                 new Vector2(0f, 575f), new Vector2(870f, 190f));
-            Color missionColor = Hex("#0f1c18");
+            Color missionColor = Hex("#19140e");
             missionColor.a = 0.96f;
             AddImage(mission, uiSprite, missionColor);
             var missionShadow = mission.gameObject.AddComponent<Shadow>();
@@ -1457,18 +1463,18 @@ namespace Game.EditorTools
             RectTransform accent = Place(NewUiChild(mission, "Accent"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0f), new Vector2(8f, 128f));
-            AddImage(accent, uiSprite, Hex("#63e0bb"));
+            AddImage(accent, uiSprite, Hex("#a94735"));
 
             RectTransform worldBase = Place(NewUiChild(mission, "WorldBase"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(28f, 0f), new Vector2(104f, 104f));
-            Color worldBaseColor = Hex("#2a4438");
+            Color worldBaseColor = Hex("#3a2d1d");
             worldBaseColor.a = 0.95f;
             AddImage(worldBase, uiSprite, worldBaseColor);
             AddImage(Place(NewUiChild(worldBase, "WorldIcon"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     Vector2.zero, new Vector2(60f, 60f)),
-                LoadSprite(PictoIcons + "PictoIcon_Temple.Png"), Hex("#7fe8c8"));
+                LoadSprite(PictoIcons + "PictoIcon_Temple.Png"), Hex("#d7b65f"));
 
             var progress = AddTmp(Place(NewUiChild(mission, "Progress"),
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
@@ -1477,14 +1483,14 @@ namespace Game.EditorTools
             var best = AddTmp(Place(NewUiChild(mission, "Best"),
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                     new Vector2(156f, -18f), new Vector2(665f, 34f)),
-                "", 23f, Hex("#96ecd2"), font, TextAlignmentOptions.MidlineLeft);
+                "", 23f, Hex("#d2bd84"), font, TextAlignmentOptions.MidlineLeft);
 
             RectTransform progressTrack = Place(NewUiChild(mission, "ProgressTrack"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(156f, -62f), new Vector2(664f, 14f));
-            AddImage(progressTrack, uiSprite, Hex("#24382e"));
+            AddImage(progressTrack, uiSprite, Hex("#403420"));
             RectTransform fill = Stretch(NewUiChild(progressTrack, "Fill"));
-            Image progressFill = AddImage(fill, uiSprite, Hex("#56e3b8"));
+            Image progressFill = AddImage(fill, uiSprite, Hex("#b54b38"));
             progressFill.type = Image.Type.Filled;
             progressFill.fillMethod = Image.FillMethod.Horizontal;
             progressFill.fillOrigin = 0;
@@ -1514,7 +1520,7 @@ namespace Game.EditorTools
             RectTransform newRun = Place(NewUiChild(root, "NewRun"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 215f),
                 new Vector2(420f, 76f));
-            Color secondaryColor = Hex("#122019");
+            Color secondaryColor = Hex("#211a12");
             secondaryColor.a = 0.96f;
             Image newRunImg = AddImage(newRun, uiSprite, secondaryColor, true);
             Button newRunBtn = AddButton(newRun, newRunImg);
@@ -1568,7 +1574,7 @@ namespace Game.EditorTools
             Sprite uiSprite = BuiltinUiSprite();
             Sprite shard = LoadSprite(ShardIcon);
             Sprite glowSprite = LoadSprite(SoftGlow);
-            Color pillColor = Hex("#241c14");
+            Color pillColor = Hex("#19140e");
             pillColor.a = 0.92f;
 
             var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),

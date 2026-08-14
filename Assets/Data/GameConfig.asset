@@ -118,7 +118,7 @@ MonoBehaviour:
   _shakeHit: 0.06
   _shakeBoss: 0.22
   _targetFrameRate: 60
-  _travelDuration: 0.7
+  _travelDuration: 12
   _travelDistance: 3.4
   _walkHopsPerSecond: 2.6
   _enemyEnterDuration: 0.32

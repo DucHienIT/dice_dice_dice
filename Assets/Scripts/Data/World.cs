@@ -17,7 +17,9 @@ namespace Game.Data
         [SerializeField] private Color _moon;
         [SerializeField] private Color[] _flora;
         [Header("Art — baked from the palette above by Tools > Game > Build Game (Full)")]
-        [Tooltip("Static far layer: sky gradient, nebula, stars, moon.")]
+        [Tooltip("True when the far layer is a hand-authored full environment rather than the palette fallback.")]
+        [SerializeField] private bool _authoredBackdrop;
+        [Tooltip("Static far layer: sky, distant terrain and atmosphere.")]
         [SerializeField] private Sprite _skyLayer;
         [Tooltip("Scrolling strip: ground, rocks, lake, flora. Tiles seamlessly.")]
         [SerializeField] private Sprite _groundLayer;
@@ -36,6 +38,7 @@ namespace Game.Data
         public Color Rock => _rock;
         public Color Moon => _moon;
         public Color[] Flora => _flora;
+        public bool AuthoredBackdrop => _authoredBackdrop;
         public Sprite SkyLayer => _skyLayer;
         public Sprite GroundLayer => _groundLayer;
         public float MusicRootHz => _musicRootHz;

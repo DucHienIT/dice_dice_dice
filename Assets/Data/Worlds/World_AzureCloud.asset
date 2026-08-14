@@ -24,7 +24,8 @@ MonoBehaviour:
   - {r: 0.49411765, g: 0.9411765, b: 0.7529412, a: 1}
   - {r: 0.36078432, g: 0.72156864, b: 1, a: 1}
   - {r: 0.9607843, g: 0.91764706, b: 0.8392157, a: 1}
-  _skyLayer: {fileID: 21300000, guid: 4dfb0cab40b58a94fab3540343a39c32, type: 3}
+  _authoredBackdrop: 1
+  _skyLayer: {fileID: 21300000, guid: 5b0002ab8f6457f4eb3f0506644c5eb9, type: 3}
   _groundLayer: {fileID: 21300000, guid: e9f5229fa043dd74a8cd7cc36438241f, type: 3}
   _musicRootHz: 146.83
   _minorMood: 0

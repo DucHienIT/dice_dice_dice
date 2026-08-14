@@ -19,6 +19,14 @@ namespace Game.EditorTools
     public static class SpriteBaker
     {
         public const string ArtDir = "Assets/Art/Generated";
+        private const string AuthoredArtDir = "Assets/Art/Immortal";
+        private const string AzureCloudBackdrop = AuthoredArtDir + "/azure_side_scroll_v3.png";
+        private const string CultivatorRunSheet = AuthoredArtDir +
+            "/cultivator_side_run_v3.png";
+        
+        private const float AuthoredHeroPpu = 280f;
+        private const int AuthoredHeroFrameCount = 5;
+private const float AuthoredBackdropPpu = 87.13f;
 
         public const float Ppu = 100f;
         private const float BurstPpu = 120f;
@@ -62,6 +70,7 @@ namespace Game.EditorTools
         public sealed class Sprites
         {
             public Sprite HeroBody;
+            public Sprite[] HeroRunFrames;
             public Sprite HeroSword;
             public Sprite HeroShadow;
             public Sprite HeroFlash;
@@ -97,13 +106,33 @@ namespace Game.EditorTools
             EnsureFolder(ArtDir);
             var s = new Sprites();
 
-            // ---- hero ----
-            s.HeroBody = Save(HeroBody(), "hero_body", new Vector2(0.5f, 0.03f));
+            Sprite[] authoredHero = File.Exists(CultivatorRunSheet)
+                ? LoadAuthoredSpriteSheet(CultivatorRunSheet, AuthoredHeroFrameCount,
+                    new Vector2(0.5f, 0.025f), AuthoredHeroPpu)
+                : null;
+            if (authoredHero != null && authoredHero.Length == AuthoredHeroFrameCount)
+            {
+                s.HeroBody = authoredHero[0];
+                s.HeroRunFrames = new Sprite[4];
+                for (int i = 0; i < s.HeroRunFrames.Length; i++)
+                {
+                    s.HeroRunFrames[i] = authoredHero[i + 1];
+                }
+            }
+            else
+            {
+                s.HeroBody = Save(HeroBody(0), "hero_body", new Vector2(0.5f, 0.03f));
+                s.HeroRunFrames = new Sprite[4];
+                for (int i = 0; i < s.HeroRunFrames.Length; i++)
+                {
+                    s.HeroRunFrames[i] = Save(HeroBody(i + 1), "hero_run_" + i,
+                        new Vector2(0.5f, 0.03f));
+                }
+            }
             s.HeroSword = Save(HeroSword(), "hero_sword", new Vector2(0.5f, 0.1f));
             s.HeroShadow = Save(HeroShadow(), "hero_shadow", Center);
             s.HeroFlash = Save(HeroFlash(), "hero_flash", Center);
 
-            // ---- enemy layers ----
             Color[] colors = config.EnemyColors;
             s.EnemyBodies = new Sprite[colors.Length];
             for (int i = 0; i < colors.Length; i++)
@@ -123,7 +152,6 @@ namespace Game.EditorTools
             s.EnemyShadow = Save(EnemyShadow(), "enemy_shadow", Center);
             s.EnemyFlash = Save(EnemyFlash(), "enemy_flash", new Vector2(0.5f, 0.4f));
 
-            // ---- hud / fx ----
             s.HpFrame = Save(HpFrame(), "hpbar_frame", Center);
             s.HpFill = Save(HpFill(), "hpbar_fill", new Vector2(0f, 0.5f));
             s.BurstStar = Save(BurstStar(), "burst_star", Center, BurstPpu);
@@ -133,7 +161,6 @@ namespace Game.EditorTools
             s.UiCapsule = Save(UiCapsule(), "ui_capsule", Center, Ppu,
                 border: new Vector4(CapsuleRadius, 0f, CapsuleRadius, 0f));
 
-            // ---- per-asset art ----
             Sidekick[] sidekicks = config.Sidekicks;
             for (int i = 0; i < sidekicks.Length; i++)
             {
@@ -145,12 +172,15 @@ namespace Game.EditorTools
             for (int i = 0; i < worlds.Length; i++)
             {
                 World def = worlds[i];
-                // File names key on the asset name (stable id), never DisplayName —
-                // DisplayName is localized, so it depends on the editor language at bake time.
-                SetPrivate(def, "_skyLayer", Save(PaintSky(i, def),
-                    "bg_" + def.name + "_sky", new Vector2(0.5f, 0f), Ppu,
-                    opaque: true, backdrop: true));
-                SetPrivate(def, "_groundLayer", Save(PaintGround(i, def),
+                bool authoredBackdrop = i == 0 && File.Exists(AzureCloudBackdrop);
+                SetPrivate(def, "_authoredBackdrop", authoredBackdrop);
+                Sprite sky = authoredBackdrop
+                    ? LoadAuthoredSprite(AzureCloudBackdrop, new Vector2(0.5f, 0.125f),
+                        AuthoredBackdropPpu, true)
+                    : Save(PaintSky(i, def), "bg_" + def.name + "_sky",
+                        new Vector2(0.5f, 0f), Ppu, opaque: true, backdrop: true);
+                SetPrivate(def, "_skyLayer", sky);
+                SetPrivate(def, "_groundLayer", Save(PaintGround(i, def, authoredBackdrop),
                     "bg_" + def.name + "_ground", new Vector2(0.5f, 0f), Ppu,
                     opaque: false, backdrop: true));
             }
@@ -208,7 +238,196 @@ namespace Game.EditorTools
             return sprite;
         }
 
-        // ================= hero =================
+        private static Sprite LoadAuthoredSprite(string path, Vector2 pivot, float ppu, bool opaque)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer == null)
+            {
+                Debug.LogError("[Baker] Import failed for " + path);
+                return null;
+            }
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.alphaIsTransparency = !opaque;
+            importer.textureCompression = TextureImporterCompression.CompressedHQ;
+            importer.maxTextureSize = 2048;
+            importer.isReadable = false;
+
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            settings.spritePivot = pivot;
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            settings.spriteExtrude = 0;
+            settings.spriteGenerateFallbackPhysicsShape = false;
+            settings.alphaSource = opaque
+                ? TextureImporterAlphaSource.None
+                : TextureImporterAlphaSource.FromInput;
+            importer.SetTextureSettings(settings);
+            importer.spritePixelsPerUnit = ppu;
+            importer.SaveAndReimport();
+
+            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite == null) Debug.LogError("[Baker] No sprite produced at " + path);
+            return sprite;
+        }
+
+
+        
+
+        private static Sprite[] LoadAuthoredSpriteSheet(string path, int frameCount,
+            Vector2 pivot, float ppu)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer == null)
+            {
+                Debug.LogError("[Baker] Sprite sheet import failed for " + path);
+                return null;
+            }
+
+            // Read the real alpha layout first. The authored poses have long hair and robe tails,
+            // so equal-width cells cut one pose into the next and create a double-character frame.
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Multiple;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.alphaIsTransparency = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.maxTextureSize = 4096;
+            importer.isReadable = true;
+            importer.spritePixelsPerUnit = ppu;
+            importer.SaveAndReimport();
+
+            Texture2D source = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (source == null)
+            {
+                Debug.LogError("[Baker] Could not read sprite sheet pixels for " + path);
+                return null;
+            }
+
+            Color32[] pixels = source.GetPixels32();
+            int[] alphaCount = new int[source.width];
+            for (int x = 0; x < source.width; x++)
+            {
+                int count = 0;
+                for (int y = 0; y < source.height; y++)
+                {
+                    if (pixels[y * source.width + x].a > 12) count++;
+                }
+                alphaCount[x] = count;
+            }
+
+            // Find the thinnest alpha valley around every nominal divider. This assigns flowing
+            // cloth to only one pose even when silhouettes overlap horizontally.
+            int[] cuts = new int[frameCount + 1];
+            cuts[0] = 0;
+            cuts[frameCount] = source.width;
+            float nominalWidth = source.width / (float)frameCount;
+            int searchRadius = Mathf.RoundToInt(nominalWidth * 0.30f);
+            for (int i = 1; i < frameCount; i++)
+            {
+                int expected = Mathf.RoundToInt(i * nominalWidth);
+                int bestX = expected;
+                int bestAlpha = int.MaxValue;
+                for (int x = Mathf.Max(cuts[i - 1] + 1, expected - searchRadius);
+                    x <= Mathf.Min(source.width - 2, expected + searchRadius); x++)
+                {
+                    int amount = alphaCount[x];
+                    if (amount < bestAlpha ||
+                        (amount == bestAlpha &&
+                         Mathf.Abs(x - expected) < Mathf.Abs(bestX - expected)))
+                    {
+                        bestX = x;
+                        bestAlpha = amount;
+                    }
+                }
+                cuts[i] = bestX;
+            }
+
+            var frames = new SpriteMetaData[frameCount];
+            int footBandHeight = Mathf.Max(1, Mathf.RoundToInt(source.height * 0.10f));
+            for (int i = 0; i < frameCount; i++)
+            {
+                int x0 = cuts[i];
+                int x1 = cuts[i + 1];
+
+                // Opaque pixels in the lowest 10% are the feet. Their centre remains on the same
+                // world point when differently-sized frames swap.
+                long footXTotal = 0;
+                int footPixelCount = 0;
+                for (int x = x0; x < x1; x++)
+                {
+                    for (int y = 0; y < footBandHeight; y++)
+                    {
+                        if (pixels[y * source.width + x].a <= 100) continue;
+                        footXTotal += x;
+                        footPixelCount++;
+                    }
+                }
+                float footX = footPixelCount > 0
+                    ? footXTotal / (float)footPixelCount
+                    : (x0 + x1) * 0.5f;
+                float pivotX = Mathf.Clamp01((footX - x0) / Mathf.Max(1f, x1 - x0));
+
+                frames[i] = new SpriteMetaData
+                {
+                    name = "cultivator_side_" + i,
+                    rect = new Rect(x0, 0, x1 - x0, source.height),
+                    alignment = (int)SpriteAlignment.Custom,
+                    pivot = new Vector2(pivotX, pivot.y),
+                    border = Vector4.zero
+                };
+            }
+
+            importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            importer.textureCompression = TextureImporterCompression.CompressedHQ;
+            importer.isReadable = false;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            settings.spriteExtrude = 0;
+            settings.spriteGenerateFallbackPhysicsShape = false;
+            settings.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.SetTextureSettings(settings);
+
+#pragma warning disable 0618
+            importer.spritesheet = frames;
+#pragma warning restore 0618
+            importer.SaveAndReimport();
+
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            var result = new Sprite[frameCount];
+            for (int i = 0; i < assets.Length; i++)
+            {
+                Sprite sprite = assets[i] as Sprite;
+                if (sprite == null) continue;
+                for (int frame = 0; frame < frameCount; frame++)
+                {
+                    if (sprite.name == "cultivator_side_" + frame)
+                    {
+                        result[frame] = sprite;
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < result.Length; i++)
+            {
+                if (result[i] == null)
+                {
+                    Debug.LogError("[Baker] Missing authored hero frame " + i + " in " + path);
+                    return null;
+                }
+            }
+            return result;
+        }
+// ================= hero =================
 
         // Cultivator palette — ivory robe, jade trim, vermillion sash, ink hair.
         private static readonly Color RobeLight = new Color(0.96f, 0.92f, 0.84f);
@@ -220,46 +439,68 @@ namespace Game.EditorTools
         private static readonly Color SkinShade = new Color(0.84f, 0.64f, 0.46f);
         private static readonly Color HairInk = new Color(0.16f, 0.13f, 0.15f);
 
-        private static Painter HeroBody()
+private static Painter HeroBody(int frame)
         {
-            var p = new Painter(170, 210);
-            float cx = 85f;
+            var p = new Painter(180, 225);
+            float cx = 90f;
+            bool running = frame > 0;
+            int pose = running ? (frame - 1) & 3 : 0;
+            float stride = pose == 0 ? -1f : pose == 2 ? 1f : 0f;
+            float bounce = running && (pose == 1 || pose == 3) ? 4f : 0f;
+            float bodyX = cx + stride * 2f;
+            float leftFootX = cx - 17f - stride * 11f;
+            float rightFootX = cx + 17f + stride * 11f;
+            float leftFootY = 15f + (pose == 0 ? 6f : 0f);
+            float rightFootY = 15f + (pose == 2 ? 6f : 0f);
 
-            // cloth shoes
-            p.FillEllipse(cx - 20f, 16f, 15f, 10f, HairInk);
-            p.FillEllipse(cx + 20f, 16f, 15f, 10f, HairInk);
-            // robe — ivory, flaring at the hem
-            p.FillTriangle(new Vector2(cx - 52f, 12f), new Vector2(cx - 20f, 88f),
-                new Vector2(cx, 12f), RobeShade);
-            p.FillTriangle(new Vector2(cx + 52f, 12f), new Vector2(cx + 20f, 88f),
-                new Vector2(cx, 12f), RobeShade);
-            p.FillEllipseShaded(cx, 58f, 41f, 42f, RobeLight, RobeShade);
-            p.OutlineEllipse(cx, 58f, 41f, 42f, 2.5f, new Color(0.35f, 0.30f, 0.24f, 0.5f));
-            // crossed collar in jade trim
-            p.Line(new Vector2(cx - 22f, 92f), new Vector2(cx + 8f, 62f), 6f, JadeTrim);
-            p.Line(new Vector2(cx + 22f, 92f), new Vector2(cx - 8f, 62f), 6f, JadeTrim);
-            // vermillion sash with a glowing jade disc
-            p.FillRoundRect(cx - 30f, 50f, 60f, 12f, 5f, SashRed);
-            p.Glow(cx, 56f, 22f, JadeGlow, 0.35f);
-            p.FillCircle(cx, 56f, 6.5f, JadeGlow);
-            p.FillCircle(cx, 56f, 2.6f, RobeLight);
-            // head
-            p.FillEllipseShaded(cx, 141f, 28f, 29f, Skin, SkinShade);
-            // hair cap + topknot bun with a jade hairpin
-            p.Arc(cx, 141f, 27f, Mathf.PI * 0.12f, Mathf.PI * 0.88f, 13f, HairInk);
-            p.FillCircle(cx, 176f, 11f, HairInk);
-            p.TaperedLine(new Vector2(cx - 22f, 182f), new Vector2(cx + 20f, 172f),
-                5f, 2f, JadeGlow);
-            p.Glow(cx - 22f, 182f, 8f, JadeGlow, 0.5f);
-            // calm eyes + faint smile
-            p.FillEllipse(cx - 12f, 143f, 5.5f, 8f, Ink);
-            p.FillEllipse(cx + 12f, 143f, 5.5f, 8f, Ink);
-            p.FillCircle(cx - 14f, 147f, 2.2f, Color.white);
-            p.FillCircle(cx + 10f, 147f, 2.2f, Color.white);
-            p.Arc(cx, 132f, 6f, Mathf.PI * 1.3f, Mathf.PI * 1.7f, 2.8f, SkinShade);
-            // qi wisp curling off the shoulder
-            p.Arc(cx - 38f, 96f, 14f, Mathf.PI * 0.1f, Mathf.PI * 1.1f, 4f,
-                new Color(JadeGlow.r, JadeGlow.g, JadeGlow.b, 0.35f));
+            // Two broad legs and cloth shoes make every stride readable at phone size.
+            p.TaperedLine(new Vector2(bodyX - 12f, 61f + bounce),
+                new Vector2(leftFootX, leftFootY + 8f), 14f, 9f, RobeShade);
+            p.TaperedLine(new Vector2(bodyX + 12f, 61f + bounce),
+                new Vector2(rightFootX, rightFootY + 8f), 14f, 9f, RobeLight);
+            p.FillEllipse(leftFootX - 3f, leftFootY, 15f, 8f, HairInk);
+            p.FillEllipse(rightFootX + 3f, rightFootY, 15f, 8f, HairInk);
+
+            // Large robe shapes, a single sash and one jade collar: no micro-detail.
+            float hemSway = stride * 8f;
+            p.FillTriangle(new Vector2(bodyX - 43f + hemSway, 31f + bounce),
+                new Vector2(bodyX - 24f, 98f + bounce),
+                new Vector2(bodyX + 2f, 34f + bounce), RobeShade);
+            p.FillTriangle(new Vector2(bodyX + 43f + hemSway, 31f + bounce),
+                new Vector2(bodyX + 24f, 98f + bounce),
+                new Vector2(bodyX - 2f, 34f + bounce), RobeLight);
+            p.FillEllipseShaded(bodyX, 93f + bounce, 34f, 39f, RobeLight, RobeShade);
+
+            float armSwing = running ? stride * 16f : 0f;
+            p.TaperedLine(new Vector2(bodyX - 27f, 116f + bounce),
+                new Vector2(bodyX - 42f - armSwing, 78f + bounce), 19f, 10f, RobeShade);
+            p.TaperedLine(new Vector2(bodyX + 27f, 116f + bounce),
+                new Vector2(bodyX + 41f + armSwing, 83f + bounce), 19f, 10f, RobeLight);
+            p.Line(new Vector2(bodyX - 17f, 127f + bounce),
+                new Vector2(bodyX + 5f, 101f + bounce), 7f, JadeTrim);
+            p.Line(new Vector2(bodyX + 17f, 127f + bounce),
+                new Vector2(bodyX - 5f, 101f + bounce), 7f, JadeTrim);
+            p.FillRoundRect(bodyX - 31f, 76f + bounce, 62f, 12f, 5f, SashRed);
+            p.FillCircle(bodyX, 82f + bounce, 6f, JadeGlow);
+
+            // Right-facing profile: one eye and a trailing ponytail make direction unmistakable.
+            float headY = 165f + bounce;
+            float tailLift = running ? 6f + Mathf.Abs(stride) * 4f : 0f;
+            p.TaperedLine(new Vector2(bodyX - 12f, headY + 15f),
+                new Vector2(bodyX - 48f - Mathf.Abs(stride) * 7f,
+                    headY - 9f + tailLift), 10f, 2.5f, HairInk);
+            p.FillEllipseShaded(bodyX + 2f, headY, 21f, 24f, Skin, SkinShade);
+            p.FillTriangle(new Vector2(bodyX + 18f, headY + 6f),
+                new Vector2(bodyX + 28f, headY),
+                new Vector2(bodyX + 18f, headY - 2f), Skin);
+            p.Arc(bodyX, headY + 2f, 21f, Mathf.PI * 0.08f, Mathf.PI * 0.92f,
+                11f, HairInk);
+            p.FillCircle(bodyX - 3f, headY + 31f, 9f, HairInk);
+            p.TaperedLine(new Vector2(bodyX - 20f, headY + 34f),
+                new Vector2(bodyX + 14f, headY + 28f), 4f, 2f, JadeGlow);
+            p.FillEllipse(bodyX + 10f, headY + 3f, 3.2f, 5.2f, Ink);
+            p.Arc(bodyX + 17f, headY - 7f, 5f, Mathf.PI * 1.2f,
+                Mathf.PI * 1.7f, 2f, SkinShade);
             return p;
         }
 
@@ -313,26 +554,28 @@ namespace Game.EditorTools
         private static Painter EnemyHorns()
         {
             Painter p = EnemyCanvasNew();
-            var cream = new Color(1f, 0.91f, 0.79f);
-            p.FillTriangle(new Vector2(EnemyCx - 55f, EnemyCy + 70f),
-                new Vector2(EnemyCx - 80f, EnemyCy + 128f),
-                new Vector2(EnemyCx - 28f, EnemyCy + 88f), cream);
-            p.FillTriangle(new Vector2(EnemyCx + 55f, EnemyCy + 70f),
-                new Vector2(EnemyCx + 80f, EnemyCy + 128f),
-                new Vector2(EnemyCx + 28f, EnemyCy + 88f), cream);
+            var bone = new Color(0.88f, 0.78f, 0.57f);
+            var edge = new Color(0.32f, 0.24f, 0.18f);
+            p.Arc(73f, 162f, 37f, Mathf.PI * 0.45f, Mathf.PI * 1.08f, 13f, edge);
+            p.Arc(73f, 162f, 37f, Mathf.PI * 0.48f, Mathf.PI * 1.03f, 7f, bone);
+            p.Arc(167f, 162f, 37f, Mathf.PI * -0.08f, Mathf.PI * 0.55f, 13f, edge);
+            p.Arc(167f, 162f, 37f, Mathf.PI * -0.03f, Mathf.PI * 0.52f, 7f, bone);
             return p;
         }
 
         private static Painter EnemySpikes()
         {
             Painter p = EnemyCanvasNew();
-            var gold = new Color(1f, 0.83f, 0.36f);
+            var gold = new Color(0.85f, 0.66f, 0.27f);
+            var deep = new Color(0.42f, 0.25f, 0.12f);
             for (int k = -2; k <= 2; k++)
             {
-                float bx = EnemyCx + k * 40f;
-                float peak = EnemyCy + 132f + (2 - Mathf.Abs(k)) * 16f;
-                p.FillTriangle(new Vector2(bx - 16f, EnemyCy + 78f), new Vector2(bx, peak),
-                    new Vector2(bx + 16f, EnemyCy + 78f), gold);
+                float bx = EnemyCx + k * 31f;
+                float peak = EnemyCy + 115f + (2 - Mathf.Abs(k)) * 10f;
+                p.FillTriangle(new Vector2(bx - 11f, EnemyCy + 62f), new Vector2(bx, peak),
+                    new Vector2(bx + 11f, EnemyCy + 62f), deep);
+                p.FillTriangle(new Vector2(bx - 6f, EnemyCy + 65f), new Vector2(bx, peak - 7f),
+                    new Vector2(bx + 6f, EnemyCy + 65f), gold);
             }
             return p;
         }
@@ -340,54 +583,74 @@ namespace Game.EditorTools
         private static Painter EnemyBody(Color color)
         {
             Painter p = EnemyCanvasNew();
-            Color dark = Color.Lerp(color, Color.black, 0.35f);
-            Color light = Color.Lerp(color, Color.white, 0.25f);
-            // pointed beast ears, outlined first so they read against any backdrop
-            p.FillTriangle(new Vector2(EnemyCx - 62f, EnemyCy + 55f),
-                new Vector2(EnemyCx - 52f, EnemyCy + 122f),
-                new Vector2(EnemyCx - 18f, EnemyCy + 80f), dark);
-            p.FillTriangle(new Vector2(EnemyCx + 62f, EnemyCy + 55f),
-                new Vector2(EnemyCx + 52f, EnemyCy + 122f),
-                new Vector2(EnemyCx + 18f, EnemyCy + 80f), dark);
-            p.FillTriangle(new Vector2(EnemyCx - 56f, EnemyCy + 58f),
-                new Vector2(EnemyCx - 49f, EnemyCy + 112f),
-                new Vector2(EnemyCx - 24f, EnemyCy + 76f), color);
-            p.FillTriangle(new Vector2(EnemyCx + 56f, EnemyCy + 58f),
-                new Vector2(EnemyCx + 49f, EnemyCy + 112f),
-                new Vector2(EnemyCx + 24f, EnemyCy + 76f), color);
-            // curled tail
-            p.Arc(EnemyCx + 96f, EnemyCy - 30f, 22f, Mathf.PI * 1.1f, Mathf.PI * 2.2f, 12f, dark);
-            p.Arc(EnemyCx + 96f, EnemyCy - 30f, 22f, Mathf.PI * 1.2f, Mathf.PI * 2.1f, 7f, color);
-            // body
-            p.OutlineEllipse(EnemyCx, EnemyCy, 90f, 90f, 7f, dark);
-            p.FillEllipseShaded(EnemyCx, EnemyCy, 88f, 88f, light,
-                Color.Lerp(color, Color.black, 0.12f));
-            // pale belly
-            p.FillEllipse(EnemyCx, EnemyCy - 42f, 52f, 34f, new Color(1f, 1f, 1f, 0.35f));
+            Color ink = Color.Lerp(color, Color.black, 0.62f);
+            Color shade = Color.Lerp(color, Color.black, 0.28f);
+            Color light = Color.Lerp(color, new Color(0.94f, 0.88f, 0.70f), 0.34f);
+
+            // Long spirit tail and broad haunches give the beast a mythic, non-blob silhouette.
+            p.Arc(184f, 76f, 43f, Mathf.PI * 0.8f, Mathf.PI * 2.15f, 20f, ink);
+            p.Arc(184f, 76f, 43f, Mathf.PI * 0.88f, Mathf.PI * 2.05f, 11f, color);
+            p.FillEllipseShaded(EnemyCx, 70f, 76f, 45f, color, shade);
+            p.OutlineEllipse(EnemyCx, 70f, 76f, 45f, 6f, ink);
+
+            // Layered mane reads like dry-brush tufts when reduced to mobile size.
+            for (int i = 0; i < 8; i++)
+            {
+                float a = i / 8f * Mathf.PI * 2f;
+                Vector2 inner = new Vector2(EnemyCx + Mathf.Cos(a) * 45f,
+                    126f + Mathf.Sin(a) * 41f);
+                Vector2 left = new Vector2(EnemyCx + Mathf.Cos(a - 0.20f) * 72f,
+                    126f + Mathf.Sin(a - 0.20f) * 66f);
+                Vector2 right = new Vector2(EnemyCx + Mathf.Cos(a + 0.20f) * 72f,
+                    126f + Mathf.Sin(a + 0.20f) * 66f);
+                p.FillTriangle(inner, left, right, ink);
+            }
+
+            // Upright ears and a faceted mask replace the former round mascot face.
+            p.FillTriangle(new Vector2(75f, 150f), new Vector2(63f, 207f),
+                new Vector2(104f, 169f), ink);
+            p.FillTriangle(new Vector2(165f, 150f), new Vector2(177f, 207f),
+                new Vector2(136f, 169f), ink);
+            p.FillTriangle(new Vector2(78f, 157f), new Vector2(68f, 193f),
+                new Vector2(99f, 166f), shade);
+            p.FillTriangle(new Vector2(162f, 157f), new Vector2(172f, 193f),
+                new Vector2(141f, 166f), shade);
+            p.OutlineEllipse(EnemyCx, 128f, 59f, 54f, 6f, ink);
+            p.FillEllipseShaded(EnemyCx, 128f, 57f, 52f, light, shade);
+            p.FillTriangle(new Vector2(EnemyCx - 42f, 115f), new Vector2(EnemyCx, 78f),
+                new Vector2(EnemyCx + 42f, 115f), color);
+            p.FillEllipse(EnemyCx, 103f, 32f, 20f,
+                Color.Lerp(light, new Color(0.92f, 0.82f, 0.66f), 0.45f));
+            p.FillCircle(EnemyCx, 108f, 6f, ink);
             return p;
         }
 
         private static Painter EnemySpots()
         {
             Painter p = EnemyCanvasNew();
-            var spot = new Color(0f, 0f, 0f, 0.15f);
-            p.FillCircle(EnemyCx - 48f, EnemyCy + 22f, 14f, spot);
-            p.FillCircle(EnemyCx + 42f, EnemyCy + 42f, 10f, spot);
-            p.FillCircle(EnemyCx + 56f, EnemyCy - 12f, 8f, spot);
+            var rune = new Color(0.46f, 0.08f, 0.12f, 0.58f);
+            p.TaperedLine(new Vector2(120f, 168f), new Vector2(120f, 145f), 5f, 2f, rune);
+            p.Arc(120f, 142f, 20f, Mathf.PI * 0.12f, Mathf.PI * 0.88f, 3f, rune);
+            p.TaperedLine(new Vector2(91f, 116f), new Vector2(74f, 99f), 4f, 1.5f, rune);
+            p.TaperedLine(new Vector2(149f, 116f), new Vector2(166f, 99f), 4f, 1.5f, rune);
+            p.Arc(120f, 66f, 35f, Mathf.PI * 0.18f, Mathf.PI * 0.82f, 3f, rune);
             return p;
         }
 
         private static Painter EnemyEyes(int n)
         {
             Painter p = EnemyCanvasNew();
+            var iris = new Color(0.96f, 0.72f, 0.22f);
+            var sclera = new Color(1f, 0.93f, 0.72f, 0.92f);
             for (int i = 0; i < n; i++)
             {
-                float ex = EnemyCx + (i - (n - 1) * 0.5f) * 44f;
-                float ey = EnemyCy + 22f + (i % 2) * 10f;
-                p.FillCircle(ex, ey, 22f, Color.white);
-                p.OutlineEllipse(ex, ey, 22f, 22f, 2.5f, new Color(0f, 0f, 0f, 0.25f));
-                p.FillCircle(ex - 5f, ey - 2f, 10f, Ink);
-                p.FillCircle(ex - 8f, ey + 3f, 3.4f, Color.white);
+                float ex = EnemyCx + (i - (n - 1) * 0.5f) * 40f;
+                float ey = n == 1 ? 145f : 137f + (i % 2) * 4f;
+                p.FillEllipse(ex, ey, 13f, 6f, sclera);
+                p.OutlineEllipse(ex, ey, 13f, 6f, 2.5f, Ink);
+                p.FillEllipse(ex, ey, 4f, 6f, iris);
+                p.TaperedLine(new Vector2(ex, ey - 5f), new Vector2(ex, ey + 5f),
+                    2.5f, 1.2f, Ink);
             }
             return p;
         }
@@ -395,14 +658,12 @@ namespace Game.EditorTools
         private static Painter EnemyMouth()
         {
             Painter p = EnemyCanvasNew();
-            p.Arc(EnemyCx, EnemyCy - 32f, 20f, Mathf.PI * 0.15f, Mathf.PI * 0.85f, 6.5f,
-                new Color(0.48f, 0.11f, 0.18f));
-            p.FillTriangle(new Vector2(EnemyCx - 17f, EnemyCy - 22f),
-                new Vector2(EnemyCx - 10f, EnemyCy - 40f),
-                new Vector2(EnemyCx - 3f, EnemyCy - 22f), Color.white);
-            p.FillTriangle(new Vector2(EnemyCx + 3f, EnemyCy - 22f),
-                new Vector2(EnemyCx + 10f, EnemyCy - 40f),
-                new Vector2(EnemyCx + 17f, EnemyCy - 22f), Color.white);
+            var mouth = new Color(0.35f, 0.08f, 0.10f);
+            p.Arc(EnemyCx, 97f, 17f, Mathf.PI * 1.12f, Mathf.PI * 1.88f, 4f, mouth);
+            p.FillTriangle(new Vector2(EnemyCx - 15f, 94f), new Vector2(EnemyCx - 10f, 82f),
+                new Vector2(EnemyCx - 4f, 94f), new Color(0.96f, 0.91f, 0.78f));
+            p.FillTriangle(new Vector2(EnemyCx + 4f, 94f), new Vector2(EnemyCx + 10f, 82f),
+                new Vector2(EnemyCx + 15f, 94f), new Color(0.96f, 0.91f, 0.78f));
             return p;
         }
 
@@ -424,8 +685,16 @@ namespace Game.EditorTools
 
         private static Painter HpFrame()
         {
-            var p = new Painter(124, 26);
-            p.FillRoundRect(1f, 1f, 122f, 24f, 10f, new Color(0f, 0f, 0f, 0.58f));
+            var p = new Painter(132, 30);
+            var ink = new Color(0.08f, 0.07f, 0.055f, 0.92f);
+            var gold = new Color(0.77f, 0.60f, 0.30f, 0.95f);
+            p.FillRoundRect(5f, 4f, 122f, 22f, 8f, ink);
+            p.OutlineEllipse(10f, 15f, 8f, 8f, 2.5f, gold);
+            p.OutlineEllipse(122f, 15f, 8f, 8f, 2.5f, gold);
+            p.FillTriangle(new Vector2(1f, 15f), new Vector2(12f, 5f),
+                new Vector2(12f, 25f), gold);
+            p.FillTriangle(new Vector2(131f, 15f), new Vector2(120f, 5f),
+                new Vector2(120f, 25f), gold);
             return p;
         }
 
@@ -615,8 +884,9 @@ namespace Game.EditorTools
         /// (x, x-w, x+w) so the left and right seams match — off-canvas copies are clipped away
         /// for free by the painter, so this costs nothing for elements in the middle.
         /// </summary>
-        private static Painter PaintGround(int worldIndex, World def)
+private static Painter PaintGround(int worldIndex, World def, bool authoredBackdrop)
         {
+            if (authoredBackdrop) return PaintAdventureForeground(worldIndex, def);
             int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
             int h = GroundStripHeight;
             float groundTop = (BgHorizonY - BgBottomY) * Ppu;
@@ -750,5 +1020,57 @@ namespace Game.EditorTools
                 new Vector2(x + 4f * s, y + 2f * s), petal);
             p.Glow(x, y + 6f * s, 14f * s, petal, 0.35f);
         }
-    }
+    
+
+private static Painter PaintAdventureForeground(int worldIndex, World def)
+        {
+            int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
+            int h = GroundStripHeight;
+            var p = new Painter(w, h);
+            var rng = new System.Random(worldIndex * 3571 + 29);
+            Color rock = Color.Lerp(def.Rock, new Color(0.18f, 0.34f, 0.29f), 0.35f);
+            Color rockLight = Color.Lerp(rock, new Color(0.78f, 0.84f, 0.68f), 0.34f);
+            Color grass = Color.Lerp(def.Flora[0], new Color(0.16f, 0.45f, 0.34f), 0.45f);
+            Color mist = new Color(0.92f, 0.95f, 0.86f, 0.055f);
+
+            // Keep the layer soft, but place its landmarks beside the visible road (around y=550)
+            // so their leftward travel is immediately readable behind the running hero.
+            for (int band = -1; band <= 1; band++)
+            {
+                p.FillEllipse(w * 0.22f + band * w, 470f, 255f, 28f, mist);
+                p.FillEllipse(w * 0.72f + band * w, 505f, 290f, 24f, mist);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                float baseX = (float)rng.NextDouble() * w;
+                bool roadEdge = i < 7;
+                float baseY = roadEdge
+                    ? 505f + (float)rng.NextDouble() * 32f
+                    : 420f + (float)rng.NextDouble() * 48f;
+                float size = roadEdge
+                    ? 7f + (float)rng.NextDouble() * 6f
+                    : 11f + (float)rng.NextDouble() * 8f;
+
+                for (int seam = -1; seam <= 1; seam++)
+                {
+                    float x = baseX + seam * w;
+                    p.FillEllipse(x, baseY - size * 0.18f, size * 1.8f, size * 0.34f,
+                        new Color(0.13f, 0.22f, 0.18f, 0.12f));
+                    p.FillEllipseShaded(x, baseY, size * 1.35f, size * 0.72f,
+                        rockLight, rock);
+                    p.TaperedLine(new Vector2(x - size * 0.15f, baseY + size * 0.5f),
+                        new Vector2(x - size * 0.55f, baseY + size * 1.65f),
+                        3.6f, 0.9f, grass);
+                    p.TaperedLine(new Vector2(x + size * 0.1f, baseY + size * 0.48f),
+                        new Vector2(x + size * 0.52f, baseY + size * 1.75f),
+                        3.2f, 0.8f, grass);
+                    p.TaperedLine(new Vector2(x, baseY + size * 0.5f),
+                        new Vector2(x + size * 0.04f, baseY + size * 1.95f),
+                        3.2f, 0.8f, grass);
+                }
+            }
+            return p;
+        }
+}
 }

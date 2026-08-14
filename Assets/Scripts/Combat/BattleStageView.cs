@@ -22,7 +22,9 @@ namespace Game.Combat
         [SerializeField] private HpBarView _enemyBar;
         [SerializeField] private TextMeshPro _enemyName;
         [SerializeField] private SidekickOrbView[] _orbs;
-        [SerializeField] private float _heroX = -1.85f;
+        
+        [SerializeField] private float _travelStartX = -3.65f;
+[SerializeField] private float _heroX = -1.85f;
         [SerializeField] private float _enemyX = 1.85f;
         [SerializeField] private float _baseY = 3.1f;
 
@@ -35,19 +37,23 @@ namespace Game.Combat
         private float _enterT = 1f;
         private bool _walking;
         private float _walkPhase;
-        private float _walkAmount;
+        
+        private float _travelVisualT = 1f;
+        private float _heroCurrentX;
+private float _walkAmount;
         private float _enemyBarY;
 
-        private void Awake()
+private void Awake()
         {
             _enemyBarY = _enemyBar.transform.position.y;
+            _heroCurrentX = _heroX;
         }
 
-        public float HeroX => _heroX;
+        public float HeroX => _heroCurrentX;
         public float EnemyX => _enemyX;
         public float BaseY => _baseY;
 
-        public Vector3 HeroFloaterPos => new Vector3(_heroX, _baseY + 1.4f, 0f);
+        public Vector3 HeroFloaterPos => new Vector3(_heroCurrentX, _baseY + 1.4f, 0f);
 
         public Vector3 EnemyFloaterPos =>
             new Vector3(_enemyX, _baseY + (_enemy != null ? 1.3f * _enemy.Look.Size : 1.3f), 0f);
@@ -103,8 +109,18 @@ namespace Game.Combat
         }
 
         /// <summary>Hero walk cycle on/off — blended, so stopping mid-stride still settles.</summary>
-        public void SetWalking(bool on)
+public void SetWalking(bool on)
         {
+            if (on && !_walking)
+            {
+                _travelVisualT = 0f;
+                _heroCurrentX = _travelStartX;
+            }
+            else if (!on)
+            {
+                _travelVisualT = 1f;
+                _heroCurrentX = _heroX;
+            }
             _walking = on;
         }
 
@@ -126,12 +142,23 @@ namespace Game.Combat
 
             // hero — the idle bob cross-fades into the walk hop
             _walkAmount = Mathf.MoveTowards(_walkAmount, _walking ? 1f : 0f, scaledDt * 6f);
-            if (_walking) _walkPhase += scaledDt * _config.WalkHopsPerSecond;
+            if (_walking)
+            {
+                _walkPhase += scaledDt * _config.WalkHopsPerSecond;
+                _travelVisualT = Mathf.Min(1f, _travelVisualT +
+                    scaledDt / Mathf.Max(0.01f, _config.TravelDuration));
+                float travelEase = Mathf.SmoothStep(0f, 1f, _travelVisualT);
+                _heroCurrentX = Mathf.Lerp(_travelStartX, _heroX, travelEase);
+            }
+            else
+            {
+                _heroCurrentX = _heroX;
+            }
             _hero.SetWalk(_walkPhase, _walkAmount);
 
             float lunge = heroAttacking ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance : 0f;
             _hero.transform.position = new Vector3(
-                _heroX + lunge,
+                _heroCurrentX + lunge,
                 _baseY + Mathf.Sin(time * _config.BobFrequency) * _config.BobAmplitude
                     * (1f - _walkAmount),
                 0f);
@@ -203,7 +230,7 @@ namespace Game.Combat
             {
                 if (!_orbs[i].gameObject.activeSelf) continue;
                 _orbs[i].transform.position = new Vector3(
-                    _heroX - 0.78f - i * 0.4f,
+                    _heroCurrentX - 0.78f - i * 0.4f,
                     _baseY + 0.42f + Mathf.Sin(time * 2.5f + i * 1.7f) * 0.07f,
                     0f);
             }
