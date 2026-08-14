@@ -34,26 +34,29 @@ namespace Game.EditorTools
         private const string ScenePath = "Assets/Scenes/Main.unity";
         private const string FrameName = "Frame";
 
-        private const string ItemIcons =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/";
-        private const string PictoIcons =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_PictoIcons(x2)/128/";
+        // UI chrome comes from the ornate FantasyHero pack (note the vendor's "Sptites" typo).
+        // CasualGame stays only for what FantasyHero lacks: the six-tier rune medallions and
+        // the generic soft glow.
+        private const string FhComponents =
+            "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Sptites/Components/";
+        private const string ItemIcons = FhComponents + "Icon_ItemIcons/128/";
+        private const string PictoIcons = FhComponents + "Icon_PictoIcons/128/";
         // rune icons come in six rarity tiers, which map 1:1 onto a metaPath node's 0..5 ranks
         private const string RuneIcons =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_RuneIcons(x2)/128/";
         private const string SoftGlow =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Popup/Popup_00_Glow_white.png";
-        private const string ShardIcon =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Star.png";
-        private const string ButtonsDir =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Button/";
-        private const string FramesDir =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Frame/";
-        private const string PopupsDir =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Popup/";
-        private const string FontTtf =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular.ttf";
-        // LilitaOne carries no Vietnamese glyphs, so localized languages get their own font
+        private const string ShardIcon = ItemIcons + "ItemIcon_Gem_Triangle_Green.png";
+        private const string ButtonsDir = FhComponents + "Button/";
+        private const string FramesDir = FhComponents + "Frame/";
+        private const string PopupsDir = FhComponents + "Popup/";
+        // Display face comes as a pre-baked static SDF inside the FantasyHero pack. It is
+        // COPIED into Assets/Data/UI before use — third-party assets are never modified,
+        // and the copy is where the Vietnamese fallback gets wired in.
+        private const string DisplayFontPackAsset =
+            "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Fonts/AfacadFlux-ExtraBold SDF.asset";
+        private const string DisplayFontAssetPath = UiDataDir + "/Display SDF.asset";
+        // The display face carries no Vietnamese glyphs, so localized languages get their own font
         private const string WideCharsetTtf = "Assets/Data/UI/Fonts/Roboto-Bold.ttf";
         private const string WideCharsetFallbackTtf = "Assets/TextMesh Pro/Fonts/LiberationSans.ttf";
 
@@ -129,8 +132,7 @@ namespace Game.EditorTools
                 return;
             }
 
-            TMP_FontAsset font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
-                                      UiDataDir + "/LilitaOne SDF.asset")
+            TMP_FontAsset font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(DisplayFontAssetPath)
                                   ?? TMP_Settings.defaultFontAsset;
             if (font == null)
             {
@@ -173,12 +175,11 @@ namespace Game.EditorTools
         {
             var fonts = new Fonts
             {
-                Default = LoadOrCreateFont(FontTtf, UiDataDir + "/LilitaOne SDF.asset",
-                    "LilitaOne SDF")
+                Default = LoadOrCopyPackFont(DisplayFontPackAsset, DisplayFontAssetPath)
             };
             if (fonts.Default == null)
             {
-                Debug.LogWarning("[Builder] LilitaOne unavailable — falling back to TMP default font");
+                Debug.LogWarning("[Builder] Display font unavailable — falling back to TMP default font");
                 fonts.Default = TMP_Settings.defaultFontAsset;
             }
 
@@ -193,12 +194,32 @@ namespace Game.EditorTools
                 fonts.WideCharset = fonts.Default;
             }
 
+            // The static display atlas covers plain Latin only; the dynamic wide-charset font
+            // backstops any glyph it lacks (·, …, diacritics that leak into EN strings).
+            if (fonts.Default != null && fonts.WideCharset != null &&
+                fonts.Default != fonts.WideCharset &&
+                !fonts.Default.fallbackFontAssetTable.Contains(fonts.WideCharset))
+            {
+                fonts.Default.fallbackFontAssetTable.Add(fonts.WideCharset);
+                EditorUtility.SetDirty(fonts.Default);
+            }
+
             fonts.DefaultWorld = LoadOrCreateWorldMaterial(fonts.Default,
                 UiDataDir + "/WorldText.mat");
             fonts.WideCharsetWorld = fonts.WideCharset == fonts.Default
                 ? fonts.DefaultWorld
                 : LoadOrCreateWorldMaterial(fonts.WideCharset, UiDataDir + "/WorldTextVN.mat");
             return fonts;
+        }
+
+        /// <summary>Project-owned copy of a pack's static SDF font, made once then reused.</summary>
+        private static TMP_FontAsset LoadOrCopyPackFont(string packPath, string assetPath)
+        {
+            var fa = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
+            if (fa != null) return fa;
+            if (AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(packPath) == null) return null;
+            if (!AssetDatabase.CopyAsset(packPath, assetPath)) return null;
+            return AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
         }
 
         /// <summary>Dynamic SDF font asset for a TTF, created once and reused afterwards.</summary>
@@ -257,46 +278,46 @@ namespace Game.EditorTools
             // ---- sidekicks ----
             var sidekicks = new Sidekick[4];
             sidekicks[0] = MakeSidekick("blob", "FlyingSword",
-                PictoIcons + "Pictoicon_Fist.Png", "#9be8d8", SidekickType.Damage, 0.15f);
+                PictoIcons + "PictoIcon_Attack.Png", "#9be8d8", SidekickType.Damage, 0.15f);
             sidekicks[1] = MakeSidekick("medic", "Lingzhi",
-                PictoIcons + "Pictoicon_Mushroom.Png", "#8bf07a", SidekickType.Heal, 0.02f);
+                PictoIcons + "PictoIcon_Health.Png", "#8bf07a", SidekickType.Heal, 0.02f);
             sidekicks[2] = MakeSidekick("shield", "ShellWard",
-                PictoIcons + "Pictoicon_Magic_Ball.Png", "#d4b86b", SidekickType.Block, 0.12f);
+                PictoIcons + "PictoIcon_Shield.Png", "#d4b86b", SidekickType.Block, 0.12f);
             sidekicks[3] = MakeSidekick("spark", "ThunderPearl",
-                PictoIcons + "Pictoicon_Thunder.Png", "#ffd35c", SidekickType.Crit, 0.06f);
+                PictoIcons + "PictoIcon_Thunder.Png", "#ffd35c", SidekickType.Crit, 0.06f);
 
             // ---- fortunes ----
             var fortunes = new Fortune[5];
-            fortunes[0] = MakeFortune("MaxHp", ItemIcons + "Icon_Heart.png",
+            fortunes[0] = MakeFortune("MaxHp", ItemIcons + "ItemIcon_Heart.png",
                 new StatMod(StatModType.MaxHpPct, 0.07f));
-            fortunes[1] = MakeFortune("Atk", ItemIcons + "Icon_Sword.png",
+            fortunes[1] = MakeFortune("Atk", ItemIcons + "ItemIcon_Gear_Sword.png",
                 new StatMod(StatModType.AtkPct, 0.05f));
-            fortunes[2] = MakeFortune("Def", ItemIcons + "Icon_Shield.png",
+            fortunes[2] = MakeFortune("Def", ItemIcons + "ItemIcon_Gear_Shield_Metal.png",
                 new StatMod(StatModType.DefFlat, 2f));
-            fortunes[3] = MakeFortune("Crit", ItemIcons + "Icon_Clover.png",
+            fortunes[3] = MakeFortune("Crit", ItemIcons + "ItemIcon_Clover.png",
                 new StatMod(StatModType.CritChance, 0.03f));
-            fortunes[4] = MakeFortune("Heal", ItemIcons + "Icon_Potion02_Green.png",
+            fortunes[4] = MakeFortune("Heal", ItemIcons + "ItemIcon_Potion_Purple.png",
                 new StatMod(StatModType.HealNowPct, 0.20f));
 
             // ---- upgrades ----
             var upgrades = new UpgradeCard[8];
             upgrades[0] = MakeUpgrade("FlameArt",
-                ItemIcons + "Icon_Energy_Green.png", new StatMod(StatModType.AtkPct, 0.18f));
+                PictoIcons + "PictoIcon_Fire.Png", new StatMod(StatModType.AtkPct, 0.18f));
             upgrades[1] = MakeUpgrade("UndyingBody",
-                PictoIcons + "Pictoicon_Life.Png", new StatMod(StatModType.MaxHpPct, 0.22f));
+                ItemIcons + "ItemIcon_Skill_Health.png", new StatMod(StatModType.MaxHpPct, 0.22f));
             upgrades[2] = MakeUpgrade("GoldenBell",
-                ItemIcons + "Icon_Shield.png", new StatMod(StatModType.DefFlat, 4f));
+                PictoIcons + "PictoIcon_Bell.Png", new StatMod(StatModType.DefFlat, 4f));
             upgrades[3] = MakeUpgrade("EssenceDrain",
-                ItemIcons + "Icon_Tooth.png", new StatMod(StatModType.Lifesteal, 0.08f));
+                ItemIcons + "ItemIcon_Drop.png", new StatMod(StatModType.Lifesteal, 0.08f));
             upgrades[4] = MakeUpgrade("SpiritEye",
-                ItemIcons + "Icon_Target.png", new StatMod(StatModType.CritChance, 0.08f));
+                PictoIcons + "PictoIcon_Critical.Png", new StatMod(StatModType.CritChance, 0.08f));
             upgrades[5] = MakeUpgrade("ReboundForce",
-                PictoIcons + "Pictoicon_Cactus.Png", new StatMod(StatModType.Thorns, 0.20f));
+                ItemIcons + "ItemIcon_Skill_DamageEnemy.png", new StatMod(StatModType.Thorns, 0.20f));
             upgrades[6] = MakeUpgrade("QiDeviation",
-                PictoIcons + "Pictoicon_Boom.Png", new StatMod(StatModType.AtkPct, 0.30f),
+                PictoIcons + "PictoIcon_Warning.Png", new StatMod(StatModType.AtkPct, 0.30f),
                 new StatMod(StatModType.MaxHpMult, 0.9f));
             upgrades[7] = MakeUpgrade("RejuvenationPill",
-                ItemIcons + "Icon_Potion01_Red.png", new StatMod(StatModType.HealNowPct, 0.45f));
+                ItemIcons + "ItemIcon_Potion_Green.png", new StatMod(StatModType.HealNowPct, 0.45f));
 
             // ---- cultivation path (permanent, bought with shards between runs) ----
             // One chain, climbed bottom to top: array order is climb order and each step
@@ -613,7 +634,7 @@ namespace Game.EditorTools
             cam.orthographicSize = 9.6f;
             cam.transform.position = new Vector3(0f, 0f, -10f);
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Hex("#05030f");
+            cam.backgroundColor = Hex("#0d0a08");
             cam.GetUniversalAdditionalCameraData();
             var shaker = camGo.AddComponent<CameraShaker>();
             SetPrivate(shaker, "_target", camGo.transform);
@@ -780,7 +801,7 @@ namespace Game.EditorTools
             SetPrivate(gm, "_audio", audio);
             SetPrivate(gm, "_ui", ui);
             SetPrivate(gm, "_screenLock", screenLock);
-            SetPrivate(gm, "_warpBannerIcon", LoadSprite(PictoIcons + "Pictoicon_Planet.Png"));
+            SetPrivate(gm, "_warpBannerIcon", LoadSprite(PictoIcons + "PictoIcon_Temple.Png"));
 
             // ---- per-language font swap (must run last: it collects every text in the scene) ----
             var fontView = uiRoot.AddComponent<LocalizedFontView>();
@@ -829,7 +850,7 @@ namespace Game.EditorTools
             Canvas canvas = NewCanvas(uiRoot, "Canvas_HUD", 10, out RectTransform frame);
             var hud = canvas.gameObject.AddComponent<HudView>();
             Sprite uiSprite = BuiltinUiSprite();
-            Color pillColor = Hex("#1a1240");
+            Color pillColor = Hex("#241c14");
             pillColor.a = 0.92f;
 
             // round banner (top center)
@@ -847,7 +868,7 @@ namespace Game.EditorTools
             AddImage(hits, uiSprite, pillColor);
             RectTransform hitsIcon = Place(NewUiChild(hits, "Icon"), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(40f, 40f));
-            AddImage(hitsIcon, LoadSprite(PictoIcons + "Pictoicon_Attack.Png"), Color.white,
+            AddImage(hitsIcon, LoadSprite(PictoIcons + "PictoIcon_Battle.Png"), Color.white,
                 false, false);
             var hitsLabel = AddTmp(Place(NewUiChild(hits, "Value"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(66f, 0f), new Vector2(110f, 50f)),
@@ -857,24 +878,24 @@ namespace Game.EditorTools
             RectTransform gear = Place(NewUiChild(frame, "GearBtn"),
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -14f),
                 new Vector2(76f, 76f));
-            Image gearImg = AddImage(gear, LoadSprite(ButtonsDir + "Btn_OtherButton_Circle01_n.png"),
+            Image gearImg = AddImage(gear, LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"),
                 Color.white, true, false);
             Button gearBtn = AddButton(gear, gearImg);
             RectTransform gearIcon = Place(NewUiChild(gear, "Icon"), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f));
-            AddImage(gearIcon, LoadSprite(PictoIcons + "Pictoicon_Setting.Png"), Color.white,
+            AddImage(gearIcon, LoadSprite(PictoIcons + "PictoIcon_Setting.Png"), Color.white,
                 false, false);
 
             // home button: the tab bar lives on the front screen, so this is the way back to it
             RectTransform home = Place(NewUiChild(frame, "HomeBtn"),
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-108f, -14f),
                 new Vector2(76f, 76f));
-            Image homeImg = AddImage(home, LoadSprite(ButtonsDir + "Btn_OtherButton_Circle01_n.png"),
+            Image homeImg = AddImage(home, LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"),
                 Color.white, true, false);
             Button homeBtn = AddButton(home, homeImg);
             AddImage(Place(NewUiChild(home, "Icon"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f)),
-                LoadSprite(PictoIcons + "Pictoicon_Home_0.Png"), Color.white, false, false);
+                LoadSprite(PictoIcons + "PictoIcon_Home.Png"), Color.white, false, false);
 
             // world tag (bottom-left of viewport, above stats bar)
             RectTransform world = Place(NewUiChild(frame, "WorldTag"),
@@ -883,7 +904,7 @@ namespace Game.EditorTools
             AddImage(world, uiSprite, pillColor);
             RectTransform worldIcon = Place(NewUiChild(world, "Icon"), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(36f, 36f));
-            AddImage(worldIcon, LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Color.white,
+            AddImage(worldIcon, LoadSprite(PictoIcons + "PictoIcon_Temple.Png"), Color.white,
                 false, false);
             var worldLabel = AddTmp(Place(NewUiChild(world, "Name"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(60f, 0f), new Vector2(230f, 48f)),
@@ -893,7 +914,7 @@ namespace Game.EditorTools
             RectTransform speed = Place(NewUiChild(frame, "SpeedBtn"),
                 new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-20f, 1126f),
                 new Vector2(120f, 64f));
-            Image speedImg = AddImage(speed, LoadSprite(ButtonsDir + "Btn_OtherButton_Square02.png"),
+            Image speedImg = AddImage(speed, LoadSprite(ButtonsDir + "Button_Basic_Rectangle_H46_White.png"),
                 Color.white, true);
             Button speedBtn = AddButton(speed, speedImg);
             var speedLabel = AddTmp(Stretch(NewUiChild(speed, "Label")), "x1", 34f,
@@ -906,7 +927,7 @@ namespace Game.EditorTools
             bar.pivot = new Vector2(0.5f, 0f);
             bar.anchoredPosition = new Vector2(0f, 940f);
             bar.sizeDelta = new Vector2(0f, 176f);
-            Color barBg = Hex("#14102e");
+            Color barBg = Hex("#1c1610");
             barBg.a = 0.96f;
             AddImage(bar, null, barBg);
 
@@ -915,19 +936,19 @@ namespace Game.EditorTools
             var statTitles = new TextMeshProUGUI[4];
             string[] iconPaths =
             {
-                ItemIcons + "Icon_Star.png", ItemIcons + "Icon_Heart.png",
-                ItemIcons + "Icon_Sword.png", ItemIcons + "Icon_Shield.png"
+                ItemIcons + "ItemIcon_Energy_Purple.png", ItemIcons + "ItemIcon_Heart.png",
+                ItemIcons + "ItemIcon_Gear_Sword.png", ItemIcons + "ItemIcon_Gear_Shield_Metal.png"
             };
             for (int i = 0; i < 4; i++)
             {
                 float x = -405f + i * 270f;
                 statTitles[i] = AddTmp(Place(NewUiChild(bar, "Title" + i), new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f), new Vector2(x, 58f), new Vector2(250f, 30f)),
-                    Loc.Get(LocKeys.HudStatTitles[i]), 20f, Hex("#8f9bd4"), font,
+                    Loc.Get(LocKeys.HudStatTitles[i]), 20f, Hex("#948a70"), font,
                     TextAlignmentOptions.Center);
                 RectTransform pill = Place(NewUiChild(bar, "Pill" + i), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(x, -14f), new Vector2(252f, 86f));
-                AddImage(pill, BuiltinUiSprite(), Hex("#241b4d"));
+                AddImage(pill, BuiltinUiSprite(), Hex("#2a2018"));
                 // every pill reads [icon] [value]; the XP one adds a slim bar along the bottom
                 float rowY = i == 0 ? 9f : 0f;
                 RectTransform icon = Place(NewUiChild(pill, "Icon"), new Vector2(0f, 0.5f),
@@ -944,7 +965,7 @@ namespace Game.EditorTools
                     RectTransform track = Place(NewUiChild(pill, "XpTrack"),
                         new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 15f),
                         new Vector2(224f, SpriteBaker.CapsuleHeight));
-                    AddImage(track, art.UiCapsule, Hex("#3b2f78"));
+                    AddImage(track, art.UiCapsule, Hex("#4c3c22"));
                     // width is driven by anchorMax.x in HudView, so the fill keeps round caps
                     RectTransform fillRt = NewUiChild(track, "Fill");
                     fillRt.anchorMin = Vector2.zero;
@@ -952,7 +973,7 @@ namespace Game.EditorTools
                     fillRt.pivot = new Vector2(0f, 0.5f);
                     fillRt.offsetMin = Vector2.zero;
                     fillRt.offsetMax = Vector2.zero;
-                    xpFill = AddImage(fillRt, art.UiCapsule, Hex("#a98bff"));
+                    xpFill = AddImage(fillRt, art.UiCapsule, Hex("#c8a84a"));
                 }
                 else if (i == 1) hpLabel = value;
                 else if (i == 2) atkLabel = value;
@@ -991,7 +1012,7 @@ namespace Game.EditorTools
             panel.pivot = new Vector2(0.5f, 0f);
             panel.anchoredPosition = Vector2.zero;
             panel.sizeDelta = new Vector2(0f, 940f);
-            Color panelBg = Hex("#120c28");
+            Color panelBg = Hex("#1a1410");
             panelBg.a = 0.97f;
             AddImage(panel, null, panelBg);
             RectTransform topLine = NewUiChild(panel, "TopLine");
@@ -1017,7 +1038,7 @@ namespace Game.EditorTools
             // star cycle header
             var cycleLabel = AddTmp(Place(NewUiChild(panel, "CycleLabel"), new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(40f, -160f), new Vector2(420f, 44f)),
-                "Star Cycle 1", 34f, Hex("#6ee7ff"), font, TextAlignmentOptions.MidlineLeft);
+                "Star Cycle 1", 34f, Hex("#6ee8c4"), font, TextAlignmentOptions.MidlineLeft);
             RectTransform rule = Place(NewUiChild(panel, "Rule"), new Vector2(0f, 1f),
                 new Vector2(0f, 1f), new Vector2(470f, -180f), new Vector2(570f, 2f));
             AddImage(rule, null, new Color(0.43f, 0.9f, 1f, 0.18f));
@@ -1029,11 +1050,11 @@ namespace Game.EditorTools
             eventBox.pivot = new Vector2(0.5f, 1f);
             eventBox.anchoredPosition = new Vector2(0f, -214f);
             eventBox.sizeDelta = new Vector2(-60f, 252f);
-            Color boxBg = Hex("#1a1240");
+            Color boxBg = Hex("#241c14");
             boxBg.a = 0.85f;
             AddImage(eventBox, uiSprite, boxBg);
             var eventText = AddTmp(Stretch(NewUiChild(eventBox, "Text"), 28f, 28f, 22f, 22f),
-                "", 30f, Hex("#e8eaf6"), font, TextAlignmentOptions.TopLeft, true);
+                "", 30f, Hex("#f0e8d8"), font, TextAlignmentOptions.TopLeft, true);
             eventText.richText = true;
             eventText.lineSpacing = 8f;
 
@@ -1050,13 +1071,13 @@ namespace Game.EditorTools
                 RectTransform chip = Place(NewUiChild(chipsGo, "Chip" + i),
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                     new Vector2(10f + i * 345f, 0f), new Vector2(330f, 64f));
-                AddImage(chip, uiSprite, Hex("#241b4d"));
+                AddImage(chip, uiSprite, Hex("#2a2018"));
                 RectTransform ic = Place(NewUiChild(chip, "Icon"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(40f, 40f));
                 chipIcons[i] = AddImage(ic, null, Color.white, false, false);
                 chipNames[i] = AddTmp(Place(NewUiChild(chip, "Name"), new Vector2(0f, 0.5f),
                         new Vector2(0f, 0.5f), new Vector2(64f, 0f), new Vector2(255f, 50f)),
-                    "", 26f, Hex("#c9cff2"), font, TextAlignmentOptions.MidlineLeft);
+                    "", 26f, Hex("#d8cdb2"), font, TextAlignmentOptions.MidlineLeft);
                 chipGos[i] = chip.gameObject;
                 chip.gameObject.SetActive(false);
             }
@@ -1068,7 +1089,7 @@ namespace Game.EditorTools
             RectTransform engageRt = Place(NewUiChild(panel, "Engage"), new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f), new Vector2(0f, -580f), new Vector2(640f, 176f));
             engage = engageRt.gameObject.AddComponent<EngageButton>();
-            Image engageImg = AddImage(engageRt, LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"),
+            Image engageImg = AddImage(engageRt, LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Green.png"),
                 Color.white, true);
             Button engageBtn = AddButton(engageRt, engageImg);
             var engageLabel = AddTmp(Stretch(NewUiChild(engageRt, "Label"), 0f, 0f, 0f, 14f),
@@ -1076,9 +1097,9 @@ namespace Game.EditorTools
             SetPrivate(engage, "_button", engageBtn);
             SetPrivate(engage, "_background", engageImg);
             SetPrivate(engage, "_label", engageLabel);
-            SetPrivate(engage, "_readySprite", LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"));
-            SetPrivate(engage, "_lockedSprite", LoadSprite(ButtonsDir + "Btn_MainButton_Gray.Png"));
-            SetPrivate(engage, "_deadSprite", LoadSprite(ButtonsDir + "Btn_MainButton_Orange.Png"));
+            SetPrivate(engage, "_readySprite", LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Green.png"));
+            SetPrivate(engage, "_lockedSprite", LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Gary.png"));
+            SetPrivate(engage, "_deadSprite", LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Orange.png"));
 
             // fortune banner (over glyph area)
             RectTransform bannerRt = Place(NewUiChild(panel, "FortuneBanner"),
@@ -1088,7 +1109,7 @@ namespace Game.EditorTools
             var group = bannerRt.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
             group.interactable = false;
-            AddImage(bannerRt, uiSprite, Hex("#2a1b5e"));
+            AddImage(bannerRt, uiSprite, Hex("#33241a"));
             RectTransform bIcon = Place(NewUiChild(bannerRt, "Icon"), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f), new Vector2(22f, 0f), new Vector2(76f, 76f));
             Image bannerIcon = AddImage(bIcon, null, Color.white, false, false);
@@ -1111,7 +1132,7 @@ namespace Game.EditorTools
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -20f),
                 new Vector2(1060f, 550f));
             choices = choiceRt.gameObject.AddComponent<ChoicePanel>();
-            Color choiceBg = Hex("#0a0620");
+            Color choiceBg = Hex("#14100c");
             choiceBg.a = 0.92f;
             AddImage(choiceRt, uiSprite, choiceBg, true); // blocks clicks behind
             var cards = new ChoiceCardView[4];
@@ -1135,7 +1156,7 @@ namespace Game.EditorTools
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
                 new Vector2(320f, 500f));
             var view = card.gameObject.AddComponent<ChoiceCardView>();
-            Image bg = AddImage(card, BuiltinUiSprite(), Hex("#2a2258"), true);
+            Image bg = AddImage(card, BuiltinUiSprite(), Hex("#322818"), true);
             Button btn = AddButton(card, bg);
             RectTransform icon = Place(NewUiChild(card, "Icon"), new Vector2(0.5f, 1f),
                 new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(120f, 120f));
@@ -1145,7 +1166,7 @@ namespace Game.EditorTools
                 "", 32f, Color.white, font, TextAlignmentOptions.Top, true);
             var desc = AddTmp(Place(NewUiChild(card, "Desc"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -268f), new Vector2(290f, 210f)),
-                "", 26f, Hex("#b8bfe8"), font, TextAlignmentOptions.Top, true);
+                "", 26f, Hex("#c8bca0"), font, TextAlignmentOptions.Top, true);
             SetPrivate(view, "_button", btn);
             SetPrivate(view, "_icon", iconImg);
             SetPrivate(view, "_name", name);
@@ -1168,7 +1189,7 @@ namespace Game.EditorTools
             bar.sizeDelta = new Vector2(0f, 154f);
             var nav = bar.gameObject.AddComponent<NavBarView>();
 
-            Color navColor = Hex("#0b1734");
+            Color navColor = Hex("#0c1814");
             navColor.a = 0.97f;
             AddImage(bar, BuiltinUiSprite(), navColor);
             var navShadow = bar.gameObject.AddComponent<Shadow>();
@@ -1186,10 +1207,10 @@ namespace Game.EditorTools
 
             string[] icons =
             {
-                PictoIcons + "Pictoicon_Anvil.Png",
-                PictoIcons + "Pictoicon_Profile.Png",
-                PictoIcons + "Pictoicon_Trophy_0.Png",
-                PictoIcons + "Pictoicon_Setting.Png"
+                PictoIcons + "PictoIcon_Upgrade.Png",
+                PictoIcons + "PictoIcon_Skin.Png",
+                PictoIcons + "PictoIcon_Trophy.Png",
+                PictoIcons + "PictoIcon_Setting.Png"
             };
             var buttons = new Button[NavBarView.TabCount];
             var labels = new TextMeshProUGUI[NavBarView.TabCount];
@@ -1206,16 +1227,16 @@ namespace Game.EditorTools
                 RectTransform iconPlate = Place(NewUiChild(tab, "IconPlate"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     new Vector2(0f, 20f), new Vector2(64f, 64f));
-                AddImage(iconPlate, BuiltinUiSprite(), Hex("#182a52"));
+                AddImage(iconPlate, BuiltinUiSprite(), Hex("#12211c"));
                 RectTransform icon = Place(NewUiChild(iconPlate, "Icon"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
                     new Vector2(40f, 40f));
-                AddImage(icon, LoadSprite(icons[i]), Hex("#dce8ff"));
+                AddImage(icon, LoadSprite(icons[i]), Hex("#ece4d0"));
 
                 labels[i] = AddTmp(Place(NewUiChild(tab, "Label"),
                         new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                         new Vector2(0f, -36f), new Vector2(220f, 30f)),
-                    "", 22f, Hex("#aebbdc"), font, TextAlignmentOptions.Center);
+                    "", 22f, Hex("#b8ac90"), font, TextAlignmentOptions.Center);
 
                 if (i != 0) continue;
                 RectTransform dot = Place(NewUiChild(tab, "Badge"),
@@ -1240,7 +1261,7 @@ namespace Game.EditorTools
 
             RectTransform card = Place(NewUiChild(root, "Card"), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(880f, 1440f));
-            Color cardBg = Hex("#1a1240");
+            Color cardBg = Hex("#241c14");
             cardBg.a = 0.98f;
             AddImage(card, BuiltinUiSprite(), cardBg);
 
@@ -1250,7 +1271,7 @@ namespace Game.EditorTools
                 TextAlignmentOptions.Center);
             var body = AddTmp(Place(NewUiChild(card, "Body"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(760f, 560f)),
-                "", 33f, Hex("#e8eaf6"), font, TextAlignmentOptions.Top, true);
+                "", 33f, Hex("#f0e8d8"), font, TextAlignmentOptions.Top, true);
             body.richText = true;
             body.lineSpacing = 10f;
             RectTransform titleRule = Place(NewUiChild(card, "TitleRule"), new Vector2(0.5f, 1f),
@@ -1261,12 +1282,12 @@ namespace Game.EditorTools
             // see GameManager.ShowSettings. "Reset all data" lives on the metaPath screen.
             string[] btnSprites =
             {
-                ButtonsDir + "Btn_MainButton_Green.Png",
-                ButtonsDir + "Btn_MainButton_Sky.Png",
-                ButtonsDir + "Btn_MainButton_Sky.Png",
-                ButtonsDir + "Btn_MainButton_Sky.Png",
-                ButtonsDir + "Btn_MainButton_Orange.Png",
-                ButtonsDir + "Btn_MainButton_Red.Png"
+                ButtonsDir + "Button_01_Mian_l_Bg_Green.png",
+                ButtonsDir + "Button_01_Mian_l_Bg_Sky.png",
+                ButtonsDir + "Button_01_Mian_l_Bg_Sky.png",
+                ButtonsDir + "Button_01_Mian_l_Bg_Sky.png",
+                ButtonsDir + "Button_01_Mian_l_Bg_Orange.png",
+                ButtonsDir + "Button_01_Mian_l_Bg_Red.png"
             };
             var buttons = new Button[OverlayView.MaxButtons];
             var labels = new TextMeshProUGUI[OverlayView.MaxButtons];
@@ -1284,11 +1305,11 @@ namespace Game.EditorTools
             RectTransform close = Place(NewUiChild(card, "Close"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 1f), new Vector2(0f, -34f), new Vector2(112f, 112f));
             Image closeImg = AddImage(close,
-                LoadSprite(ButtonsDir + "Btn_OtherButton_Circle01_n.png"), Color.white, true);
+                LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"), Color.white, true);
             Button closeBtn = AddButton(close, closeImg);
             AddImage(Place(NewUiChild(close, "X"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(52f, 52f)),
-                LoadSprite(PictoIcons + "Pictoicon_Close.Png"), Color.white);
+                LoadSprite(PictoIcons + "PictoIcon_Delete.Png"), Color.white);
 
             SetPrivate(overlay, "_card", card);
             SetPrivate(overlay, "_title", title);
@@ -1314,7 +1335,7 @@ namespace Game.EditorTools
             var menu = root.gameObject.AddComponent<MainMenuView>();
             AddImage(root, null, new Color(0.01f, 0.005f, 0.05f, 0.10f), true);
 
-            Sprite purplePanel = LoadSprite(PopupsDir + "Popup_Frame01_Purple.png");
+            Sprite purplePanel = LoadSprite(FramesDir + "BaseFrame_Basic_Circle_H98.png");
             Sprite shard = LoadSprite(ShardIcon);
             Sprite uiSprite = BuiltinUiSprite();
 
@@ -1323,11 +1344,11 @@ namespace Game.EditorTools
             RectTransform heroAura = Place(NewUiChild(root, "HeroAura"),
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0f, 380f), new Vector2(620f, 620f));
-            Color auraColor = Hex("#58e7ff");
+            Color auraColor = Hex("#5ce0b8");
             auraColor.a = 0.10f;
             AddImage(heroAura, LoadSprite(SoftGlow), auraColor, false, false);
 
-            Color hudColor = Hex("#101d42");
+            Color hudColor = Hex("#101d18");
             hudColor.a = 0.94f;
 
             RectTransform chip = Place(NewUiChild(root, "ProfileChip"), new Vector2(0f, 1f),
@@ -1345,7 +1366,7 @@ namespace Game.EditorTools
             AddImage(avatarBase, purplePanel, Color.white);
             AddImage(Place(NewUiChild(avatarBase, "Avatar"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(38f, 38f)),
-                LoadSprite(PictoIcons + "Pictoicon_Profile.Png"), Color.white);
+                LoadSprite(PictoIcons + "PictoIcon_Skin.Png"), Color.white);
             var levelLabel = AddTmp(Place(NewUiChild(chip, "Level"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(92f, 0f), new Vector2(158f, 48f)),
                 "Lv.1", 30f, Color.white, font, TextAlignmentOptions.MidlineLeft);
@@ -1375,14 +1396,14 @@ namespace Game.EditorTools
             var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -140f),
                     new Vector2(600f, 48f)),
-                Loc.Get(LocKeys.MenuTitle), 34f, Hex("#d8e2ff"), font,
+                Loc.Get(LocKeys.MenuTitle), 34f, Hex("#e8dfc8"), font,
                 TextAlignmentOptions.Center);
             title.characterSpacing = 2f;
 
             RectTransform mission = Place(NewUiChild(root, "MissionCard"),
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
                 new Vector2(0f, 575f), new Vector2(870f, 190f));
-            Color missionColor = Hex("#111d40");
+            Color missionColor = Hex("#0f1c18");
             missionColor.a = 0.96f;
             AddImage(mission, uiSprite, missionColor);
             var missionShadow = mission.gameObject.AddComponent<Shadow>();
@@ -1393,18 +1414,18 @@ namespace Game.EditorTools
             RectTransform accent = Place(NewUiChild(mission, "Accent"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0f), new Vector2(8f, 128f));
-            AddImage(accent, uiSprite, Hex("#61e6ff"));
+            AddImage(accent, uiSprite, Hex("#63e0bb"));
 
             RectTransform worldBase = Place(NewUiChild(mission, "WorldBase"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(28f, 0f), new Vector2(104f, 104f));
-            Color worldBaseColor = Hex("#29366a");
+            Color worldBaseColor = Hex("#2a4438");
             worldBaseColor.a = 0.95f;
             AddImage(worldBase, uiSprite, worldBaseColor);
             AddImage(Place(NewUiChild(worldBase, "WorldIcon"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     Vector2.zero, new Vector2(60f, 60f)),
-                LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Hex("#7deaff"));
+                LoadSprite(PictoIcons + "PictoIcon_Temple.Png"), Hex("#7fe8c8"));
 
             var progress = AddTmp(Place(NewUiChild(mission, "Progress"),
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
@@ -1413,14 +1434,14 @@ namespace Game.EditorTools
             var best = AddTmp(Place(NewUiChild(mission, "Best"),
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                     new Vector2(156f, -18f), new Vector2(665f, 34f)),
-                "", 23f, Hex("#8fe8ff"), font, TextAlignmentOptions.MidlineLeft);
+                "", 23f, Hex("#96ecd2"), font, TextAlignmentOptions.MidlineLeft);
 
             RectTransform progressTrack = Place(NewUiChild(mission, "ProgressTrack"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(156f, -62f), new Vector2(664f, 14f));
-            AddImage(progressTrack, uiSprite, Hex("#26345b"));
+            AddImage(progressTrack, uiSprite, Hex("#24382e"));
             RectTransform fill = Stretch(NewUiChild(progressTrack, "Fill"));
-            Image progressFill = AddImage(fill, uiSprite, Hex("#56e3dc"));
+            Image progressFill = AddImage(fill, uiSprite, Hex("#56e3b8"));
             progressFill.type = Image.Type.Filled;
             progressFill.fillMethod = Image.FillMethod.Horizontal;
             progressFill.fillOrigin = 0;
@@ -1437,25 +1458,25 @@ namespace Game.EditorTools
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 370f),
                 new Vector2(790f, 154f));
             Image startImg = AddImage(start,
-                LoadSprite(ButtonsDir + "Btn_MainButton_Orange.Png"), Color.white, true);
+                LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Orange.png"), Color.white, true);
             Button startBtn = AddButton(start, startImg);
             AddImage(Place(NewUiChild(start, "PlayIcon"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(-270f, 5f),
                     new Vector2(60f, 60f)),
-                LoadSprite(PictoIcons + "Pictoicon_Control_Play.Png"), Hex("#28173f"));
+                LoadSprite(PictoIcons + "PictoIcon_Arrow_Next.Png"), Hex("#2e1a14"));
             var startLabel = AddTmp(Stretch(NewUiChild(start, "Label"), 112f, 36f, 0f, 12f),
-                Loc.Get(LocKeys.MenuContinue), 54f, Hex("#28173f"), font,
+                Loc.Get(LocKeys.MenuContinue), 54f, Hex("#2e1a14"), font,
                 TextAlignmentOptions.Center);
 
             RectTransform newRun = Place(NewUiChild(root, "NewRun"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 215f),
                 new Vector2(420f, 76f));
-            Color secondaryColor = Hex("#182952");
+            Color secondaryColor = Hex("#122019");
             secondaryColor.a = 0.96f;
             Image newRunImg = AddImage(newRun, uiSprite, secondaryColor, true);
             Button newRunBtn = AddButton(newRun, newRunImg);
             var newRunLabel = AddTmp(Stretch(NewUiChild(newRun, "Label"), 0f, 0f, 0f, 4f),
-                Loc.Get(LocKeys.MenuNewRun), 27f, Hex("#c6d3f2"), font,
+                Loc.Get(LocKeys.MenuNewRun), 27f, Hex("#d4c9ae"), font,
                 TextAlignmentOptions.Center);
 
             nav = BuildNavBar(root, font);
@@ -1499,12 +1520,12 @@ namespace Game.EditorTools
             RectTransform root = Stretch(NewUiChild(frame, "MetaPath"));
             var metaPath = root.gameObject.AddComponent<MetaPathView>();
             // a full screen, not a popup: opaque, so nothing of the run shows through
-            AddImage(root, null, Hex("#0a0620"), true);
+            AddImage(root, null, Hex("#14100c"), true);
 
             Sprite uiSprite = BuiltinUiSprite();
             Sprite shard = LoadSprite(ShardIcon);
             Sprite glowSprite = LoadSprite(SoftGlow);
-            Color pillColor = Hex("#1a1240");
+            Color pillColor = Hex("#241c14");
             pillColor.a = 0.92f;
 
             var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
@@ -1524,7 +1545,7 @@ namespace Game.EditorTools
 
             var hint = AddTmp(Place(NewUiChild(root, "Hint"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -216f), new Vector2(880f, 90f)),
-                Loc.Get(LocKeys.MetaPathIntro), 25f, Hex("#a9aed0"), font,
+                Loc.Get(LocKeys.MetaPathIntro), 25f, Hex("#b0a488"), font,
                 TextAlignmentOptions.Top, true);
 
             MetaUpgrade[] steps = content.Config.MetaUpgrades;
@@ -1541,7 +1562,7 @@ namespace Game.EditorTools
                 RectTransform track = Place(NewUiChild(path, "Rail" + i),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(RailX, bottom),
                     new Vector2(RailWidth, railLength));
-                AddImage(track, null, Hex("#3b2f6b")); // must stay readable against #0a0620
+                AddImage(track, null, Hex("#4a3a20")); // must stay readable against #0a0620
                 RectTransform fill = Place(NewUiChild(track, "Fill"), new Vector2(0.5f, 0f),
                     new Vector2(0.5f, 0f), Vector2.zero, new Vector2(RailWidth, 0f));
                 AddImage(fill, null, Hex("#ffd35c"));
@@ -1558,7 +1579,7 @@ namespace Game.EditorTools
 
             RectTransform close = Place(NewUiChild(root, "Close"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 176f), new Vector2(600f, 104f));
-            Image closeImg = AddImage(close, LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"),
+            Image closeImg = AddImage(close, LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Green.png"),
                 Color.white, true);
             Button closeBtn = AddButton(close, closeImg);
             var closeLabel = AddTmp(Stretch(NewUiChild(close, "Label"), 0f, 0f, 0f, 10f),
@@ -1566,7 +1587,7 @@ namespace Game.EditorTools
 
             RectTransform reset = Place(NewUiChild(root, "Reset"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 74f), new Vector2(420f, 72f));
-            Image resetImg = AddImage(reset, LoadSprite(ButtonsDir + "Btn_MainButton_Red.Png"),
+            Image resetImg = AddImage(reset, LoadSprite(ButtonsDir + "Button_01_Mian_l_Bg_Red.png"),
                 Color.white, true);
             Button resetBtn = AddButton(reset, resetImg);
             var resetLabel = AddTmp(Stretch(NewUiChild(reset, "Label"), 0f, 0f, 0f, 8f),
@@ -1599,7 +1620,7 @@ namespace Game.EditorTools
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(100f, y),
                 new Vector2(800f, 152f));
             var view = rt.gameObject.AddComponent<MetaNodeView>();
-            Image panel = AddImage(rt, panelSprite, Hex("#1a1240"), true);
+            Image panel = AddImage(rt, panelSprite, Hex("#241c14"), true);
             Button btn = AddButton(rt, panel);
 
             // the medallion lives outside the strip, centred on the rail
@@ -1620,7 +1641,7 @@ namespace Game.EditorTools
                 step.DisplayName, 31f, Color.white, font, TextAlignmentOptions.Left);
             var desc = AddTmp(Place(NewUiChild(rt, "Desc"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(34f, -2f), new Vector2(470f, 34f)),
-                step.Description, 24f, Hex("#b8bfe8"), font, TextAlignmentOptions.Left);
+                step.Description, 24f, Hex("#c8bca0"), font, TextAlignmentOptions.Left);
 
             // one pip per rank, lit as ranks are bought
             var pips = new Image[step.MaxRank];

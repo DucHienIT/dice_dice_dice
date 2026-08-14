@@ -31,16 +31,16 @@ namespace Game.UI
 
         [Header("Palette")]
         // opaque on purpose: a translucent strip lets the rail behind it tint its edge
-        [SerializeField] private Color _panelIdle = new Color(0.10f, 0.07f, 0.24f, 1f);
+        [SerializeField] private Color _panelIdle = new Color(0.13f, 0.10f, 0.06f, 1f);
         [Tooltip("The step the player is working on — the screen's single focal point.")]
-        [SerializeField] private Color _panelCurrent = new Color(0.24f, 0.18f, 0.52f, 1f);
+        [SerializeField] private Color _panelCurrent = new Color(0.33f, 0.26f, 0.12f, 1f);
         [SerializeField] private Color _glow = new Color(1f, 0.83f, 0.36f, 0.42f);
         [SerializeField] private Color _pipOn = new Color(1f, 0.83f, 0.36f, 1f);
         [SerializeField] private Color _pipOff = new Color(1f, 1f, 1f, 0.16f);
-        [SerializeField] private Color _textNormal = new Color(0.91f, 0.92f, 0.96f, 1f);
-        [SerializeField] private Color _textLocked = new Color(0.50f, 0.51f, 0.63f, 1f);
+        [SerializeField] private Color _textNormal = new Color(0.94f, 0.91f, 0.84f, 1f);
+        [SerializeField] private Color _textLocked = new Color(0.56f, 0.52f, 0.44f, 1f);
         [SerializeField] private Color _costAffordable = new Color(1f, 0.83f, 0.36f, 1f);
-        [SerializeField] private Color _costTooDear = new Color(0.60f, 0.61f, 0.73f, 1f);
+        [SerializeField] private Color _costTooDear = new Color(0.62f, 0.58f, 0.48f, 1f);
         [SerializeField] private Color _costMaxed = new Color(0.42f, 0.94f, 0.60f, 1f);
 
         [Header("Feel")]
