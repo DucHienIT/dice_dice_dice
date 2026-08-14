@@ -8,7 +8,7 @@ namespace Game.Localization
     /// <summary>
     /// Facade over I2 Localization — the only place the game touches I2. Every player-facing
     /// string is a term key resolved through here; the translations live in
-    /// Assets/Localization/CCQ_Localization.csv and are imported into
+    /// Assets/Localization/Localization.csv and are imported into
     /// Assets/Resources/I2Languages.asset by Tools &gt; Game &gt; Localization &gt; Import CSV.
     /// </summary>
     public static class Loc

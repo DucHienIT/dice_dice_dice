@@ -8,7 +8,7 @@ namespace Game.Data
     public class Sidekick : ScriptableObject
     {
         [SerializeField] private string _id;
-        [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]
+        [Tooltip("Localization term keys — the text lives in Localization.csv.")]
         [SerializeField] private string _nameKey;
         [SerializeField] private string _descriptionKey;
         [SerializeField] private Sprite _icon;

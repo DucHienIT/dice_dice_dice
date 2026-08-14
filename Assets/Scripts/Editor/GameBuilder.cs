@@ -31,7 +31,7 @@ namespace Game.EditorTools
         private const string DataDir = "Assets/Data";
         private const string UiDataDir = "Assets/Data/UI";
         private const string PrefabDir = "Assets/Prefabs";
-        private const string ScenePath = "Assets/Scenes/CosmicCritterQuest.unity";
+        private const string ScenePath = "Assets/Scenes/Main.unity";
         private const string FrameName = "Frame";
 
         private const string ItemIcons =
@@ -91,7 +91,7 @@ namespace Game.EditorTools
             EnsureFolder(DataDir + "/Fortunes");
             EnsureFolder(DataDir + "/Meta");
             EnsureFolder(DataDir + "/Sidekicks");
-            EnsureFolder(DataDir + "/Planets");
+            EnsureFolder(DataDir + "/Worlds");
             EnsureFolder(PrefabDir);
             EnsureFolder(UiDataDir + "/Fonts");
             EnsureFolder("Assets/Scenes");
@@ -110,7 +110,7 @@ namespace Game.EditorTools
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
-            Debug.Log("[Builder] Cosmic Critter Quest build complete → " + ScenePath);
+            Debug.Log("[Builder] One Tap Immortal build complete → " + ScenePath);
         }
 
         [MenuItem("Tools/Game/Rebuild Main Menu UI")]
@@ -194,10 +194,10 @@ namespace Game.EditorTools
             }
 
             fonts.DefaultWorld = LoadOrCreateWorldMaterial(fonts.Default,
-                UiDataDir + "/CcqWorldText.mat");
+                UiDataDir + "/WorldText.mat");
             fonts.WideCharsetWorld = fonts.WideCharset == fonts.Default
                 ? fonts.DefaultWorld
-                : LoadOrCreateWorldMaterial(fonts.WideCharset, UiDataDir + "/CcqWorldTextVN.mat");
+                : LoadOrCreateWorldMaterial(fonts.WideCharset, UiDataDir + "/WorldTextVN.mat");
             return fonts;
         }
 
@@ -241,26 +241,26 @@ namespace Game.EditorTools
         {
             // ---- worlds ----
             var worlds = new World[5];
-            worlds[0] = MakeWorld("Verdania", "#2b1b5e", "#123a6b", "#1fa8a0", "#0f7c86",
+            worlds[0] = MakeWorld("AzureCloud", "#2b1b5e", "#123a6b", "#1fa8a0", "#0f7c86",
                 "#1b6d68", "#274b7a", "#ffd98a", new[] { "#ff5fae", "#c95fff", "#37e0b8" }, 110f, false);
-            worlds[1] = MakeWorld("Pyros", "#4a1035", "#7a2410", "#e86a28", "#a83c0f",
+            worlds[1] = MakeWorld("Emberfall", "#4a1035", "#7a2410", "#e86a28", "#a83c0f",
                 "#6b2a14", "#5c2020", "#ffe9c9", new[] { "#ffd35c", "#ff7a3d", "#ff4a6b" }, 98f, true);
-            worlds[2] = MakeWorld("Glacius", "#101a4a", "#1f5a8f", "#6fd8ff", "#2e9ad4",
+            worlds[2] = MakeWorld("Frostmoon", "#101a4a", "#1f5a8f", "#6fd8ff", "#2e9ad4",
                 "#3a6ea8", "#2a4a8a", "#eaf6ff", new[] { "#aef2ff", "#7a9bff", "#e2c9ff" }, 123.47f, false);
-            worlds[3] = MakeWorld("Fungaria", "#1c0f3a", "#3a1a5e", "#8a4ad4", "#5c24a0",
+            worlds[3] = MakeWorld("Gloomfen", "#1c0f3a", "#3a1a5e", "#8a4ad4", "#5c24a0",
                 "#4a2a7a", "#38205e", "#d3ffb8", new[] { "#5cff8f", "#c9ff5c", "#ff9bdd" }, 87.31f, true);
-            worlds[4] = MakeWorld("Voidreach", "#05030f", "#1a0a2e", "#e83d8f", "#8f1458",
+            worlds[4] = MakeWorld("HollowDeep", "#05030f", "#1a0a2e", "#e83d8f", "#8f1458",
                 "#2a0f35", "#1c0f2e", "#ff9bce", new[] { "#ff2e7a", "#8f2eff", "#2effd8" }, 73.42f, true);
 
             // ---- sidekicks ----
             var sidekicks = new Sidekick[4];
-            sidekicks[0] = MakeSidekick("blob", "Gloop",
+            sidekicks[0] = MakeSidekick("blob", "FlyingSword",
                 PictoIcons + "Pictoicon_Fist.Png", "#6ee7ff", SidekickType.Damage, 0.15f);
-            sidekicks[1] = MakeSidekick("medic", "Sporeling",
+            sidekicks[1] = MakeSidekick("medic", "Lingzhi",
                 PictoIcons + "Pictoicon_Mushroom.Png", "#8bf07a", SidekickType.Heal, 0.02f);
-            sidekicks[2] = MakeSidekick("shield", "Orbit",
+            sidekicks[2] = MakeSidekick("shield", "ShellWard",
                 PictoIcons + "Pictoicon_Magic_Ball.Png", "#c79bff", SidekickType.Block, 0.12f);
-            sidekicks[3] = MakeSidekick("spark", "Zappy",
+            sidekicks[3] = MakeSidekick("spark", "ThunderPearl",
                 PictoIcons + "Pictoicon_Thunder.Png", "#ffd35c", SidekickType.Crit, 0.06f);
 
             // ---- fortunes ----
@@ -278,43 +278,43 @@ namespace Game.EditorTools
 
             // ---- upgrades ----
             var upgrades = new UpgradeCard[8];
-            upgrades[0] = MakeUpgrade("PlasmaCell",
+            upgrades[0] = MakeUpgrade("FlameArt",
                 ItemIcons + "Icon_Energy_Green.png", new StatMod(StatModType.AtkPct, 0.18f));
-            upgrades[1] = MakeUpgrade("GeneSplice",
+            upgrades[1] = MakeUpgrade("UndyingBody",
                 PictoIcons + "Pictoicon_Life.Png", new StatMod(StatModType.MaxHpPct, 0.22f));
-            upgrades[2] = MakeUpgrade("OrbitalPlating",
+            upgrades[2] = MakeUpgrade("GoldenBell",
                 ItemIcons + "Icon_Shield.png", new StatMod(StatModType.DefFlat, 4f));
-            upgrades[3] = MakeUpgrade("SymbioteFangs",
+            upgrades[3] = MakeUpgrade("EssenceDrain",
                 ItemIcons + "Icon_Tooth.png", new StatMod(StatModType.Lifesteal, 0.08f));
-            upgrades[4] = MakeUpgrade("TargetingVisor",
+            upgrades[4] = MakeUpgrade("SpiritEye",
                 ItemIcons + "Icon_Target.png", new StatMod(StatModType.CritChance, 0.08f));
-            upgrades[5] = MakeUpgrade("SpikeMembrane",
+            upgrades[5] = MakeUpgrade("ReboundForce",
                 PictoIcons + "Pictoicon_Cactus.Png", new StatMod(StatModType.Thorns, 0.20f));
-            upgrades[6] = MakeUpgrade("UnstableCore",
+            upgrades[6] = MakeUpgrade("QiDeviation",
                 PictoIcons + "Pictoicon_Boom.Png", new StatMod(StatModType.AtkPct, 0.30f),
                 new StatMod(StatModType.MaxHpMult, 0.9f));
-            upgrades[7] = MakeUpgrade("NanoSerum",
+            upgrades[7] = MakeUpgrade("RejuvenationPill",
                 ItemIcons + "Icon_Potion01_Red.png", new StatMod(StatModType.HealNowPct, 0.45f));
 
-            // ---- star metaPath path (permanent, bought with shards between runs) ----
+            // ---- cultivation path (permanent, bought with shards between runs) ----
             // One chain, climbed bottom to top: array order is climb order and each step
             // costs more than the last. ChainSteps below gates every step on the one under it.
             var metaUpgrades = new MetaUpgrade[6];
-            metaUpgrades[0] = MakeMetaUpgrade("StarHull", "Ball_Health", 20, 12,
+            metaUpgrades[0] = MakeMetaUpgrade("BodyTempering", "Ball_Health", 20, 12,
                 new StatMod(StatModType.MaxHpPct, 0.08f));
-            metaUpgrades[1] = MakeMetaUpgrade("IonEdge", "Damage", 28, 16,
+            metaUpgrades[1] = MakeMetaUpgrade("QiRefining", "Damage", 28, 16,
                 new StatMod(StatModType.AtkPct, 0.07f));
-            metaUpgrades[2] = MakeMetaUpgrade("AegisWeave", "Buff", 36, 20,
+            metaUpgrades[2] = MakeMetaUpgrade("Foundation", "Buff", 36, 20,
                 new StatMod(StatModType.DefFlat, 2f));
-            metaUpgrades[3] = MakeMetaUpgrade("VoidFangs", "Passive", 44, 24,
+            metaUpgrades[3] = MakeMetaUpgrade("GoldenCore", "Passive", 44, 24,
                 new StatMod(StatModType.Lifesteal, 0.02f));
-            metaUpgrades[4] = MakeMetaUpgrade("QuillPlate", "Debuff", 52, 28,
+            metaUpgrades[4] = MakeMetaUpgrade("NascentSoul", "Debuff", 52, 28,
                 new StatMod(StatModType.Thorns, 0.06f));
-            metaUpgrades[5] = MakeMetaUpgrade("LuckyNova", "Critical_Chance", 60, 32,
+            metaUpgrades[5] = MakeMetaUpgrade("SpiritSevering", "Critical_Chance", 60, 32,
                 new StatMod(StatModType.CritChance, 0.03f));
             ChainSteps(metaUpgrades);
 
-            // ---- narrative (term keys only — the sentences live in CCQ_Localization.csv) ----
+            // ---- narrative (term keys only — the sentences live in Localization.csv) ----
             var narrative = LoadOrCreateAsset<NarrativeConfig>(DataDir + "/NarrativeConfig.asset");
             SetPrivate(narrative, "_battleIntroKeys", Keys("Narrative/BattleIntro/", 5));
             SetPrivate(narrative, "_eliteIntroKeys", Keys("Narrative/EliteIntro/", 2));
@@ -327,14 +327,14 @@ namespace Game.EditorTools
             SetPrivate(narrative, "_sidekickFullKeys", Keys("Narrative/SidekickFull/", 1));
             SetPrivate(narrative, "_trapKeys", Keys("Narrative/Trap/", 2));
             SetPrivate(narrative, "_treasureKeys", Keys("Narrative/Treasure/", 2));
-            SetPrivate(narrative, "_worldClearKeys", Keys("Narrative/PlanetClear/", 1));
+            SetPrivate(narrative, "_worldClearKeys", Keys("Narrative/WorldClear/", 1));
             SetPrivate(narrative, "_levelUpSuffixKey", "Narrative/LevelUpSuffix");
             SetPrivate(narrative, "_introNewRunKey", "Narrative/IntroNewRun");
             SetPrivate(narrative, "_introResumeKey", "Narrative/IntroResume");
             SetPrivate(narrative, "_deathKey", "Narrative/Death");
-            SetPrivate(narrative, "_enemyNameKeys", Keys("Narrative/CritterName/", 8));
+            SetPrivate(narrative, "_enemyNameKeys", Keys("Narrative/BeastName/", 8));
             SetPrivate(narrative, "_bossNameKeys", Keys("Narrative/BossName/", 5));
-            SetPrivate(narrative, "_glyphChars", "0123456789<>/|+=*#@%&?!~^");
+            SetPrivate(narrative, "_glyphChars", "<>/|+=*#%&?!~^");
 
             // ---- game config (content arrays only; numbers keep asset values) ----
             var config = LoadOrCreateAsset<GameConfig>(DataDir + "/GameConfig.asset");
@@ -364,8 +364,8 @@ namespace Game.EditorTools
             string lakeDeep, string ground, string rock, string moon, string[] flora,
             float rootHz, bool minor)
         {
-            var p = LoadOrCreateAsset<World>(DataDir + "/Planets/Planet_" + name + ".asset");
-            SetPrivate(p, "_nameKey", "Planet/" + name);
+            var p = LoadOrCreateAsset<World>(DataDir + "/Worlds/World_" + name + ".asset");
+            SetPrivate(p, "_nameKey", "World/" + name);
             SetPrivate(p, "_skyTop", Hex(sky1));
             SetPrivate(p, "_skyBottom", Hex(sky2));
             SetPrivate(p, "_lake", Hex(lake));

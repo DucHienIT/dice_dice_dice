@@ -6,7 +6,7 @@ namespace Game.Data
     [CreateAssetMenu(menuName = "Game/Fortune", fileName = "Fortune")]
     public class Fortune : ScriptableObject
     {
-        [Tooltip("Localization term key — the text lives in CCQ_Localization.csv.")]
+        [Tooltip("Localization term key — the text lives in Localization.csv.")]
         [SerializeField] private string _nameKey;
         [SerializeField] private Sprite _icon;
         [SerializeField] private StatMod[] _mods;

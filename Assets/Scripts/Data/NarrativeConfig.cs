@@ -5,7 +5,7 @@ namespace Game.Data
     /// <summary>
     /// Localization term keys for all flavor text (TEXT in the spec), enemy/boss names
     /// and the glyph charset. The sentences themselves live in
-    /// Assets/Localization/CCQ_Localization.csv — this asset only decides which key
+    /// Assets/Localization/Localization.csv — this asset only decides which key
     /// belongs to which pool. Markup inside the translations: *emphasis*,
     /// &lt;b&gt;bold&lt;/b&gt;, tokens {e} {xp} {heal} {dmg} {s} {d} {r} {p} {lv}.
     /// </summary>

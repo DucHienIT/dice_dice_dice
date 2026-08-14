@@ -4,7 +4,7 @@ namespace Game.Localization
     /// Term keys referenced directly from code. Keys that live on a ScriptableObject
     /// (narrative pools, world/sidekick/upgrade/fortune names) are not listed here —
     /// the builder writes those onto the assets. Every key must exist in
-    /// Assets/Localization/CCQ_Localization.csv.
+    /// Assets/Localization/Localization.csv.
     /// </summary>
     public static class LocKeys
     {
@@ -19,7 +19,7 @@ namespace Game.Localization
         public const string EngageTraveling = "UI/Engage/Traveling";
         public const string EngageBattling = "UI/Engage/Battling";
         public const string EngageChoosing = "UI/Engage/Choosing";
-        public const string EngageNewRun = "UI/Engage/NewVoyage";
+        public const string EngageNewRun = "UI/Engage/NewRun";
 
         // ---- HUD ----
         public const string HudRound = "UI/Hud/Round";
@@ -30,7 +30,7 @@ namespace Game.Localization
             "UI/Hud/StatXp", "UI/Hud/StatHp", "UI/Hud/StatAtk", "UI/Hud/StatDef"
         };
 
-        public const string ConsoleCycle = "UI/Console/StarCycle";
+        public const string ConsoleCycle = "UI/Console/Cycle";
         public const string StageBossPrefix = "UI/Stage/BossPrefix";
 
         // ---- banners ----
@@ -38,7 +38,7 @@ namespace Game.Localization
         public const string BannerSmallFortune = "UI/Banner/SmallFortune";
         public const string BannerNewSidekick = "UI/Banner/NewSidekick";
         public const string BannerSidekickSwap = "UI/Banner/SidekickSwap";
-        public const string BannerWorldCleared = "UI/Banner/PlanetCleared";
+        public const string BannerWorldCleared = "UI/Banner/WorldCleared";
         public const string BannerSidekickJoins = "UI/Banner/SidekickJoins";
         public const string BannerWarpingTo = "UI/Banner/WarpingTo";
 
@@ -68,7 +68,7 @@ namespace Game.Localization
         // ---- bottom nav bar (index-aligned with NavBarView's buttons) ----
         public static readonly string[] NavTitles =
         {
-            "UI/Nav/Forge", "UI/Nav/Profile", "UI/Nav/Records", "UI/Nav/Settings"
+            "UI/Nav/Path", "UI/Nav/Profile", "UI/Nav/Records", "UI/Nav/Settings"
         };
 
         // ---- profile panel ----
@@ -95,14 +95,14 @@ namespace Game.Localization
         public const string MenuEntry = "UI/Menu/Entry";
 
         // ---- star metaPath skill tree (meta progression) ----
-        public const string MetaPathTitle = "UI/Forge/Title";
-        public const string MetaPathEntry = "UI/Forge/Entry";
-        public const string MetaPathIntro = "UI/Forge/Intro";
-        public const string MetaPathShards = "UI/Forge/Shards";
-        public const string MetaPathCost = "UI/Forge/Cost";
-        public const string MetaPathMaxed = "UI/Forge/Maxed";
-        public const string MetaPathLocked = "UI/Forge/Locked";
-        public const string MetaPathBack = "UI/Forge/Back";
+        public const string MetaPathTitle = "UI/Path/Title";
+        public const string MetaPathEntry = "UI/Path/Entry";
+        public const string MetaPathIntro = "UI/Path/Intro";
+        public const string MetaPathShards = "UI/Path/Shards";
+        public const string MetaPathCost = "UI/Path/Cost";
+        public const string MetaPathMaxed = "UI/Path/Maxed";
+        public const string MetaPathLocked = "UI/Path/Locked";
+        public const string MetaPathBack = "UI/Path/Back";
 
         // ---- death overlay ----
         public const string DeathTitle = "UI/Death/Title";
@@ -114,7 +114,7 @@ namespace Game.Localization
         public const string DeathSlainLine = "UI/Death/SlainLine";
         public const string DeathShards = "UI/Death/Shards";
         public const string DeathNewBest = "UI/Death/NewBest";
-        public const string DeathBestRun = "UI/Death/BestVoyage";
+        public const string DeathBestRun = "UI/Death/BestRun";
 
         /// <summary>"UI/Language/" + language code, e.g. UI/Language/vi.</summary>
         public const string LanguagePrefix = "UI/Language/";

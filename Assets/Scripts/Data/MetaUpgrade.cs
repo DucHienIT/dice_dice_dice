@@ -13,7 +13,7 @@ namespace Game.Data
     {
         [Tooltip("Stable save id — ranks are stored against it, so reordering is safe.")]
         [SerializeField] private string _id;
-        [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]
+        [Tooltip("Localization term keys — the text lives in Localization.csv.")]
         [SerializeField] private string _nameKey;
         [SerializeField] private string _descriptionKey;
         [Tooltip("Rune tiers from dullest to finest; the rune shown scales with the rank.")]

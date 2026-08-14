@@ -19,14 +19,15 @@ namespace Game.EditorTools
         private const string OutputRoot = "Builds/WebGL";
         private const string ReleaseDirectory = OutputRoot + "/Release";
         private const string DevelopmentDirectory = OutputRoot + "/Development";
-        private const string FallbackScenePath = "Assets/Scenes/CosmicCritterQuest.unity";
+        private const string FallbackScenePath = "Assets/Scenes/Main.unity";
 
-        private const string TemplateName = "CosmicCritterQuestPortrait";
+        private const string TemplateName = "PortraitGame";
         private const string TemplateDirectory = "Assets/WebGLTemplates/" + TemplateName;
 
         // Product name flows into the browser tab, the loading screen and — the reason it
         // must be settled before the first deploy — the WebGL save path.
-        private const string ProductName = "Cosmic Critter Quest";
+        private const string ProductName = "One Tap Immortal";
+        private const string CompanyName = "Imba";
         private const int PortraitWidth = 1080;
         private const int PortraitHeight = 1920;
 
@@ -67,14 +68,14 @@ namespace Game.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                EditorUtility.DisplayDialog("Cosmic Critter Quest",
+                EditorUtility.DisplayDialog(ProductName,
                     "Exit Play Mode before building.", "OK");
                 return;
             }
 
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
             {
-                EditorUtility.DisplayDialog("Cosmic Critter Quest",
+                EditorUtility.DisplayDialog(ProductName,
                     "WebGL Build Support is not installed for Unity " +
                     Application.unityVersion + ".\nAdd the module in Unity Hub, then retry.",
                     "OK");
@@ -147,6 +148,9 @@ namespace Game.EditorTools
                                  "lock its aspect ratio in the browser.");
             }
 
+            // companyName + productName derive the WebGL save path — both are owned here
+            // so a stray Player Settings edit can never orphan players' saves.
+            PlayerSettings.companyName = CompanyName;
             PlayerSettings.productName = ProductName;
             PlayerSettings.defaultWebScreenWidth = PortraitWidth;
             PlayerSettings.defaultWebScreenHeight = PortraitHeight;

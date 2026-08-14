@@ -16,7 +16,7 @@ namespace Game.EditorTools
     /// </summary>
     public static class LocalizationImporter
     {
-        public const string CsvPath = "Assets/Localization/CCQ_Localization.csv";
+        public const string CsvPath = "Assets/Localization/Localization.csv";
         private const string SourcePath = "Assets/Resources/I2Languages.asset";
         private const char Separator = ',';
 

@@ -6,7 +6,7 @@ namespace Game.Data
     [CreateAssetMenu(menuName = "Game/Upgrade Card", fileName = "UpgradeCard")]
     public class UpgradeCard : ScriptableObject
     {
-        [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]
+        [Tooltip("Localization term keys — the text lives in Localization.csv.")]
         [SerializeField] private string _nameKey;
         [SerializeField] private string _descriptionKey;
         [SerializeField] private Sprite _icon;
