@@ -357,6 +357,11 @@ namespace Game.EditorTools
             SetPrivate(narrative, "_treasureKeys", Keys("Narrative/Treasure/", 2));
             SetPrivate(narrative, "_worldClearKeys", Keys("Narrative/WorldClear/", 1));
             SetPrivate(narrative, "_levelUpSuffixKey", "Narrative/LevelUpSuffix");
+            SetPrivate(narrative, "_realmNameKeys", new[]
+            {
+                "Realm/QiRefining", "Realm/Foundation", "Realm/GoldenCore",
+                "Realm/NascentSoul", "Realm/SpiritTransformation", "Realm/Tribulation"
+            });
             SetPrivate(narrative, "_introNewRunKey", "Narrative/IntroNewRun");
             SetPrivate(narrative, "_introResumeKey", "Narrative/IntroResume");
             SetPrivate(narrative, "_deathKey", "Narrative/Death");

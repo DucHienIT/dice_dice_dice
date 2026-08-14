@@ -504,7 +504,8 @@ namespace Game.Core
             if (ups > 0)
             {
                 levelUp = LocLine.Of(_narrative.LevelUpSuffixKey)
-                    .With("{lv}", NumberStrings.Get(_run.Player.Level));
+                    .With("{lv}", NumberStrings.Get(_run.Player.Level))
+                    .With("{realm}", Loc.Get(_narrative.RealmKey(_run.Player.Level)));
                 CelebrateLevelUp();
             }
             _run.Player.HealPct(_config.RegenPct);
@@ -637,7 +638,8 @@ namespace Game.Core
             PlayerState p = _run.Player;
             _openOverlay = OverlayKind.Profile;
             _sb.Clear();
-            _sb.Append(Loc.Format(LocKeys.ProfileLevel, p.Level, p.Xp, _config.XpNeed(p.Level)))
+            _sb.Append(Loc.Format(LocKeys.ProfileLevel, p.Level, p.Xp, _config.XpNeed(p.Level),
+                    Loc.Get(_narrative.RealmKey(p.Level))))
                 .Append('\n');
             _sb.Append(Loc.Format(LocKeys.ProfileVitals, p.Hp, p.MaxHp, p.Atk, p.Def))
                 .Append('\n');

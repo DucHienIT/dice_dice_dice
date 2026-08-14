@@ -71,7 +71,8 @@ namespace Game.Events
             if (ups > 0)
             {
                 outcome.Suffix = LocLine.Of(_narrative.LevelUpSuffixKey)
-                    .With("{lv}", NumberStrings.Get(run.Player.Level));
+                    .With("{lv}", NumberStrings.Get(run.Player.Level))
+                    .With("{realm}", Loc.Get(_narrative.RealmKey(run.Player.Level)));
             }
             return outcome;
         }

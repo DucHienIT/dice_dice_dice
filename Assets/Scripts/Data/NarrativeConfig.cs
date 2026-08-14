@@ -25,6 +25,8 @@ namespace Game.Data
         [SerializeField] private string[] _treasureKeys;
         [SerializeField] private string[] _worldClearKeys;
         [SerializeField] private string _levelUpSuffixKey;
+        [Tooltip("Cultivation realm names, one per bracket of 10 hero levels, low to high.")]
+        [SerializeField] private string[] _realmNameKeys;
         [SerializeField] private string _introNewRunKey;
         [SerializeField] private string _introResumeKey;
         [SerializeField] private string _deathKey;
@@ -45,6 +47,14 @@ namespace Game.Data
         public string[] TreasureKeys => _treasureKeys;
         public string[] WorldClearKeys => _worldClearKeys;
         public string LevelUpSuffixKey => _levelUpSuffixKey;
+        public string[] RealmNameKeys => _realmNameKeys;
+
+        /// <summary>Realm name key for a hero level — one realm per 10 levels, clamped at the top.</summary>
+        public string RealmKey(int level)
+        {
+            int i = Mathf.Clamp((level - 1) / 10, 0, _realmNameKeys.Length - 1);
+            return _realmNameKeys[i];
+        }
         public string IntroNewRunKey => _introNewRunKey;
         public string IntroResumeKey => _introResumeKey;
         public string DeathKey => _deathKey;
