@@ -238,6 +238,20 @@ namespace Game.EditorTools
             }
         }
 
+        /// <summary>Line whose thickness interpolates from one end to the other — bamboo
+        /// stalks, sword glints and calligraphic strokes need the taper.</summary>
+        public void TaperedLine(Vector2 from, Vector2 to, float w0, float w1, Color color)
+        {
+            float len = Vector2.Distance(from, to);
+            int steps = Mathf.Max(2, Mathf.CeilToInt(len));
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = i / (float)steps;
+                Vector2 p = Vector2.Lerp(from, to, t);
+                FillCircle(p.x, p.y, Mathf.Lerp(w0, w1, t) * 0.5f, color);
+            }
+        }
+
         private void Blend(int index, Color32 src)
         {
             if (src.a == 255) { _px[index] = src; return; }

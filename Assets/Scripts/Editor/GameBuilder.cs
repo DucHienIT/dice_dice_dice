@@ -239,27 +239,29 @@ namespace Game.EditorTools
 
         private static Content BuildConfigs()
         {
-            // ---- worlds ----
+            // ---- worlds (realms) ----
+            // Palettes follow the theme doc: jade/ivory base, vermillion + gold-black accents,
+            // one realm per elemental mood. Music roots sit on the G pentatonic (G A B D E).
             var worlds = new World[5];
-            worlds[0] = MakeWorld("AzureCloud", "#2b1b5e", "#123a6b", "#1fa8a0", "#0f7c86",
-                "#1b6d68", "#274b7a", "#ffd98a", new[] { "#ff5fae", "#c95fff", "#37e0b8" }, 110f, false);
-            worlds[1] = MakeWorld("Emberfall", "#4a1035", "#7a2410", "#e86a28", "#a83c0f",
-                "#6b2a14", "#5c2020", "#ffe9c9", new[] { "#ffd35c", "#ff7a3d", "#ff4a6b" }, 98f, true);
-            worlds[2] = MakeWorld("Frostmoon", "#101a4a", "#1f5a8f", "#6fd8ff", "#2e9ad4",
-                "#3a6ea8", "#2a4a8a", "#eaf6ff", new[] { "#aef2ff", "#7a9bff", "#e2c9ff" }, 123.47f, false);
-            worlds[3] = MakeWorld("Gloomfen", "#1c0f3a", "#3a1a5e", "#8a4ad4", "#5c24a0",
-                "#4a2a7a", "#38205e", "#d3ffb8", new[] { "#5cff8f", "#c9ff5c", "#ff9bdd" }, 87.31f, true);
-            worlds[4] = MakeWorld("HollowDeep", "#05030f", "#1a0a2e", "#e83d8f", "#8f1458",
-                "#2a0f35", "#1c0f2e", "#ff9bce", new[] { "#ff2e7a", "#8f2eff", "#2effd8" }, 73.42f, true);
+            worlds[0] = MakeWorld("AzureCloud", "#0e2e3a", "#1d5c55", "#35c9a3", "#1d8a74",
+                "#2a6b52", "#3a5c6b", "#f5ead6", new[] { "#7ef0c0", "#5cb8ff", "#f5ead6" }, 146.83f, false);
+            worlds[1] = MakeWorld("Emberfall", "#3a0f12", "#7a2410", "#e86a28", "#a83c0f",
+                "#5c2a14", "#4a2020", "#ffd9a0", new[] { "#ffd35c", "#ff7a3d", "#e8506b" }, 110f, true);
+            worlds[2] = MakeWorld("Frostmoon", "#10204a", "#2e5a8f", "#9fdcff", "#4a9ad4",
+                "#4a6ea8", "#3a4a7a", "#eaf6ff", new[] { "#cfeaff", "#9bb8ff", "#e8d8ff" }, 164.81f, false);
+            worlds[3] = MakeWorld("Gloomfen", "#1c0f2e", "#3a1f4a", "#8a5cd4", "#5c2a90",
+                "#3a2a52", "#2e2244", "#d3ffc9", new[] { "#7aff9b", "#c9ff5c", "#c78aff" }, 123.47f, true);
+            worlds[4] = MakeWorld("HollowDeep", "#0a0a0f", "#1c1428", "#d4a53d", "#8a6420",
+                "#241c30", "#1a1424", "#f0e0b0", new[] { "#ffd35c", "#c04a3a", "#8f5cff" }, 98f, true);
 
             // ---- sidekicks ----
             var sidekicks = new Sidekick[4];
             sidekicks[0] = MakeSidekick("blob", "FlyingSword",
-                PictoIcons + "Pictoicon_Fist.Png", "#6ee7ff", SidekickType.Damage, 0.15f);
+                PictoIcons + "Pictoicon_Fist.Png", "#9be8d8", SidekickType.Damage, 0.15f);
             sidekicks[1] = MakeSidekick("medic", "Lingzhi",
                 PictoIcons + "Pictoicon_Mushroom.Png", "#8bf07a", SidekickType.Heal, 0.02f);
             sidekicks[2] = MakeSidekick("shield", "ShellWard",
-                PictoIcons + "Pictoicon_Magic_Ball.Png", "#c79bff", SidekickType.Block, 0.12f);
+                PictoIcons + "Pictoicon_Magic_Ball.Png", "#d4b86b", SidekickType.Block, 0.12f);
             sidekicks[3] = MakeSidekick("spark", "ThunderPearl",
                 PictoIcons + "Pictoicon_Thunder.Png", "#ffd35c", SidekickType.Crit, 0.06f);
 
@@ -345,8 +347,8 @@ namespace Game.EditorTools
             SetPrivate(config, "_worlds", worlds);
             SetPrivate(config, "_enemyColors", new[]
             {
-                Hex("#ff6b8f"), Hex("#ffa53d"), Hex("#8f6bff"), Hex("#4ad48f"),
-                Hex("#ff5c5c"), Hex("#5cb8ff"), Hex("#e8d43d")
+                Hex("#e8b84f"), Hex("#c04a3a"), Hex("#5cb8a0"), Hex("#8f6bff"),
+                Hex("#d45c8a"), Hex("#4a90d4"), Hex("#9bd45c")
             });
 
             return new Content { Config = config, Narrative = narrative };
