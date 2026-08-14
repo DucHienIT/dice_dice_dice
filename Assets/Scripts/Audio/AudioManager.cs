@@ -78,7 +78,7 @@ namespace Game.Audio
         {
             if (!_padCache.TryGetValue(world, out AudioClip pad))
             {
-                pad = SfxSynth.PadLoop(world.MusicRootHz, world.MinorMood);
+                pad = SfxSynth.PadLoop(world.MusicRootHz, world.MinorMood, world.MelodyDegrees);
                 _padCache.Add(world, pad);
             }
             _musicSource.clip = pad;

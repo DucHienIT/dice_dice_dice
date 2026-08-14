@@ -24,6 +24,8 @@ namespace Game.Data
         [Header("Music")]
         [SerializeField] private float _musicRootHz = 110f;
         [SerializeField] private bool _minorMood;
+        [Tooltip("Pentatonic degrees for the ambient melody, one per loop slot; -1 = rest.")]
+        [SerializeField] private int[] _melodyDegrees;
 
         public string DisplayName => Loc.Get(_nameKey);
         public Color SkyTop => _skyTop;
@@ -38,5 +40,6 @@ namespace Game.Data
         public Sprite GroundLayer => _groundLayer;
         public float MusicRootHz => _musicRootHz;
         public bool MinorMood => _minorMood;
+        public int[] MelodyDegrees => _melodyDegrees;
     }
 }

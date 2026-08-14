@@ -265,15 +265,20 @@ namespace Game.EditorTools
             // one realm per elemental mood. Music roots sit on the G pentatonic (G A B D E).
             var worlds = new World[5];
             worlds[0] = MakeWorld("AzureCloud", "#0e2e3a", "#1d5c55", "#35c9a3", "#1d8a74",
-                "#2a6b52", "#3a5c6b", "#f5ead6", new[] { "#7ef0c0", "#5cb8ff", "#f5ead6" }, 146.83f, false);
+                "#2a6b52", "#3a5c6b", "#f5ead6", new[] { "#7ef0c0", "#5cb8ff", "#f5ead6" }, 146.83f, false,
+                new[] { 0, 2, 4, 7, 4, 2, 1, 2 });
             worlds[1] = MakeWorld("Emberfall", "#3a0f12", "#7a2410", "#e86a28", "#a83c0f",
-                "#5c2a14", "#4a2020", "#ffd9a0", new[] { "#ffd35c", "#ff7a3d", "#e8506b" }, 110f, true);
+                "#5c2a14", "#4a2020", "#ffd9a0", new[] { "#ffd35c", "#ff7a3d", "#e8506b" }, 110f, true,
+                new[] { 4, 2, 0, 2, 4, 5, 4, -1 });
             worlds[2] = MakeWorld("Frostmoon", "#10204a", "#2e5a8f", "#9fdcff", "#4a9ad4",
-                "#4a6ea8", "#3a4a7a", "#eaf6ff", new[] { "#cfeaff", "#9bb8ff", "#e8d8ff" }, 164.81f, false);
+                "#4a6ea8", "#3a4a7a", "#eaf6ff", new[] { "#cfeaff", "#9bb8ff", "#e8d8ff" }, 164.81f, false,
+                new[] { 0, 4, 7, 9, 7, 4, 2, -1 });
             worlds[3] = MakeWorld("Gloomfen", "#1c0f2e", "#3a1f4a", "#8a5cd4", "#5c2a90",
-                "#3a2a52", "#2e2244", "#d3ffc9", new[] { "#7aff9b", "#c9ff5c", "#c78aff" }, 123.47f, true);
+                "#3a2a52", "#2e2244", "#d3ffc9", new[] { "#7aff9b", "#c9ff5c", "#c78aff" }, 123.47f, true,
+                new[] { 2, 1, 0, -1, 2, 1, 0, -1 });
             worlds[4] = MakeWorld("HollowDeep", "#0a0a0f", "#1c1428", "#d4a53d", "#8a6420",
-                "#241c30", "#1a1424", "#f0e0b0", new[] { "#ffd35c", "#c04a3a", "#8f5cff" }, 98f, true);
+                "#241c30", "#1a1424", "#f0e0b0", new[] { "#ffd35c", "#c04a3a", "#8f5cff" }, 98f, true,
+                new[] { 0, -1, 1, 0, -1, 4, 2, -1 });
 
             // ---- sidekicks ----
             var sidekicks = new Sidekick[4];
@@ -385,7 +390,7 @@ namespace Game.EditorTools
 
         private static World MakeWorld(string name, string sky1, string sky2, string lake,
             string lakeDeep, string ground, string rock, string moon, string[] flora,
-            float rootHz, bool minor)
+            float rootHz, bool minor, int[] melodyDegrees)
         {
             var p = LoadOrCreateAsset<World>(DataDir + "/Worlds/World_" + name + ".asset");
             SetPrivate(p, "_nameKey", "World/" + name);
@@ -401,6 +406,7 @@ namespace Game.EditorTools
             SetPrivate(p, "_flora", floraColors);
             SetPrivate(p, "_musicRootHz", rootHz);
             SetPrivate(p, "_minorMood", minor);
+            SetPrivate(p, "_melodyDegrees", melodyDegrees);
             return p;
         }
 
