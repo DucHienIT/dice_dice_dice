@@ -4,13 +4,14 @@ using UnityEngine;
 namespace Game.Worlds
 {
     /// <summary>
-    /// Two-layer side-scrolling backdrop. The distant sky is baked per world
-    /// and drifts with subtle parallax; the ground strip (ground, rocks, lake, flora) is baked to tile seamlessly
+    /// Two-layer side-scrolling backdrop. The distant sky is repeated as a wide, mirrored
+    /// three-tile belt; the ground strip (ground, rocks, lake, flora) is baked to tile seamlessly
     /// and is drawn twice side by side, scrolling left while the hero walks forward. Nothing is
     /// painted at runtime — both sprites live on the World asset.
     /// </summary>
     public class WorldBackgroundRenderer : MonoBehaviour
     {
+        private const int SkyCopyCount = 3;
         private const float AuthoredBackdropOffsetY = 1.6f;
         [SerializeField] private SpriteRenderer _sky;
         [Tooltip("Two copies of the same strip, leap-frogging each other as it scrolls.")]
@@ -22,30 +23,43 @@ namespace Game.Worlds
         [SerializeField] private float _worldHeight = 12f;
         [SerializeField] private float _bottomWorldY = -2.4f;
         [SerializeField] private float _horizonWorldY = 3f;
+        [SerializeField] private float _authoredSkyParallax = 0.22f;
+        [SerializeField] private float _proceduralSkyParallax = 0.12f;
 
         private float[] _twinklePhases;
+        private SpriteRenderer[] _skyCopies;
         private float _scrollX;
         private float _skyScrollX;
+        private float _skyTileWidth;
         private bool _authoredBackdrop;
         private Vector3 _skyBasePosition;
 
-        private void Awake()
+private void Awake()
         {
             _twinklePhases = new float[_twinkles.Length];
+            EnsureSkyCopies();
         }
 
-        public void Build(int worldIndex, World def)
+public void Build(int worldIndex, World def)
         {
+            EnsureSkyCopies();
             _authoredBackdrop = def.AuthoredBackdrop;
-            _sky.sprite = def.SkyLayer;
             float skyY = _authoredBackdrop
                 ? _bottomWorldY + AuthoredBackdropOffsetY
                 : _bottomWorldY;
             _skyBasePosition = new Vector3(0f, skyY, 0f);
-            _sky.transform.position = _skyBasePosition;
-            _sky.transform.localScale = _authoredBackdrop
-                ? new Vector3(1.08f, 1f, 1f)
+            Vector3 skyScale = _authoredBackdrop
+                ? new Vector3(1.16f, 1f, 1f)
                 : Vector3.one;
+            for (int i = 0; i < _skyCopies.Length; i++)
+            {
+                _skyCopies[i].sprite = def.SkyLayer;
+                _skyCopies[i].transform.localScale = skyScale;
+                _skyCopies[i].gameObject.SetActive(true);
+            }
+            _skyTileWidth = def.SkyLayer != null
+                ? Mathf.Max(0.01f, def.SkyLayer.bounds.size.x * skyScale.x)
+                : _worldWidth;
 
             bool showAtmosphericFx = !_authoredBackdrop;
             var glow = new Color(def.Lake.r, def.Lake.g, def.Lake.b, 0.18f);
@@ -58,6 +72,7 @@ namespace Game.Worlds
             }
             _scrollX = 0f;
             _skyScrollX = 0f;
+            PlaceSky();
             PlaceGround();
 
             var rng = new System.Random(worldIndex * 1337 + 7);
@@ -73,15 +88,15 @@ namespace Game.Worlds
         }
 
         /// <summary>Advances the ground by <paramref name="worldDelta"/> units to the left.</summary>
-        public void Scroll(float worldDelta)
+public void Scroll(float worldDelta)
         {
-            // Nearby road landmarks move at full speed; distant mountains drift slowly.
+            // Nearby landmarks move at full speed; the wide mountain belt drifts left and
+            // only wraps after one whole tile has left the camera.
             _scrollX += worldDelta;
-            _skyScrollX += worldDelta;
-            float parallaxRate = _authoredBackdrop ? 0.07f : 0.035f;
-            float parallaxRange = _authoredBackdrop ? 0.32f : 0.18f;
-            float skyOffset = Mathf.PingPong(_skyScrollX * parallaxRate, parallaxRange);
-            _sky.transform.position = _skyBasePosition + Vector3.left * skyOffset;
+            _skyScrollX += worldDelta * (_authoredBackdrop
+                ? _authoredSkyParallax
+                : _proceduralSkyParallax);
+            PlaceSky();
             PlaceGround();
         }
 
@@ -112,5 +127,35 @@ namespace Game.Worlds
                     new Vector3(off + i * _worldWidth, _bottomWorldY, 0f);
             }
         }
-    }
+    
+
+private void EnsureSkyCopies()
+        {
+            if (_skyCopies != null && _skyCopies.Length == SkyCopyCount) return;
+
+            _skyCopies = new SpriteRenderer[SkyCopyCount];
+            _skyCopies[0] = _sky;
+            for (int i = 1; i < _skyCopies.Length; i++)
+            {
+                SpriteRenderer copy = Instantiate(_sky, _sky.transform.parent, true);
+                copy.name = "Sky Loop " + i;
+                _skyCopies[i] = copy;
+            }
+        }
+
+        private void PlaceSky()
+        {
+            if (_skyCopies == null || _skyTileWidth <= 0f) return;
+
+            float wrapped = Mathf.Repeat(_skyScrollX, _skyTileWidth);
+            int firstTile = Mathf.FloorToInt(_skyScrollX / _skyTileWidth);
+            for (int i = 0; i < _skyCopies.Length; i++)
+            {
+                int tileIndex = firstTile + i;
+                _skyCopies[i].flipX = _authoredBackdrop && (tileIndex & 1) != 0;
+                _skyCopies[i].transform.position = _skyBasePosition +
+                    Vector3.right * (-wrapped + i * _skyTileWidth);
+            }
+        }
+}
 }
