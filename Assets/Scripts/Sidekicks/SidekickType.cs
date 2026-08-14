@@ -1,4 +1,4 @@
-namespace CCQ.Sidekicks
+namespace Game.Sidekicks
 {
     public enum SidekickType
     {

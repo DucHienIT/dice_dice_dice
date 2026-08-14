@@ -1,10 +1,10 @@
-using CCQ.Localization;
-using CCQ.Sidekicks;
+using Game.Localization;
+using Game.Sidekicks;
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
-    [CreateAssetMenu(menuName = "CCQ/Sidekick", fileName = "Sidekick")]
+    [CreateAssetMenu(menuName = "Game/Sidekick", fileName = "Sidekick")]
     public class Sidekick : ScriptableObject
     {
         [SerializeField] private string _id;
@@ -12,7 +12,7 @@ namespace CCQ.Data
         [SerializeField] private string _nameKey;
         [SerializeField] private string _descriptionKey;
         [SerializeField] private Sprite _icon;
-        [Tooltip("Battle orb baked from the color below by Tools > CCQ > Build Game (Full).")]
+        [Tooltip("Battle orb baked from the color below by Tools > Game > Build Game (Full).")]
         [SerializeField] private Sprite _orbSprite;
         [SerializeField] private Color _color = Color.white;
         [SerializeField] private SidekickType _type;

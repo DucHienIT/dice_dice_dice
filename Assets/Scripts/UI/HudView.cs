@@ -1,14 +1,14 @@
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Localization;
+using Game.Core;
+using Game.Data;
+using Game.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
-    /// Frequently-changing HUD: round/hits/planet over the battle viewport plus the
+    /// Frequently-changing HUD: round/hits/world over the battle viewport plus the
     /// stats bar (Lv/XP, HP, ATK, DEF). Lives on its own Canvas; every setter is
     /// change-guarded so battle beats never trigger a rebuild without need.
     /// </summary>
@@ -17,7 +17,7 @@ namespace CCQ.UI
         [SerializeField] private GameConfig _config;
         [SerializeField] private TextMeshProUGUI _roundLabel;
         [SerializeField] private TextMeshProUGUI _hitsLabel;
-        [SerializeField] private TextMeshProUGUI _planetLabel;
+        [SerializeField] private TextMeshProUGUI _worldLabel;
         [SerializeField] private TextMeshProUGUI _speedLabel;
         [SerializeField] private Button _speedButton;
         [SerializeField] private Button _gearButton;
@@ -77,9 +77,9 @@ namespace CCQ.UI
             _hitsLabel.SetText("{0}", hits);
         }
 
-        public void SetPlanet(string name)
+        public void SetWorld(string name)
         {
-            _planetLabel.text = name;
+            _worldLabel.text = name;
         }
 
         public void SetSpeed(int mult)

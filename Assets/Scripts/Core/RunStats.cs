@@ -1,4 +1,4 @@
-namespace CCQ.Core
+namespace Game.Core
 {
     /// <summary>Per-run tallies surfaced on the death screen.</summary>
     public class RunStats

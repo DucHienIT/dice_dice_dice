@@ -1,8 +1,8 @@
-using CCQ.Localization;
+using Game.Localization;
 using TMPro;
 using UnityEngine;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// Swaps every text in the game over to a diacritic-capable font for languages the

@@ -1,7 +1,7 @@
-using CCQ.Core;
-using CCQ.Data;
+using Game.Core;
+using Game.Data;
 
-namespace CCQ.Sidekicks
+namespace Game.Sidekicks
 {
     /// <summary>Aggregates passive sidekick bonuses. No LINQ — battle-beat safe.</summary>
     public static class SidekickRoster

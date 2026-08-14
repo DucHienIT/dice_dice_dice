@@ -1,12 +1,12 @@
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Localization;
-using CCQ.Progression;
-using CCQ.Sidekicks;
-using CCQ.Utils;
+using Game.Core;
+using Game.Data;
+using Game.Localization;
+using Game.Progression;
+using Game.Sidekicks;
+using Game.Utils;
 using UnityEngine;
 
-namespace CCQ.Events
+namespace Game.Events
 {
     /// <summary>
     /// Resolves every non-battle event into an EventOutcome. Pure logic:
@@ -77,7 +77,7 @@ namespace CCQ.Events
         }
 
         /// <summary>
-        /// Sidekick event. If the pod has room the critter joins immediately; when full,
+        /// Sidekick event. If the pod has room the enemy joins immediately; when full,
         /// the outcome carries PendingSidekick — per the spec, adopting a 4th always
         /// means choosing one to release (or declining for a snack).
         /// </summary>

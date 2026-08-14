@@ -1,13 +1,13 @@
-using CCQ.Core;
-using CCQ.Data;
+using Game.Core;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Progression
+namespace Game.Progression
 {
     /// <summary>
-    /// Progress that outlives a run: star shards earned per voyage and the Star Forge ranks
+    /// Progress that outlives a run: star shards earned per run and the Star MetaPath ranks
     /// bought with them. Ranks are re-applied to every new hero, so a lost run still moves
-    /// the player forward. Pure logic — persisted by SaveSystem under ccq_meta.
+    /// the player forward. Pure logic — persisted by SaveSystem under meta.
     /// </summary>
     public class MetaState
     {
@@ -71,7 +71,7 @@ namespace CCQ.Progression
             return true;
         }
 
-        /// <summary>Drives the nav bar's Forge badge: is anything buyable right now?</summary>
+        /// <summary>Drives the nav bar's MetaPath badge: is anything buyable right now?</summary>
         public bool HasAffordableStep(GameConfig config)
         {
             for (int i = 0; i < Ranks.Length && i < config.MetaUpgrades.Length; i++)
@@ -96,14 +96,14 @@ namespace CCQ.Progression
             player.Hp = player.MaxHp;
         }
 
-        /// <summary>Shards cashed out when a voyage ends — depth plus elite/boss kills.</summary>
+        /// <summary>Shards cashed out when a run ends — depth plus elite/boss kills.</summary>
         public static int ShardsForRun(GameConfig config, RunState run) =>
             Mathf.FloorToInt(run.Score(config) * config.ShardsPerRound) +
             run.Stats.ElitesSlain * config.ShardsPerElite +
             run.Stats.BossesSlain * config.ShardsPerBoss;
 
-        /// <summary>Immediate reward for clearing a planet, scaled by its 1-based number.</summary>
-        public static int ShardsForPlanetClear(GameConfig config, int planetNumber) =>
-            config.ShardsPerPlanetClear * Mathf.Max(1, planetNumber);
+        /// <summary>Immediate reward for clearing a world, scaled by its 1-based number.</summary>
+        public static int ShardsForWorldClear(GameConfig config, int worldNumber) =>
+            config.ShardsPerWorldClear * Mathf.Max(1, worldNumber);
     }
 }

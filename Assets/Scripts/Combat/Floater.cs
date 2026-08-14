@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>One pooled damage/heal/notice text. State is driven by FloaterManager.</summary>
     public class Floater : MonoBehaviour

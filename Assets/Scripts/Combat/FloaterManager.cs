@@ -1,7 +1,7 @@
-using CCQ.Data;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
     /// Pooled damage/heal floaters, prewarmed in the scene, ticked centrally.

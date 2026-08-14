@@ -4,10 +4,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>Shared helpers for the one-shot game builder. Editor-only.</summary>
-    public static class CcqBuilderUtil
+    public static class BuilderUtil
     {
         public static void SetPrivate(object target, string fieldName, object value)
         {

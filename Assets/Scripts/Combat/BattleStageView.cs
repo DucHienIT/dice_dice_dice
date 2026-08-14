@@ -1,15 +1,15 @@
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Enemies;
-using CCQ.Localization;
-using CCQ.Sidekicks;
+using Game.Core;
+using Game.Data;
+using Game.Enemies;
+using Game.Localization;
+using Game.Sidekicks;
 using TMPro;
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
-    /// Presentation conductor for the battle stage: hero/critter positions, lunge and
+    /// Presentation conductor for the battle stage: hero/enemy positions, lunge and
     /// hit-flash windows, HP bars, name label, sidekick orbs. Reads engine state,
     /// never mutates logic. Ticked by GameManager.
     /// </summary>
@@ -17,7 +17,7 @@ namespace CCQ.Combat
     {
         [SerializeField] private GameConfig _config;
         [SerializeField] private HeroView _hero;
-        [SerializeField] private CritterView _critter;
+        [SerializeField] private EnemyView _enemyView;
         [SerializeField] private HpBarView _heroBar;
         [SerializeField] private HpBarView _enemyBar;
         [SerializeField] private TextMeshPro _enemyName;
@@ -55,8 +55,8 @@ namespace CCQ.Combat
         public void ShowEnemy(EnemyState enemy)
         {
             _enemy = enemy;
-            _critter.gameObject.SetActive(true);
-            _critter.Init(enemy);
+            _enemyView.gameObject.SetActive(true);
+            _enemyView.Init(enemy);
             _spawnT = 0f;
             _dissolveT = -1f;
             _enterT = 0f; // slides in from off-screen right, as if the hero walked up to it
@@ -81,7 +81,7 @@ namespace CCQ.Combat
         public void HideEnemy()
         {
             _enemy = null;
-            _critter.gameObject.SetActive(false);
+            _enemyView.gameObject.SetActive(false);
             _enemyBar.SetVisible(false);
             _enemyName.gameObject.SetActive(false);
         }
@@ -138,7 +138,7 @@ namespace CCQ.Combat
             _hero.SetSwing(heroAttacking ? animT : 0f);
             _hero.SetFlash(enemyAttacking && inFlashWindow);
 
-            // critter
+            // enemy
             if (_enemy != null)
             {
                 float scaleMul = 1f;
@@ -150,12 +150,12 @@ namespace CCQ.Combat
                 if (_dissolveT >= 0f)
                 {
                     _dissolveT = Mathf.Min(1f, _dissolveT + scaledDt / Mathf.Max(0.05f, _config.WinDelay));
-                    _critter.SetDissolve(_dissolveT);
+                    _enemyView.SetDissolve(_dissolveT);
                 }
                 else
                 {
                     float squish = 1f + Mathf.Sin(time * 5f) * 0.03f;
-                    _critter.SetSquish(scaleMul * squish, scaleMul / squish);
+                    _enemyView.SetSquish(scaleMul * squish, scaleMul / squish);
                 }
 
                 // entrance: slide in from off-screen right, name and HP bar riding along
@@ -173,16 +173,16 @@ namespace CCQ.Combat
                 }
 
                 float eLunge = enemyAttacking ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance : 0f;
-                _critter.transform.position = new Vector3(
+                _enemyView.transform.position = new Vector3(
                     _enemyX - eLunge + enter,
                     _baseY + Mathf.Sin(time * 2.6f + 1f) * _config.BobAmplitude,
                     0f);
-                _critter.SetFlash(heroAttacking && inFlashWindow && _enemy.Hp > 0);
+                _enemyView.SetFlash(heroAttacking && inFlashWindow && _enemy.Hp > 0);
 
                 if (engine.IsRunning && engine.IsEnraged)
                 {
                     float pulse = 0.5f + 0.5f * Mathf.Sin(time * 7f);
-                    _critter.SetBodyTint(Color.Lerp(Color.white, EnrageTint, pulse));
+                    _enemyView.SetBodyTint(Color.Lerp(Color.white, EnrageTint, pulse));
                 }
 
                 if (_enemy.Hp > 0)

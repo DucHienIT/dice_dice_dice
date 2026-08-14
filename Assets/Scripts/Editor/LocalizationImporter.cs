@@ -5,28 +5,28 @@ using I2.Loc;
 using UnityEditor;
 using UnityEngine;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>
     /// The CSV at <see cref="CsvPath"/> is the single source of truth for every player-facing
     /// string; Assets/Resources/I2Languages.asset is a generated cache of it. Import rewrites
     /// the asset from the CSV (Replace mode — terms deleted in the CSV disappear), Export
     /// dumps the asset back out for when someone edits terms in the I2 window instead.
-    /// Import also runs as the first step of Tools ▸ CCQ ▸ Build Game (Full).
+    /// Import also runs as the first step of Tools ▸ Game ▸ Build Game (Full).
     /// </summary>
-    public static class CcqLocalizationImporter
+    public static class LocalizationImporter
     {
         public const string CsvPath = "Assets/Localization/CCQ_Localization.csv";
         private const string SourcePath = "Assets/Resources/I2Languages.asset";
         private const char Separator = ',';
 
-        [MenuItem("Tools/CCQ/Localization/Import CSV %#l")]
+        [MenuItem("Tools/Game/Localization/Import CSV %#l")]
         public static void ImportMenu()
         {
             if (Import()) AssetDatabase.Refresh();
         }
 
-        [MenuItem("Tools/CCQ/Localization/Export CSV")]
+        [MenuItem("Tools/Game/Localization/Export CSV")]
         public static void ExportMenu()
         {
             LanguageSourceAsset source = LoadSource();

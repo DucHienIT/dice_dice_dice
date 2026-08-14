@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using CCQ.Data;
-using CCQ.Save;
+using Game.Data;
+using Game.Save;
 using UnityEngine;
 
-namespace CCQ.Audio
+namespace Game.Audio
 {
     /// <summary>
     /// Central audio hub. All clips synthesized once in Awake; SFX play round-robin on
-    /// pre-placed sources (scene-authored, no AddComponent). Music = per-planet ambient pad.
+    /// pre-placed sources (scene-authored, no AddComponent). Music = per-world ambient pad.
     /// </summary>
     public class AudioManager : MonoBehaviour
     {
@@ -30,7 +30,7 @@ namespace CCQ.Audio
         private AudioClip _death;
         private AudioClip _warp;
 
-        private readonly Dictionary<Planet, AudioClip> _padCache = new Dictionary<Planet, AudioClip>(8);
+        private readonly Dictionary<World, AudioClip> _padCache = new Dictionary<World, AudioClip>(8);
         private int _nextSource;
         private bool _sfxOn;
         private bool _musicOn;
@@ -74,12 +74,12 @@ namespace CCQ.Audio
             SaveSystem.SfxOn = on;
         }
 
-        public void PlayPlanetMusic(Planet planet)
+        public void PlayWorldMusic(World world)
         {
-            if (!_padCache.TryGetValue(planet, out AudioClip pad))
+            if (!_padCache.TryGetValue(world, out AudioClip pad))
             {
-                pad = SfxSynth.PadLoop(planet.MusicRootHz, planet.MinorMood);
-                _padCache.Add(planet, pad);
+                pad = SfxSynth.PadLoop(world.MusicRootHz, world.MinorMood);
+                _padCache.Add(world, pad);
             }
             _musicSource.clip = pad;
             if (_musicOn) _musicSource.Play();

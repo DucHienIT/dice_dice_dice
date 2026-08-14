@@ -1,7 +1,7 @@
-using CCQ.Data;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Sidekicks
+namespace Game.Sidekicks
 {
     /// <summary>
     /// Floating orb behind the hero for one owned sidekick. The orb sprite is baked at build

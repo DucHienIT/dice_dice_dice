@@ -1,6 +1,6 @@
 using System;
 
-namespace CCQ.Data
+namespace Game.Data
 {
     public enum StatModType
     {

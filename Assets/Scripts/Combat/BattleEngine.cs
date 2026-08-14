@@ -1,11 +1,11 @@
 using System;
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Enemies;
-using CCQ.Sidekicks;
+using Game.Core;
+using Game.Data;
+using Game.Enemies;
+using Game.Sidekicks;
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
     /// Beat-based auto-battle per the spec: hero first, alternating turns on BEAT_MS,

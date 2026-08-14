@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>Slide-in reward banner (fortune / upgrade / sidekick). Self-timed via Tick.</summary>
     public class FortuneBanner : MonoBehaviour

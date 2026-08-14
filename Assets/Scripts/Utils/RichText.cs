@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace CCQ.Utils
+namespace Game.Utils
 {
     /// <summary>
     /// Converts spec/demo narrative markup (*emphasis*, &lt;b&gt;, {token}) into TMP rich text.

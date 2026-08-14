@@ -1,8 +1,8 @@
-using CCQ.Utils;
+using Game.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// Pillarboxes the game to its authored portrait aspect on any window shape.

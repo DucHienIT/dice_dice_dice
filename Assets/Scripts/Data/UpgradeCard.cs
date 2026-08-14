@@ -1,9 +1,9 @@
-using CCQ.Localization;
+using Game.Localization;
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
-    [CreateAssetMenu(menuName = "CCQ/Upgrade Card", fileName = "UpgradeCard")]
+    [CreateAssetMenu(menuName = "Game/Upgrade Card", fileName = "UpgradeCard")]
     public class UpgradeCard : ScriptableObject
     {
         [Tooltip("Localization term keys — the text lives in CCQ_Localization.csv.")]

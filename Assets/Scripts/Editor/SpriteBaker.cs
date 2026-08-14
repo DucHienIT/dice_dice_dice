@@ -1,29 +1,29 @@
 using System.IO;
-using CCQ.Data;
+using Game.Data;
 using UnityEditor;
 using UnityEngine;
-using static CCQ.EditorTools.CcqBuilderUtil;
+using static Game.EditorTools.BuilderUtil;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>
     /// Bakes every procedural sprite to a .png asset under <see cref="ArtDir"/> at build time.
     /// The runtime owns no painting code: views just reference the sprites wired into their
-    /// prefab by <see cref="CcqGameBuilder"/>.
+    /// prefab by <see cref="GameBuilder"/>.
     ///
-    /// The critter is baked as separate layers instead of one sprite per look combination
+    /// The enemy is baked as separate layers instead of one sprite per look combination
     /// (7 colors x 3 eye counts x horns x spots x 3 kinds = 252): the prefab holds one
-    /// SpriteRenderer per layer and <c>CritterView.Init</c> only swaps the body sprite and
+    /// SpriteRenderer per layer and <c>EnemyView.Init</c> only swaps the body sprite and
     /// toggles the optional layers.
     /// </summary>
-    public static class CcqSpriteBaker
+    public static class SpriteBaker
     {
         public const string ArtDir = "Assets/Art/Generated";
 
         public const float Ppu = 100f;
         private const float BurstPpu = 120f;
 
-        // Background world metrics — pushed onto PlanetBackgroundRenderer by the builder so
+        // Background world metrics — pushed onto WorldBackgroundRenderer by the builder so
         // the baked pixels and the scene placement can never drift apart. BgWorldWidth doubles
         // as the scroll period: the ground strip tiles seamlessly every BgWorldWidth units.
         public const float BgWorldWidth = 14.6f;
@@ -42,18 +42,18 @@ namespace CCQ.EditorTools
         private const int CapsuleWidth = 40;
 
         /// <summary>
-        /// Compression for the two big per-planet backdrop layers. Uncompressed keeps the baked
-        /// pixels exact but costs ~10 MB of texture memory per planet; CompressedHQ (BC7 on
+        /// Compression for the two big per-world backdrop layers. Uncompressed keeps the baked
+        /// pixels exact but costs ~10 MB of texture memory per world; CompressedHQ (BC7 on
         /// desktop, ASTC on mobile) cuts that ~3.5x and showed no visible banding on the sky
         /// gradient when measured. Flip this when the target platform is settled.
         /// </summary>
         private const TextureImporterCompression BackdropCompression =
             TextureImporterCompression.Uncompressed;
 
-        private const int CritterCanvas = 240;
-        private const float CritterCx = 120f;
-        private const float CritterCy = 104f;
-        private static readonly Vector2 CritterPivot = new Vector2(0.5f, 0.02f);
+        private const int EnemyCanvas = 240;
+        private const float EnemyCx = 120f;
+        private const float EnemyCy = 104f;
+        private static readonly Vector2 EnemyPivot = new Vector2(0.5f, 0.02f);
         private static readonly Vector2 Center = new Vector2(0.5f, 0.5f);
 
         private static readonly Color Ink = new Color(0.11f, 0.14f, 0.19f);
@@ -66,15 +66,15 @@ namespace CCQ.EditorTools
             public Sprite HeroShadow;
             public Sprite HeroFlash;
 
-            public Sprite CritterShadow;
-            public Sprite CritterFlash;
-            public Sprite CritterGlow;
-            public Sprite CritterHorns;
-            public Sprite CritterSpikes;
-            public Sprite CritterSpots;
-            public Sprite CritterMouth;
-            public Sprite[] CritterBodies;  // one per GameConfig.CritterColors entry
-            public Sprite[] CritterEyes;    // index 0..2 = 1..3 eyes
+            public Sprite EnemyShadow;
+            public Sprite EnemyFlash;
+            public Sprite EnemyGlow;
+            public Sprite EnemyHorns;
+            public Sprite EnemySpikes;
+            public Sprite EnemySpots;
+            public Sprite EnemyMouth;
+            public Sprite[] EnemyBodies;  // one per GameConfig.EnemyColors entry
+            public Sprite[] EnemyEyes;    // index 0..2 = 1..3 eyes
 
             public Sprite HpFrame;
             public Sprite HpFill;
@@ -87,8 +87,8 @@ namespace CCQ.EditorTools
         }
 
         /// <summary>
-        /// Bakes all art. Orb sprites land on their Sidekick asset and planet backdrops on
-        /// their Planet asset (data-driven, per CODE_RULES); the rest comes back for prefab
+        /// Bakes all art. Orb sprites land on their Sidekick asset and world backdrops on
+        /// their World asset (data-driven, per CODE_RULES); the rest comes back for prefab
         /// wiring.
         /// </summary>
         public static Sprites BakeAll(GameConfig config)
@@ -102,25 +102,25 @@ namespace CCQ.EditorTools
             s.HeroShadow = Save(HeroShadow(), "hero_shadow", Center);
             s.HeroFlash = Save(HeroFlash(), "hero_flash", Center);
 
-            // ---- critter layers ----
-            Color[] colors = config.CritterColors;
-            s.CritterBodies = new Sprite[colors.Length];
+            // ---- enemy layers ----
+            Color[] colors = config.EnemyColors;
+            s.EnemyBodies = new Sprite[colors.Length];
             for (int i = 0; i < colors.Length; i++)
             {
-                s.CritterBodies[i] = Save(CritterBody(colors[i]), "critter_body_" + i, CritterPivot);
+                s.EnemyBodies[i] = Save(EnemyBody(colors[i]), "enemy_body_" + i, EnemyPivot);
             }
-            s.CritterEyes = new Sprite[3];
+            s.EnemyEyes = new Sprite[3];
             for (int n = 1; n <= 3; n++)
             {
-                s.CritterEyes[n - 1] = Save(CritterEyes(n), "critter_eyes_" + n, CritterPivot);
+                s.EnemyEyes[n - 1] = Save(EnemyEyes(n), "enemy_eyes_" + n, EnemyPivot);
             }
-            s.CritterGlow = Save(CritterGlow(), "critter_glow", CritterPivot);
-            s.CritterHorns = Save(CritterHorns(), "critter_horns", CritterPivot);
-            s.CritterSpikes = Save(CritterSpikes(), "critter_spikes", CritterPivot);
-            s.CritterSpots = Save(CritterSpots(), "critter_spots", CritterPivot);
-            s.CritterMouth = Save(CritterMouth(), "critter_mouth", CritterPivot);
-            s.CritterShadow = Save(CritterShadow(), "critter_shadow", Center);
-            s.CritterFlash = Save(CritterFlash(), "critter_flash", new Vector2(0.5f, 0.4f));
+            s.EnemyGlow = Save(EnemyGlow(), "enemy_glow", EnemyPivot);
+            s.EnemyHorns = Save(EnemyHorns(), "enemy_horns", EnemyPivot);
+            s.EnemySpikes = Save(EnemySpikes(), "enemy_spikes", EnemyPivot);
+            s.EnemySpots = Save(EnemySpots(), "enemy_spots", EnemyPivot);
+            s.EnemyMouth = Save(EnemyMouth(), "enemy_mouth", EnemyPivot);
+            s.EnemyShadow = Save(EnemyShadow(), "enemy_shadow", Center);
+            s.EnemyFlash = Save(EnemyFlash(), "enemy_flash", new Vector2(0.5f, 0.4f));
 
             // ---- hud / fx ----
             s.HpFrame = Save(HpFrame(), "hpbar_frame", Center);
@@ -139,15 +139,17 @@ namespace CCQ.EditorTools
                 SetPrivate(sk, "_orbSprite", Save(Orb(sk.Color), "orb_" + sk.Id, Center));
             }
 
-            Planet[] planets = config.Planets;
-            for (int i = 0; i < planets.Length; i++)
+            World[] worlds = config.Worlds;
+            for (int i = 0; i < worlds.Length; i++)
             {
-                Planet def = planets[i];
+                World def = worlds[i];
+                // File names key on the asset name (stable id), never DisplayName —
+                // DisplayName is localized, so it depends on the editor language at bake time.
                 SetPrivate(def, "_skyLayer", Save(PaintSky(i, def),
-                    "bg_" + def.DisplayName + "_sky", new Vector2(0.5f, 0f), Ppu,
+                    "bg_" + def.name + "_sky", new Vector2(0.5f, 0f), Ppu,
                     opaque: true, backdrop: true));
                 SetPrivate(def, "_groundLayer", Save(PaintGround(i, def),
-                    "bg_" + def.DisplayName + "_ground", new Vector2(0.5f, 0f), Ppu,
+                    "bg_" + def.name + "_ground", new Vector2(0.5f, 0f), Ppu,
                     opaque: false, backdrop: true));
             }
 
@@ -176,7 +178,7 @@ namespace CCQ.EditorTools
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.alphaIsTransparency = !opaque;
             // Small sprites stay uncompressed (they are tiny and must stay crisp); the two big
-            // per-planet backdrop layers follow BackdropCompression — see that const.
+            // per-world backdrop layers follow BackdropCompression — see that const.
             importer.textureCompression = backdrop
                 ? BackdropCompression
                 : TextureImporterCompression.Uncompressed;
@@ -275,76 +277,76 @@ namespace CCQ.EditorTools
             return p;
         }
 
-        // ================= critter layers =================
+        // ================= enemy layers =================
         // All share the 240x240 canvas and the same pivot so they stack pixel-aligned.
         // Draw order: glow, horns, spikes, body, spots, eyes, mouth.
 
-        private static Painter CritterCanvasNew() => new Painter(CritterCanvas, CritterCanvas);
+        private static Painter EnemyCanvasNew() => new Painter(EnemyCanvas, EnemyCanvas);
 
-        private static Painter CritterGlow()
+        private static Painter EnemyGlow()
         {
-            Painter p = CritterCanvasNew();
-            p.Glow(CritterCx, CritterCy, 116f, new Color(0.49f, 1f, 0.42f), 0.55f);
+            Painter p = EnemyCanvasNew();
+            p.Glow(EnemyCx, EnemyCy, 116f, new Color(0.49f, 1f, 0.42f), 0.55f);
             return p;
         }
 
-        private static Painter CritterHorns()
+        private static Painter EnemyHorns()
         {
-            Painter p = CritterCanvasNew();
+            Painter p = EnemyCanvasNew();
             var cream = new Color(1f, 0.91f, 0.79f);
-            p.FillTriangle(new Vector2(CritterCx - 55f, CritterCy + 70f),
-                new Vector2(CritterCx - 80f, CritterCy + 128f),
-                new Vector2(CritterCx - 28f, CritterCy + 88f), cream);
-            p.FillTriangle(new Vector2(CritterCx + 55f, CritterCy + 70f),
-                new Vector2(CritterCx + 80f, CritterCy + 128f),
-                new Vector2(CritterCx + 28f, CritterCy + 88f), cream);
+            p.FillTriangle(new Vector2(EnemyCx - 55f, EnemyCy + 70f),
+                new Vector2(EnemyCx - 80f, EnemyCy + 128f),
+                new Vector2(EnemyCx - 28f, EnemyCy + 88f), cream);
+            p.FillTriangle(new Vector2(EnemyCx + 55f, EnemyCy + 70f),
+                new Vector2(EnemyCx + 80f, EnemyCy + 128f),
+                new Vector2(EnemyCx + 28f, EnemyCy + 88f), cream);
             return p;
         }
 
-        private static Painter CritterSpikes()
+        private static Painter EnemySpikes()
         {
-            Painter p = CritterCanvasNew();
+            Painter p = EnemyCanvasNew();
             var gold = new Color(1f, 0.83f, 0.36f);
             for (int k = -2; k <= 2; k++)
             {
-                float bx = CritterCx + k * 40f;
-                float peak = CritterCy + 132f + (2 - Mathf.Abs(k)) * 16f;
-                p.FillTriangle(new Vector2(bx - 16f, CritterCy + 78f), new Vector2(bx, peak),
-                    new Vector2(bx + 16f, CritterCy + 78f), gold);
+                float bx = EnemyCx + k * 40f;
+                float peak = EnemyCy + 132f + (2 - Mathf.Abs(k)) * 16f;
+                p.FillTriangle(new Vector2(bx - 16f, EnemyCy + 78f), new Vector2(bx, peak),
+                    new Vector2(bx + 16f, EnemyCy + 78f), gold);
             }
             return p;
         }
 
-        private static Painter CritterBody(Color color)
+        private static Painter EnemyBody(Color color)
         {
-            Painter p = CritterCanvasNew();
+            Painter p = EnemyCanvasNew();
             Color dark = Color.Lerp(color, Color.black, 0.35f);
             Color light = Color.Lerp(color, Color.white, 0.25f);
-            p.OutlineEllipse(CritterCx, CritterCy, 90f, 90f, 7f, dark);
-            p.FillEllipseShaded(CritterCx, CritterCy, 88f, 88f, light,
+            p.OutlineEllipse(EnemyCx, EnemyCy, 90f, 90f, 7f, dark);
+            p.FillEllipseShaded(EnemyCx, EnemyCy, 88f, 88f, light,
                 Color.Lerp(color, Color.black, 0.12f));
             // glowing belly
-            p.FillEllipse(CritterCx, CritterCy - 42f, 52f, 34f, new Color(1f, 1f, 1f, 0.35f));
+            p.FillEllipse(EnemyCx, EnemyCy - 42f, 52f, 34f, new Color(1f, 1f, 1f, 0.35f));
             return p;
         }
 
-        private static Painter CritterSpots()
+        private static Painter EnemySpots()
         {
-            Painter p = CritterCanvasNew();
+            Painter p = EnemyCanvasNew();
             var spot = new Color(0f, 0f, 0f, 0.15f);
-            p.FillCircle(CritterCx - 48f, CritterCy + 22f, 14f, spot);
-            p.FillCircle(CritterCx + 42f, CritterCy + 42f, 10f, spot);
-            p.FillCircle(CritterCx + 56f, CritterCy - 12f, 8f, spot);
+            p.FillCircle(EnemyCx - 48f, EnemyCy + 22f, 14f, spot);
+            p.FillCircle(EnemyCx + 42f, EnemyCy + 42f, 10f, spot);
+            p.FillCircle(EnemyCx + 56f, EnemyCy - 12f, 8f, spot);
             return p;
         }
 
-        private static Painter CritterEyes(int n)
+        private static Painter EnemyEyes(int n)
         {
-            Painter p = CritterCanvasNew();
+            Painter p = EnemyCanvasNew();
             for (int i = 0; i < n; i++)
             {
-                float ex = CritterCx + (i - (n - 1) * 0.5f) * 44f;
-                float ey = CritterCy + 22f + (i % 2) * 10f;
+                float ex = EnemyCx + (i - (n - 1) * 0.5f) * 44f;
+                float ey = EnemyCy + 22f + (i % 2) * 10f;
                 p.FillCircle(ex, ey, 22f, Color.white);
                 p.OutlineEllipse(ex, ey, 22f, 22f, 2.5f, new Color(0f, 0f, 0f, 0.25f));
                 p.FillCircle(ex - 5f, ey - 2f, 10f, Ink);
@@ -353,28 +355,28 @@ namespace CCQ.EditorTools
             return p;
         }
 
-        private static Painter CritterMouth()
+        private static Painter EnemyMouth()
         {
-            Painter p = CritterCanvasNew();
-            p.Arc(CritterCx, CritterCy - 32f, 20f, Mathf.PI * 0.15f, Mathf.PI * 0.85f, 6.5f,
+            Painter p = EnemyCanvasNew();
+            p.Arc(EnemyCx, EnemyCy - 32f, 20f, Mathf.PI * 0.15f, Mathf.PI * 0.85f, 6.5f,
                 new Color(0.48f, 0.11f, 0.18f));
-            p.FillTriangle(new Vector2(CritterCx - 17f, CritterCy - 22f),
-                new Vector2(CritterCx - 10f, CritterCy - 40f),
-                new Vector2(CritterCx - 3f, CritterCy - 22f), Color.white);
-            p.FillTriangle(new Vector2(CritterCx + 3f, CritterCy - 22f),
-                new Vector2(CritterCx + 10f, CritterCy - 40f),
-                new Vector2(CritterCx + 17f, CritterCy - 22f), Color.white);
+            p.FillTriangle(new Vector2(EnemyCx - 17f, EnemyCy - 22f),
+                new Vector2(EnemyCx - 10f, EnemyCy - 40f),
+                new Vector2(EnemyCx - 3f, EnemyCy - 22f), Color.white);
+            p.FillTriangle(new Vector2(EnemyCx + 3f, EnemyCy - 22f),
+                new Vector2(EnemyCx + 10f, EnemyCy - 40f),
+                new Vector2(EnemyCx + 17f, EnemyCy - 22f), Color.white);
             return p;
         }
 
-        private static Painter CritterShadow()
+        private static Painter EnemyShadow()
         {
             var p = new Painter(150, 44);
             p.FillEllipse(75f, 22f, 66f, 16f, new Color(0f, 0f, 0f, 0.32f));
             return p;
         }
 
-        private static Painter CritterFlash()
+        private static Painter EnemyFlash()
         {
             var p = new Painter(170, 170);
             p.FillCircle(85f, 85f, 76f, new Color(1f, 1f, 1f, 0.6f));
@@ -449,16 +451,16 @@ namespace CCQ.EditorTools
             return p;
         }
 
-        // ================= planet backdrop =================
+        // ================= world backdrop =================
         // Two layers so the world can scroll: the sky never moves (distant parallax), the
         // ground strip scrolls and is drawn twice side by side, so it must tile seamlessly.
 
-        private static Painter PaintSky(int planetIndex, Planet def)
+        private static Painter PaintSky(int worldIndex, World def)
         {
             int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
             int h = Mathf.RoundToInt(BgWorldHeight * Ppu);
             float groundTop = (BgHorizonY - BgBottomY) * Ppu;
-            var rng = new System.Random(planetIndex * 1337 + 7);
+            var rng = new System.Random(worldIndex * 1337 + 7);
             var p = new Painter(w, h);
 
             p.Clear(new Color32(0, 0, 0, 255));
@@ -497,12 +499,12 @@ namespace CCQ.EditorTools
         /// (x, x-w, x+w) so the left and right seams match — off-canvas copies are clipped away
         /// for free by the painter, so this costs nothing for elements in the middle.
         /// </summary>
-        private static Painter PaintGround(int planetIndex, Planet def)
+        private static Painter PaintGround(int worldIndex, World def)
         {
             int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
             int h = GroundStripHeight;
             float groundTop = (BgHorizonY - BgBottomY) * Ppu;
-            var rng = new System.Random(planetIndex * 7919 + 13);
+            var rng = new System.Random(worldIndex * 7919 + 13);
             var p = new Painter(w, h);
             float cx = w * 0.5f;
 

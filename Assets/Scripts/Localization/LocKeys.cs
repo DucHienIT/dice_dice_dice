@@ -1,8 +1,8 @@
-namespace CCQ.Localization
+namespace Game.Localization
 {
     /// <summary>
     /// Term keys referenced directly from code. Keys that live on a ScriptableObject
-    /// (narrative pools, planet/sidekick/upgrade/fortune names) are not listed here —
+    /// (narrative pools, world/sidekick/upgrade/fortune names) are not listed here —
     /// the builder writes those onto the assets. Every key must exist in
     /// Assets/Localization/CCQ_Localization.csv.
     /// </summary>
@@ -19,7 +19,7 @@ namespace CCQ.Localization
         public const string EngageTraveling = "UI/Engage/Traveling";
         public const string EngageBattling = "UI/Engage/Battling";
         public const string EngageChoosing = "UI/Engage/Choosing";
-        public const string EngageNewVoyage = "UI/Engage/NewVoyage";
+        public const string EngageNewRun = "UI/Engage/NewVoyage";
 
         // ---- HUD ----
         public const string HudRound = "UI/Hud/Round";
@@ -30,7 +30,7 @@ namespace CCQ.Localization
             "UI/Hud/StatXp", "UI/Hud/StatHp", "UI/Hud/StatAtk", "UI/Hud/StatDef"
         };
 
-        public const string ConsoleStarCycle = "UI/Console/StarCycle";
+        public const string ConsoleCycle = "UI/Console/StarCycle";
         public const string StageBossPrefix = "UI/Stage/BossPrefix";
 
         // ---- banners ----
@@ -38,7 +38,7 @@ namespace CCQ.Localization
         public const string BannerSmallFortune = "UI/Banner/SmallFortune";
         public const string BannerNewSidekick = "UI/Banner/NewSidekick";
         public const string BannerSidekickSwap = "UI/Banner/SidekickSwap";
-        public const string BannerPlanetCleared = "UI/Banner/PlanetCleared";
+        public const string BannerWorldCleared = "UI/Banner/PlanetCleared";
         public const string BannerSidekickJoins = "UI/Banner/SidekickJoins";
         public const string BannerWarpingTo = "UI/Banner/WarpingTo";
 
@@ -94,15 +94,15 @@ namespace CCQ.Localization
         public const string MenuProgress = "UI/Menu/Progress";
         public const string MenuEntry = "UI/Menu/Entry";
 
-        // ---- star forge skill tree (meta progression) ----
-        public const string ForgeTitle = "UI/Forge/Title";
-        public const string ForgeEntry = "UI/Forge/Entry";
-        public const string ForgeIntro = "UI/Forge/Intro";
-        public const string ForgeShards = "UI/Forge/Shards";
-        public const string ForgeCost = "UI/Forge/Cost";
-        public const string ForgeMaxed = "UI/Forge/Maxed";
-        public const string ForgeLocked = "UI/Forge/Locked";
-        public const string ForgeBack = "UI/Forge/Back";
+        // ---- star metaPath skill tree (meta progression) ----
+        public const string MetaPathTitle = "UI/Forge/Title";
+        public const string MetaPathEntry = "UI/Forge/Entry";
+        public const string MetaPathIntro = "UI/Forge/Intro";
+        public const string MetaPathShards = "UI/Forge/Shards";
+        public const string MetaPathCost = "UI/Forge/Cost";
+        public const string MetaPathMaxed = "UI/Forge/Maxed";
+        public const string MetaPathLocked = "UI/Forge/Locked";
+        public const string MetaPathBack = "UI/Forge/Back";
 
         // ---- death overlay ----
         public const string DeathTitle = "UI/Death/Title";
@@ -114,7 +114,7 @@ namespace CCQ.Localization
         public const string DeathSlainLine = "UI/Death/SlainLine";
         public const string DeathShards = "UI/Death/Shards";
         public const string DeathNewBest = "UI/Death/NewBest";
-        public const string DeathBestVoyage = "UI/Death/BestVoyage";
+        public const string DeathBestRun = "UI/Death/BestVoyage";
 
         /// <summary>"UI/Language/" + language code, e.g. UI/Language/vi.</summary>
         public const string LanguagePrefix = "UI/Language/";

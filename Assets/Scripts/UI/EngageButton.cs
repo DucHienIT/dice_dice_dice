@@ -1,9 +1,9 @@
-using CCQ.Localization;
+using Game.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>The one button. Mode drives label, art and interactability; idle pulse via Tick.</summary>
     public class EngageButton : MonoBehaviour
@@ -58,7 +58,7 @@ namespace CCQ.UI
                     _button.interactable = false;
                     break;
                 case Mode.Dead:
-                    _label.text = Loc.Get(LocKeys.EngageNewVoyage);
+                    _label.text = Loc.Get(LocKeys.EngageNewRun);
                     _background.sprite = _deadSprite;
                     _button.interactable = true;
                     break;

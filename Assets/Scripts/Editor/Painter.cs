@@ -1,10 +1,10 @@
 using UnityEngine;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>
     /// CPU pixel painter for the procedural art. Editor-only: every sprite it produces is
-    /// baked to a .png asset by <see cref="CcqSpriteBaker"/> at build time and wired into
+    /// baked to a .png asset by <see cref="SpriteBaker"/> at build time and wired into
     /// prefabs — nothing here ever runs in a player build.
     /// </summary>
     public class Painter

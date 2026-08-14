@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using CCQ.Data;
+using Game.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>Row of chips showing the owned sidekicks (max 3).</summary>
     public class SidekickChipsView : MonoBehaviour

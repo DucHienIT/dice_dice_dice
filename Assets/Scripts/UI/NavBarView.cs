@@ -1,10 +1,10 @@
 using System;
-using CCQ.Localization;
+using Game.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// The bottom tab strip: the only always-on way into the non-gameplay screens. It lives
@@ -13,13 +13,13 @@ namespace CCQ.UI
     /// </summary>
     public class NavBarView : MonoBehaviour
     {
-        /// <summary>Forge, Profile, Records, Settings — index-aligned with LocKeys.NavTitles.</summary>
+        /// <summary>MetaPath, Profile, Records, Settings — index-aligned with LocKeys.NavTitles.</summary>
         public const int TabCount = 4;
 
         [SerializeField] private Button[] _buttons;
         [SerializeField] private TextMeshProUGUI[] _labels;
-        [Tooltip("Dot on the Forge tab, lit when a rank is affordable right now.")]
-        [SerializeField] private GameObject _forgeBadge;
+        [Tooltip("Dot on the MetaPath tab, lit when a rank is affordable right now.")]
+        [SerializeField] private GameObject _metaPathBadge;
 
         public event Action<int> Picked;
 
@@ -31,7 +31,7 @@ namespace CCQ.UI
                 _buttons[i].onClick.AddListener(() => Picked?.Invoke(index));
             }
             RefreshStaticText();
-            SetForgeBadge(false);
+            SetMetaPathBadge(false);
         }
 
         public void RefreshStaticText()
@@ -42,9 +42,9 @@ namespace CCQ.UI
             }
         }
 
-        public void SetForgeBadge(bool on)
+        public void SetMetaPathBadge(bool on)
         {
-            if (_forgeBadge.activeSelf != on) _forgeBadge.SetActive(on);
+            if (_metaPathBadge.activeSelf != on) _metaPathBadge.SetActive(on);
         }
     }
 }

@@ -1,9 +1,9 @@
 using System;
 
-namespace CCQ.Save
+namespace Game.Save
 {
     /// <summary>
-    /// JSON payload for ccq_run. Written only between events, never mid-fight —
+    /// JSON payload for run. Written only between events, never mid-fight —
     /// reloading mid-fight restores the pre-fight state by design.
     /// </summary>
     [Serializable]
@@ -21,9 +21,9 @@ namespace CCQ.Save
         public float thorns;
         public string[] sidekickIds;
 
-        public int starCycle;
+        public int cycle;
         public int round;
-        public int planet;
+        public int world;
         public int nonBattleStreak;
         public int speedIdx;
 

@@ -1,9 +1,9 @@
-using CCQ.Localization;
+using Game.Localization;
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
-    [CreateAssetMenu(menuName = "CCQ/Fortune", fileName = "Fortune")]
+    [CreateAssetMenu(menuName = "Game/Fortune", fileName = "Fortune")]
     public class Fortune : ScriptableObject
     {
         [Tooltip("Localization term key — the text lives in CCQ_Localization.csv.")]

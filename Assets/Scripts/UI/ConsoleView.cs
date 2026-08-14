@@ -1,10 +1,10 @@
 using System.Text;
-using CCQ.Data;
-using CCQ.Localization;
+using Game.Data;
+using Game.Localization;
 using TMPro;
 using UnityEngine;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// Narrative console: alien glyph noise, Star Cycle header, event text with a
@@ -27,11 +27,11 @@ namespace CCQ.UI
         /// <summary>Re-pulls the translated header format and drops the change guard.</summary>
         public void RefreshStaticText()
         {
-            _cycleFormat = Loc.Get(LocKeys.ConsoleStarCycle);
+            _cycleFormat = Loc.Get(LocKeys.ConsoleCycle);
             _lastCycle = -1;
         }
 
-        public void SetStarCycle(int cycle)
+        public void SetCycle(int cycle)
         {
             if (cycle == _lastCycle) return;
             _lastCycle = cycle;

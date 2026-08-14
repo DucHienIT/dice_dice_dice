@@ -1,13 +1,13 @@
 using UnityEngine;
 
-namespace CCQ.Enemies
+namespace Game.Enemies
 {
     /// <summary>
-    /// One pooled critter renderer. The look is assembled from pre-baked layers wired on the
+    /// One pooled enemy renderer. The look is assembled from pre-baked layers wired on the
     /// prefab (glow / horns / spikes / body / spots / eyes / mouth) — Init only swaps the body
     /// sprite, picks the eye count and toggles the optional layers. No runtime painting.
     /// </summary>
-    public class CritterView : MonoBehaviour
+    public class EnemyView : MonoBehaviour
     {
         [Header("Layers (draw order: glow, horns, spikes, body, spots, eyes, mouth)")]
         [SerializeField] private SpriteRenderer _glow;
@@ -21,7 +21,7 @@ namespace CCQ.Enemies
         [SerializeField] private SpriteRenderer _flash;
 
         [Header("Baked variants")]
-        [Tooltip("One body per GameConfig.CritterColors entry, same order.")]
+        [Tooltip("One body per GameConfig.EnemyColors entry, same order.")]
         [SerializeField] private Sprite[] _bodySprites;
         [Tooltip("Index 0..2 = 1..3 eyes.")]
         [SerializeField] private Sprite[] _eyeSprites;
@@ -40,7 +40,7 @@ namespace CCQ.Enemies
 
         public void Init(EnemyState enemy)
         {
-            CritterLook look = enemy.Look;
+            EnemyLook look = enemy.Look;
             _size = look.Size;
 
             _body.sprite = _bodySprites[look.ColorIndex % _bodySprites.Length];

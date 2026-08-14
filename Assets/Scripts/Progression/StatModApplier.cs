@@ -1,8 +1,8 @@
-using CCQ.Core;
-using CCQ.Data;
+using Game.Core;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Progression
+namespace Game.Progression
 {
     /// <summary>
     /// The single interpreter for StatMod data — upgrades and fortunes are pure data,

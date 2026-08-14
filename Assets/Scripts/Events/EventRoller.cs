@@ -1,7 +1,7 @@
-using CCQ.Data;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Events
+namespace Game.Events
 {
     /// <summary>
     /// Weighted event roll with the anti-boredom guard: past MAX_NONBATTLE_STREAK

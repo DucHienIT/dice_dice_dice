@@ -1,15 +1,15 @@
-using CCQ.Data;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Planets
+namespace Game.Worlds
 {
     /// <summary>
-    /// Two-layer parallax backdrop. The sky (gradient, nebula, stars, moon) is baked per planet
+    /// Two-layer parallax backdrop. The sky (gradient, nebula, stars, moon) is baked per world
     /// and never moves; the ground strip (ground, rocks, lake, flora) is baked to tile seamlessly
     /// and is drawn twice side by side, scrolling left while the hero walks forward. Nothing is
-    /// painted at runtime — both sprites live on the Planet asset.
+    /// painted at runtime — both sprites live on the World asset.
     /// </summary>
-    public class PlanetBackgroundRenderer : MonoBehaviour
+    public class WorldBackgroundRenderer : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer _sky;
         [Tooltip("Two copies of the same strip, leap-frogging each other as it scrolls.")]
@@ -30,7 +30,7 @@ namespace CCQ.Planets
             _twinklePhases = new float[_twinkles.Length];
         }
 
-        public void Build(int planetIndex, Planet def)
+        public void Build(int worldIndex, World def)
         {
             _sky.sprite = def.SkyLayer;
             _sky.transform.position = new Vector3(0f, _bottomWorldY, 0f);
@@ -44,8 +44,8 @@ namespace CCQ.Planets
             _scrollX = 0f;
             PlaceGround();
 
-            // star layout still varies per planet index, so planet 6 doesn't look like planet 1
-            var rng = new System.Random(planetIndex * 1337 + 7);
+            // star layout still varies per world index, so world 6 doesn't look like world 1
+            var rng = new System.Random(worldIndex * 1337 + 7);
             for (int i = 0; i < _twinkles.Length; i++)
             {
                 float tx = ((float)rng.NextDouble() - 0.5f) * _worldWidth * 0.92f;

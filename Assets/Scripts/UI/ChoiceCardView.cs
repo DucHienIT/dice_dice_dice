@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>One selectable card inside ChoicePanel.</summary>
     public class ChoiceCardView : MonoBehaviour

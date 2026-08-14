@@ -1,4 +1,4 @@
-namespace CCQ.Localization
+namespace Game.Localization
 {
     /// <summary>
     /// A narrative line kept as (term key + token substitutions) rather than a finished

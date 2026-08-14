@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>Decaying positional shake applied to the camera holder. Ticked by GameManager.</summary>
     public class CameraShaker : MonoBehaviour

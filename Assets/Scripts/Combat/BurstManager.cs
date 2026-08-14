@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
     /// Pooled stardust burst particles (hit impacts, kills, level-ups). The star sprite is a

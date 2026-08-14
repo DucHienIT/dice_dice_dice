@@ -1,8 +1,8 @@
-using CCQ.Core;
-using CCQ.Data;
+using Game.Core;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Progression
+namespace Game.Progression
 {
     /// <summary>XP grants and level-ups per the spec curve (xpNeed = 16 × lv^1.55).</summary>
     public static class XpSystem

@@ -2,11 +2,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
-    /// One step on the Star Forge path: a rune medallion on the rail plus its name, effect,
-    /// rank pips and price. Presentation only — StarForgeView decides the state.
+    /// One step on the Star MetaPath path: a rune medallion on the rail plus its name, effect,
+    /// rank pips and price. Presentation only — MetaPathView decides the state.
     /// </summary>
     public class MetaNodeView : MonoBehaviour
     {

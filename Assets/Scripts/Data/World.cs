@@ -1,10 +1,10 @@
-using CCQ.Localization;
+using Game.Localization;
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
-    [CreateAssetMenu(menuName = "CCQ/Planet", fileName = "Planet")]
-    public class Planet : ScriptableObject
+    [CreateAssetMenu(menuName = "Game/World", fileName = "World")]
+    public class World : ScriptableObject
     {
         [Tooltip("Localization term key — the name lives in CCQ_Localization.csv.")]
         [SerializeField] private string _nameKey;
@@ -16,7 +16,7 @@ namespace CCQ.Data
         [SerializeField] private Color _rock;
         [SerializeField] private Color _moon;
         [SerializeField] private Color[] _flora;
-        [Header("Art — baked from the palette above by Tools > CCQ > Build Game (Full)")]
+        [Header("Art — baked from the palette above by Tools > Game > Build Game (Full)")]
         [Tooltip("Static far layer: sky gradient, nebula, stars, moon.")]
         [SerializeField] private Sprite _skyLayer;
         [Tooltip("Scrolling strip: ground, rocks, lake, flora. Tiles seamlessly.")]

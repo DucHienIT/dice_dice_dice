@@ -1,18 +1,18 @@
 using System.Text;
-using CCQ.Audio;
-using CCQ.Combat;
-using CCQ.Data;
-using CCQ.Enemies;
-using CCQ.Events;
-using CCQ.Localization;
-using CCQ.Planets;
-using CCQ.Progression;
-using CCQ.Save;
-using CCQ.UI;
-using CCQ.Utils;
+using Game.Audio;
+using Game.Combat;
+using Game.Data;
+using Game.Enemies;
+using Game.Events;
+using Game.Localization;
+using Game.Worlds;
+using Game.Progression;
+using Game.Save;
+using Game.UI;
+using Game.Utils;
 using UnityEngine;
 
-namespace CCQ.Core
+namespace Game.Core
 {
     /// <summary>
     /// Central run state machine (Ready / Traveling / Battling / Choosing / Dead) and tick hub.
@@ -29,7 +29,7 @@ namespace CCQ.Core
         [SerializeField] private Camera _camera;
         [SerializeField] private CameraShaker _shaker;
         [SerializeField] private BattleStageView _stage;
-        [SerializeField] private PlanetBackgroundRenderer _background;
+        [SerializeField] private WorldBackgroundRenderer _background;
         [SerializeField] private FloaterManager _floaters;
         [SerializeField] private BurstManager _bursts;
         [SerializeField] private AudioManager _audio;
@@ -47,7 +47,7 @@ namespace CCQ.Core
             None,
             Settings,
             Death,
-            Forge,
+            MetaPath,
             Menu,
             Profile,
             Records
@@ -71,14 +71,14 @@ namespace CCQ.Core
         private readonly LocLine[] _eventLines = new LocLine[3];
         private OverlayKind _openOverlay;
         private bool _deathWasNewBest;
-        // meta progression: shards + Star Forge ranks, reloaded once and kept across runs
+        // meta progression: shards + Star MetaPath ranks, reloaded once and kept across runs
         private MetaState _meta;
         private int _deathShards;
-        // which modal the forge was opened from, so closing it puts that screen back
-        private OverlayKind _forgeReturn;
+        // which modal the metaPath was opened from, so closing it puts that screen back
+        private OverlayKind _metaPathReturn;
         private bool _menuCanContinue;
 
-        private string PlanetName => _config.PlanetAt(_run.PlanetIndex).DisplayName;
+        private string WorldName => _config.WorldAt(_run.WorldIndex).DisplayName;
 
         private void Awake()
         {
@@ -108,34 +108,34 @@ namespace CCQ.Core
             _ui.SpeedPressed += OnSpeedPressed;
             _ui.GearPressed += OnGearPressed;
             _ui.ChoicePicked += OnChoicePicked;
-            _ui.ForgeNodePicked += BuyForgeRank;
-            _ui.ForgeClosed += CloseForge;
-            _ui.ForgeResetRequested += ResetAllData;
+            _ui.MetaPathNodePicked += BuyMetaPathRank;
+            _ui.MetaPathClosed += CloseMetaPath;
+            _ui.MetaPathResetRequested += ResetAllData;
             _ui.HomePressed += () => { _audio.PlayClick(); ShowMenu(canContinue: true); };
             _ui.MenuStartPressed += OnMenuStart;
-            _ui.MenuNewRunPressed += StartVoyageFromMenu;
+            _ui.MenuNewRunPressed += StartRunFromMenu;
             _ui.MenuProfilePressed += () => { _audio.PlayClick(); ShowProfile(); };
             _ui.NavPicked += OnNavPicked;
             _ui.OverlayClosed += () => { _audio.PlayClick(); HideOverlay(); };
             Loc.Changed += OnLanguageChanged;
 
-            // the forge must exist before any run is created — CreateNew bakes its ranks in
+            // the metaPath must exist before any run is created — CreateNew bakes its ranks in
             _meta = SaveSystem.LoadMeta(_config);
             _run = SaveSystem.TryLoadRun(_config);
             bool resumed = _run != null;
             if (!resumed) _run = RunState.CreateNew(_config, _meta);
 
-            EnterPlanet();
+            EnterWorld();
             _stage.HideEnemy();
             _state = GameState.Ready;
             _ui.SetEngageMode(EngageButton.Mode.Engage);
             SetEvent(LocLine.Of(resumed ? _narrative.IntroResumeKey : _narrative.IntroNewRunKey)
-                .With("{p}", PlanetName));
+                .With("{p}", WorldName));
             _ui.ScrambleGlyphs();
             RefreshAll();
             if (!resumed) SaveSystem.SaveRun(_run);
             // the game opens on the front screen; the run behind it is already set up and
-            // simply unpauses when the player picks continue or a new voyage
+            // simply unpauses when the player picks continue or a new run
             ShowMenu(resumed);
         }
 
@@ -158,7 +158,7 @@ namespace CCQ.Core
             if (_ui.Menu.IsOpen) RefreshMenu();
             if (_openOverlay == OverlayKind.Settings) ShowSettings();
             else if (_openOverlay == OverlayKind.Death) ShowDeathOverlay(_deathWasNewBest);
-            else if (_openOverlay == OverlayKind.Forge) _ui.RefreshForge(_meta);
+            else if (_openOverlay == OverlayKind.MetaPath) _ui.RefreshMetaPath(_meta);
             else if (_openOverlay == OverlayKind.Profile) ShowProfile();
             else if (_openOverlay == OverlayKind.Records) ShowRecords();
         }
@@ -231,26 +231,26 @@ namespace CCQ.Core
             _stage.SetWalking(false);
             _stage.HideEnemy();
             _floaters.Clear();
-            // menu and forge first: HideOverlay reads whether the menu is still up
+            // menu and metaPath first: HideOverlay reads whether the menu is still up
             _stage.SetBarsVisible(true);
             _ui.HideMenu();
-            _ui.HideForge();
+            _ui.HideMetaPath();
             HideOverlay();
             _ui.HideChoices();
-            EnterPlanet();
+            EnterWorld();
             _state = GameState.Ready;
             _ui.SetEngageMode(EngageButton.Mode.Engage);
-            SetEvent(LocLine.Of(_narrative.IntroNewRunKey).With("{p}", PlanetName));
+            SetEvent(LocLine.Of(_narrative.IntroNewRunKey).With("{p}", WorldName));
             _ui.ScrambleGlyphs();
             RefreshAll();
             SaveSystem.SaveRun(_run);
         }
 
-        private void EnterPlanet()
+        private void EnterWorld()
         {
-            Planet planet = _config.PlanetAt(_run.PlanetIndex);
-            _background.Build(_run.PlanetIndex, planet);
-            _audio.PlayPlanetMusic(planet);
+            World world = _config.WorldAt(_run.WorldIndex);
+            _background.Build(_run.WorldIndex, world);
+            _audio.PlayWorldMusic(world);
         }
 
         // ---------------- travel ----------------
@@ -285,7 +285,7 @@ namespace CCQ.Core
 
         private void NextEvent()
         {
-            _run.StarCycle++;
+            _run.Cycle++;
             _ui.ScrambleGlyphs();
             Events.EventType kind = _roller.Roll(_run.NonBattleStreak);
             if (kind == Events.EventType.Battle)
@@ -417,7 +417,7 @@ namespace CCQ.Core
             if (_run.Round % _config.BossEvery == 0) kind = EnemyKind.Boss;
             else if (Random.value < _config.EliteChance) kind = EnemyKind.Elite;
 
-            _currentEnemy = _enemyFactory.Create(g, kind, _run.PlanetIndex);
+            _currentEnemy = _enemyFactory.Create(g, kind, _run.WorldIndex);
             _stage.ShowEnemy(_currentEnemy);
 
             string[] pool = kind == EnemyKind.Boss ? _narrative.BossIntroKeys :
@@ -443,8 +443,8 @@ namespace CCQ.Core
                 _floaters.SpawnAmount(_stage.EnemyFloaterPos, hit.Damage, hit.Crit,
                     hit.Crit ? FloaterManager.CritColor : FloaterManager.DamageColor, false);
                 _audio.PlayHeroHit(hit.Crit);
-                Color burstColor = _config.CritterColors[
-                    _currentEnemy.Look.ColorIndex % _config.CritterColors.Length];
+                Color burstColor = _config.EnemyColors[
+                    _currentEnemy.Look.ColorIndex % _config.EnemyColors.Length];
                 Vector3 impact = new Vector3(_stage.EnemyX, _stage.BaseY + 0.7f, 0f);
                 _bursts.Burst(impact, burstColor, hit.Crit ? 8 : 4, hit.Crit ? 3.4f : 2.2f);
                 if (hit.Crit) _shaker.Shake(_config.ShakeHit);
@@ -507,26 +507,26 @@ namespace CCQ.Core
             _stage.HideEnemy();
             _currentEnemy = null;
 
-            if (_run.Round >= _config.RoundsPerPlanet)
+            if (_run.Round >= _config.RoundsPerWorld)
             {
-                // clearing a planet pays star shards on the spot, so progress banked here
+                // clearing a world pays star shards on the spot, so progress banked here
                 // survives the death that ends the run
-                int shards = MetaState.ShardsForPlanetClear(_config, _run.PlanetIndex + 1);
+                int shards = MetaState.ShardsForWorldClear(_config, _run.WorldIndex + 1);
                 _meta.Grant(shards);
                 SaveSystem.SaveMeta(_config, _meta);
-                // the farewell line names the planet just cleared, the banner the next one
-                cleared = LocLine.Of(NarrativeConfig.PickKey(_narrative.PlanetClearKeys))
-                    .With("{p}", PlanetName)
+                // the farewell line names the world just cleared, the banner the next one
+                cleared = LocLine.Of(NarrativeConfig.PickKey(_narrative.WorldClearKeys))
+                    .With("{p}", WorldName)
                     .With("{n}", NumberStrings.Get(shards))
                     .NextLine();
-                _run.PlanetIndex++;
+                _run.WorldIndex++;
                 _run.Round = 0;
-                _run.Player.HealPct(_config.PlanetClearHeal);
-                EnterPlanet();
+                _run.Player.HealPct(_config.WorldClearHeal);
+                EnterWorld();
                 _audio.PlayWarp();
                 _ui.ShowBanner(_warpBannerIcon,
-                    Loc.Get(LocKeys.BannerWarpingTo).Replace("{p}", PlanetName),
-                    Loc.Get(LocKeys.BannerPlanetCleared));
+                    Loc.Get(LocKeys.BannerWarpingTo).Replace("{p}", WorldName),
+                    Loc.Get(LocKeys.BannerWorldCleared));
             }
 
             SetEvent(win, levelUp, cleared);
@@ -541,12 +541,12 @@ namespace CCQ.Core
             _state = GameState.Dead;
             _audio.PlayDeath();
             bool newBest = SaveSystem.SaveBestIfHigher(_config, _run);
-            // cash the voyage out once, here — ShowDeathOverlay only displays the amount
-            // and is re-run on a language switch or on returning from the forge
+            // cash the run out once, here — ShowDeathOverlay only displays the amount
+            // and is re-run on a language switch or on returning from the metaPath
             _deathShards = MetaState.ShardsForRun(_config, _run);
             _meta.Grant(_deathShards);
             SaveSystem.SaveMeta(_config, _meta);
-            _ui.SetForgeBadge(_meta.HasAffordableStep(_config));
+            _ui.SetMetaPathBadge(_meta.HasAffordableStep(_config));
             SaveSystem.ClearRun();
             SetEvent(LocLine.Of(_narrative.DeathKey).With("{e}", _currentEnemy.Name));
             _ui.SetEngageMode(EngageButton.Mode.Dead);
@@ -571,10 +571,10 @@ namespace CCQ.Core
             _openOverlay = OverlayKind.Death;
             _deathWasNewBest = newBest;
             _sb.Clear();
-            _sb.Append(Loc.Format(LocKeys.DeathFellOn, PlanetName)).Append('\n');
-            _sb.Append(Loc.Format(LocKeys.DeathProgress, _run.PlanetIndex + 1, _run.Round))
+            _sb.Append(Loc.Format(LocKeys.DeathFellOn, WorldName)).Append('\n');
+            _sb.Append(Loc.Format(LocKeys.DeathProgress, _run.WorldIndex + 1, _run.Round))
                 .Append('\n');
-            _sb.Append(Loc.Format(LocKeys.DeathLevelCycle, _run.Player.Level, _run.StarCycle))
+            _sb.Append(Loc.Format(LocKeys.DeathLevelCycle, _run.Player.Level, _run.Cycle))
                 .Append("\n\n");
             _sb.Append(Loc.Format(LocKeys.DeathHitLine, s.Hits, s.Crits, s.MaxHit)).Append('\n');
             _sb.Append(Loc.Format(LocKeys.DeathDamageLine, s.DamageDealt)).Append('\n');
@@ -588,18 +588,18 @@ namespace CCQ.Core
             else if (best != null)
             {
                 _sb.Append("\n\n")
-                    .Append(Loc.Format(LocKeys.DeathBestVoyage, best.planet, best.round, best.lv));
+                    .Append(Loc.Format(LocKeys.DeathBestRun, best.world, best.round, best.lv));
             }
             _ui.Overlay.Show(Loc.Get(LocKeys.DeathTitle), _sb.ToString(),
-                Loc.Get(LocKeys.EngageNewVoyage), () =>
+                Loc.Get(LocKeys.EngageNewRun), () =>
                 {
                     _audio.PlayEngage();
                     NewRun(keepSpeed: true);
                 },
-                Loc.Get(LocKeys.ForgeEntry), () =>
+                Loc.Get(LocKeys.MetaPathEntry), () =>
                 {
                     _audio.PlayClick();
-                    ShowForge(OverlayKind.Death);
+                    ShowMetaPath(OverlayKind.Death);
                 },
                 Loc.Get(LocKeys.MenuEntry), () =>
                 {
@@ -616,7 +616,7 @@ namespace CCQ.Core
             switch (index)
             {
                 // the tab bar only exists on the front screen, so that is always the way back
-                case 0: ShowForge(OverlayKind.Menu); break;
+                case 0: ShowMetaPath(OverlayKind.Menu); break;
                 case 1: ShowProfile(); break;
                 case 2: ShowRecords(); break;
                 case 3: ShowSettings(); break;
@@ -636,8 +636,8 @@ namespace CCQ.Core
             _sb.Append(Loc.Format(LocKeys.ProfileEdge, Percent(p.Crit), Percent(p.Lifesteal),
                 Percent(p.Thorns))).Append("\n\n");
             _sb.Append(Loc.Format(LocKeys.ProfileCrew, CrewLine(p))).Append('\n');
-            _sb.Append(Loc.Format(LocKeys.ProfileWhere, PlanetName, _run.Round,
-                _config.RoundsPerPlanet, _run.StarCycle)).Append('\n');
+            _sb.Append(Loc.Format(LocKeys.ProfileWhere, WorldName, _run.Round,
+                _config.RoundsPerWorld, _run.Cycle)).Append('\n');
             _sb.Append(Loc.Format(LocKeys.OverlayShards, _meta.Shards));
             _ui.Overlay.Show(Loc.Get(LocKeys.ProfileTitle), _sb.ToString());
         }
@@ -664,7 +664,7 @@ namespace CCQ.Core
             _openOverlay = OverlayKind.Records;
             _sb.Clear();
             _sb.Append(best != null
-                    ? Loc.Format(LocKeys.DeathBestVoyage, best.planet, best.round, best.lv)
+                    ? Loc.Format(LocKeys.DeathBestRun, best.world, best.round, best.lv)
                     : Loc.Get(LocKeys.RecordsNoBest))
                 .Append('\n');
             _sb.Append(Loc.Format(LocKeys.RecordsLifetime, _meta.LifetimeShards)).Append("\n\n");
@@ -682,8 +682,8 @@ namespace CCQ.Core
             _menuCanContinue = canContinue;
             _openOverlay = OverlayKind.Menu;
             _ui.Overlay.Hide();
-            _ui.HideForge();
-            // a paused battle keeps its critter — it is still that voyage's stage. A finished
+            _ui.HideMetaPath();
+            // a paused battle keeps its enemy — it is still that run's stage. A finished
             // one does not: the menu would show the monster that just killed the player.
             if (_state == GameState.Dead) _stage.HideEnemy();
             _stage.SetBarsVisible(false);
@@ -700,20 +700,20 @@ namespace CCQ.Core
             {
                 Level = _run.Player.Level,
                 Shards = _meta.Shards,
-                PlanetName = PlanetName,
+                WorldName = WorldName,
                 Round = _run.Round,
-                RoundsPerPlanet = _config.RoundsPerPlanet
+                RoundsPerWorld = _config.RoundsPerWorld
             };
             _ui.ShowMenu(_menuCanContinue, status, SaveSystem.LoadBest());
             // the tab bar only exists here, so this is the only place its badge can matter
-            _ui.SetForgeBadge(_meta.HasAffordableStep(_config));
+            _ui.SetMetaPathBadge(_meta.HasAffordableStep(_config));
         }
 
         /// <summary>The one big CTA: resume the waiting run, or open a fresh one.</summary>
         private void OnMenuStart()
         {
             if (_menuCanContinue) CloseMenu();
-            else StartVoyageFromMenu();
+            else StartRunFromMenu();
         }
 
         private void CloseMenu()
@@ -724,7 +724,7 @@ namespace CCQ.Core
             _ui.HideMenu();
         }
 
-        private void StartVoyageFromMenu()
+        private void StartRunFromMenu()
         {
             _audio.PlayEngage();
             _openOverlay = OverlayKind.None;
@@ -741,7 +741,7 @@ namespace CCQ.Core
             _sb.Append(Loc.Get(LocKeys.OverlayAbout));
             if (best != null)
             {
-                _sb.Append("\n\n").Append(Loc.Format(LocKeys.OverlayBestShort, best.planet, best.round));
+                _sb.Append("\n\n").Append(Loc.Format(LocKeys.OverlayBestShort, best.world, best.round));
             }
             _sb.Append('\n').Append(Loc.Format(LocKeys.OverlayShards, _meta.Shards));
             // no "resume" row: the ✕ closes the panel, per the mobile-panel convention
@@ -764,7 +764,7 @@ namespace CCQ.Core
                     // I2 batches the switch by a frame; OnLanguageChanged re-shows this panel
                     Loc.CycleLanguage();
                 },
-                // the front screen owns the Star Forge, so settings only offers the way back
+                // the front screen owns the Star MetaPath, so settings only offers the way back
                 // to it — and not at all when it is already the screen underneath
                 _ui.Menu.IsOpen ? null : Loc.Get(LocKeys.MenuEntry), () =>
                 {
@@ -779,28 +779,28 @@ namespace CCQ.Core
         }
 
         /// <summary>
-        /// Opens the Star Forge skill tree. It replaces whichever modal asked for it and
+        /// Opens the Star MetaPath skill tree. It replaces whichever modal asked for it and
         /// puts that one back on close, so the pause never lifts in between.
         /// </summary>
-        private void ShowForge(OverlayKind returnTo)
+        private void ShowMetaPath(OverlayKind returnTo)
         {
-            _forgeReturn = returnTo;
-            _openOverlay = OverlayKind.Forge;
+            _metaPathReturn = returnTo;
+            _openOverlay = OverlayKind.MetaPath;
             _ui.Overlay.Hide();
-            _ui.Menu.Hide(); // the play HUD stays parked; the forge covers the screen anyway
-            _ui.ShowForge(_meta);
+            _ui.Menu.Hide(); // the play HUD stays parked; the metaPath covers the screen anyway
+            _ui.ShowMetaPath(_meta);
         }
 
-        private void CloseForge()
+        private void CloseMetaPath()
         {
             _audio.PlayClick();
-            _ui.HideForge();
-            if (_forgeReturn == OverlayKind.Death) ShowDeathOverlay(_deathWasNewBest);
-            else if (_forgeReturn == OverlayKind.Menu) ShowMenu(canContinue: true);
+            _ui.HideMetaPath();
+            if (_metaPathReturn == OverlayKind.Death) ShowDeathOverlay(_deathWasNewBest);
+            else if (_metaPathReturn == OverlayKind.Menu) ShowMenu(canContinue: true);
             else HideOverlay();
         }
 
-        private void BuyForgeRank(int index)
+        private void BuyMetaPathRank(int index)
         {
             if (index >= _config.MetaUpgrades.Length) return;
             if (_meta.Buy(_config, index))
@@ -812,8 +812,8 @@ namespace CCQ.Core
             {
                 _audio.PlayTrap(); // locked, maxed out, or not enough shards yet
             }
-            _ui.RefreshForge(_meta);
-            _ui.SetForgeBadge(_meta.HasAffordableStep(_config));
+            _ui.RefreshMetaPath(_meta);
+            _ui.SetMetaPathBadge(_meta.HasAffordableStep(_config));
         }
 
         private void ResetAllData()
@@ -823,9 +823,9 @@ namespace CCQ.Core
             SaveSystem.ClearBest();
             SaveSystem.ClearMeta();
             _meta = SaveSystem.LoadMeta(_config);
-            _ui.HideForge();
+            _ui.HideMetaPath();
             NewRun(keepSpeed: false);
-            ShowMenu(canContinue: false); // wiped: back to the front screen, not mid-voyage
+            ShowMenu(canContinue: false); // wiped: back to the front screen, not mid-run
         }
 
         /// <summary>
@@ -871,8 +871,8 @@ namespace CCQ.Core
 
         private void RefreshAll()
         {
-            _ui.RefreshRun(_run, PlanetName);
-            _ui.SetForgeBadge(_meta.HasAffordableStep(_config));
+            _ui.RefreshRun(_run, WorldName);
+            _ui.SetMetaPathBadge(_meta.HasAffordableStep(_config));
             _stage.UpdateSidekicks(_run.Player);
         }
 
@@ -892,13 +892,13 @@ namespace CCQ.Core
         {
             if (_config == null) Debug.LogError("[Core] GameManager: GameConfig missing");
             else if (_ui != null && _config.MetaUpgrades != null &&
-                     _config.MetaUpgrades.Length != _ui.Forge.NodeCount)
+                     _config.MetaUpgrades.Length != _ui.MetaPath.NodeCount)
             {
                 // the tree's nodes are pre-placed by the builder — a mismatch would silently
                 // hide a track the player paid for
                 Debug.LogError("[Core] GameManager: GameConfig has " +
                                _config.MetaUpgrades.Length + " meta upgrades but the Star " +
-                               "Forge tree has " + _ui.Forge.NodeCount + " nodes");
+                               "MetaPath tree has " + _ui.MetaPath.NodeCount + " nodes");
             }
             if (_narrative == null) Debug.LogError("[Core] GameManager: NarrativeConfig missing");
             if (_camera == null) Debug.LogError("[Core] GameManager: Camera missing");

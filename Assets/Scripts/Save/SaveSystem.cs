@@ -1,18 +1,18 @@
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Progression;
+using Game.Core;
+using Game.Data;
+using Game.Progression;
 using UnityEngine;
 
-namespace CCQ.Save
+namespace Game.Save
 {
-    /// <summary>PlayerPrefs persistence with the ccq_ namespace prefix.</summary>
+    /// <summary>PlayerPrefs persistence with plain keys (PlayerPrefs are already per-product).</summary>
     public static class SaveSystem
     {
-        private const string RunKey = "ccq_run";
-        private const string BestKey = "ccq_best";
-        private const string MetaKey = "ccq_meta";
-        private const string MusicKey = "ccq_music";
-        private const string SfxKey = "ccq_sfx";
+        private const string RunKey = "run";
+        private const string BestKey = "best";
+        private const string MetaKey = "meta";
+        private const string MusicKey = "music";
+        private const string SfxKey = "sfx";
 
         public static void SaveRun(RunState run)
         {
@@ -30,9 +30,9 @@ namespace CCQ.Save
                 lifesteal = p.Lifesteal,
                 thorns = p.Thorns,
                 sidekickIds = new string[p.Sidekicks.Count],
-                starCycle = run.StarCycle,
+                cycle = run.Cycle,
                 round = run.Round,
-                planet = run.PlanetIndex,
+                world = run.WorldIndex,
                 nonBattleStreak = run.NonBattleStreak,
                 speedIdx = run.SpeedIndex,
                 hits = run.Stats.Hits,
@@ -81,9 +81,9 @@ namespace CCQ.Save
                     Lifesteal = data.lifesteal,
                     Thorns = data.thorns
                 },
-                StarCycle = data.starCycle,
+                Cycle = data.cycle,
                 Round = data.round,
-                PlanetIndex = data.planet,
+                WorldIndex = data.world,
                 NonBattleStreak = data.nonBattleStreak,
                 SpeedIndex = Mathf.Clamp(data.speedIdx, 0, config.Speeds.Length - 1),
                 Stats = new RunStats
@@ -148,7 +148,7 @@ namespace CCQ.Save
             var data = new BestSaveData
             {
                 score = score,
-                planet = run.PlanetIndex + 1,
+                world = run.WorldIndex + 1,
                 round = run.Round,
                 lv = run.Player.Level
             };
@@ -163,7 +163,7 @@ namespace CCQ.Save
             PlayerPrefs.Save();
         }
 
-        // ---------------- meta progression (ccq_meta) ----------------
+        // ---------------- meta progression (meta) ----------------
 
         public static void SaveMeta(GameConfig config, MetaState meta)
         {
@@ -184,7 +184,7 @@ namespace CCQ.Save
             PlayerPrefs.Save();
         }
 
-        /// <summary>Never null — an empty forge when nothing has been saved yet.</summary>
+        /// <summary>Never null — an empty metaPath when nothing has been saved yet.</summary>
         public static MetaState LoadMeta(GameConfig config)
         {
             var meta = new MetaState(config.MetaUpgrades.Length);

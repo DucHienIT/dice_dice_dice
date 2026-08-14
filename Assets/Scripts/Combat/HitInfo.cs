@@ -1,4 +1,4 @@
-namespace CCQ.Combat
+namespace Game.Combat
 {
     public enum BattleActor
     {

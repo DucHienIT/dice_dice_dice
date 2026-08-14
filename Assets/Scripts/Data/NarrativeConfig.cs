@@ -1,15 +1,15 @@
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
     /// <summary>
-    /// Localization term keys for all flavor text (TEXT in the spec), critter/boss names
+    /// Localization term keys for all flavor text (TEXT in the spec), enemy/boss names
     /// and the glyph charset. The sentences themselves live in
     /// Assets/Localization/CCQ_Localization.csv — this asset only decides which key
     /// belongs to which pool. Markup inside the translations: *emphasis*,
     /// &lt;b&gt;bold&lt;/b&gt;, tokens {e} {xp} {heal} {dmg} {s} {d} {r} {p} {lv}.
     /// </summary>
-    [CreateAssetMenu(menuName = "CCQ/Narrative Config", fileName = "NarrativeConfig")]
+    [CreateAssetMenu(menuName = "Game/Narrative Config", fileName = "NarrativeConfig")]
     public class NarrativeConfig : ScriptableObject
     {
         [SerializeField] private string[] _battleIntroKeys;
@@ -23,12 +23,12 @@ namespace CCQ.Data
         [SerializeField] private string[] _sidekickFullKeys;
         [SerializeField] private string[] _trapKeys;
         [SerializeField] private string[] _treasureKeys;
-        [SerializeField] private string[] _planetClearKeys;
+        [SerializeField] private string[] _worldClearKeys;
         [SerializeField] private string _levelUpSuffixKey;
         [SerializeField] private string _introNewRunKey;
         [SerializeField] private string _introResumeKey;
         [SerializeField] private string _deathKey;
-        [SerializeField] private string[] _critterNameKeys;
+        [SerializeField] private string[] _enemyNameKeys;
         [SerializeField] private string[] _bossNameKeys;
         [SerializeField] private string _glyphChars;
 
@@ -43,12 +43,12 @@ namespace CCQ.Data
         public string[] SidekickFullKeys => _sidekickFullKeys;
         public string[] TrapKeys => _trapKeys;
         public string[] TreasureKeys => _treasureKeys;
-        public string[] PlanetClearKeys => _planetClearKeys;
+        public string[] WorldClearKeys => _worldClearKeys;
         public string LevelUpSuffixKey => _levelUpSuffixKey;
         public string IntroNewRunKey => _introNewRunKey;
         public string IntroResumeKey => _introResumeKey;
         public string DeathKey => _deathKey;
-        public string[] CritterNameKeys => _critterNameKeys;
+        public string[] EnemyNameKeys => _enemyNameKeys;
         public string[] BossNameKeys => _bossNameKeys;
         public string GlyphChars => _glyphChars;
 

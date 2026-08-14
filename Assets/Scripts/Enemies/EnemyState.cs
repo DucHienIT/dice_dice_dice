@@ -1,6 +1,6 @@
 using System;
 
-namespace CCQ.Enemies
+namespace Game.Enemies
 {
     public enum EnemyKind
     {
@@ -11,7 +11,7 @@ namespace CCQ.Enemies
 
     /// <summary>Procedural look parameters — same data, different face.</summary>
     [Serializable]
-    public struct CritterLook
+    public struct EnemyLook
     {
         public int ColorIndex;
         public int Eyes;
@@ -30,7 +30,7 @@ namespace CCQ.Enemies
         public int Atk;
         public int Def;
         public int Xp;
-        public CritterLook Look;
+        public EnemyLook Look;
 
         public bool IsDead => Hp <= 0;
 

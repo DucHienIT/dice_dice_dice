@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Utils
+namespace Game.Utils
 {
     /// <summary>
     /// Aspect lock shared by the camera and every Canvas. Pure math over

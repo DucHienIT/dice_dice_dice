@@ -1,19 +1,19 @@
 using System;
-using CCQ.Data;
-using CCQ.Localization;
-using CCQ.Progression;
+using Game.Data;
+using Game.Localization;
+using Game.Progression;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
-    /// The Star Forge screen: one continuous path of rune steps climbing the left rail.
+    /// The Star MetaPath screen: one continuous path of rune steps climbing the left rail.
     /// Every step and rail segment is pre-placed by the builder; this class only re-colours
     /// them from a <see cref="MetaState"/>. While it is open GameManager pauses the run.
     /// </summary>
-    public class StarForgeView : MonoBehaviour
+    public class MetaPathView : MonoBehaviour
     {
         [SerializeField] private GameConfig _config;
         [SerializeField] private MetaNodeView[] _nodes;
@@ -73,9 +73,9 @@ namespace CCQ.UI
         /// <summary>Captions that only change with the language, not with the meta state.</summary>
         public void RefreshStaticText()
         {
-            _title.text = Loc.Get(LocKeys.ForgeTitle);
-            _hint.text = Loc.Get(LocKeys.ForgeIntro);
-            _closeLabel.text = Loc.Get(LocKeys.ForgeBack);
+            _title.text = Loc.Get(LocKeys.MetaPathTitle);
+            _hint.text = Loc.Get(LocKeys.MetaPathIntro);
+            _closeLabel.text = Loc.Get(LocKeys.MetaPathBack);
             _resetLabel.text = Loc.Get(LocKeys.OverlayResetAll);
             MetaUpgrade[] steps = _config.MetaUpgrades;
             for (int i = 0; i < _nodes.Length && i < steps.Length; i++)
@@ -87,7 +87,7 @@ namespace CCQ.UI
         public void Refresh(MetaState meta)
         {
             MetaUpgrade[] steps = _config.MetaUpgrades;
-            _shards.text = Loc.Format(LocKeys.ForgeShards, meta.Shards);
+            _shards.text = Loc.Format(LocKeys.MetaPathShards, meta.Shards);
             _pulsing = -1;
 
             for (int i = 0; i < _nodes.Length && i < steps.Length; i++)
@@ -107,17 +107,17 @@ namespace CCQ.UI
                 bool priced = false;
                 if (!unlocked)
                 {
-                    label = Loc.Get(LocKeys.ForgeLocked);
+                    label = Loc.Get(LocKeys.MetaPathLocked);
                     color = _textLocked;
                 }
                 else if (cost < 0)
                 {
-                    label = Loc.Get(LocKeys.ForgeMaxed);
+                    label = Loc.Get(LocKeys.MetaPathMaxed);
                     color = _costMaxed;
                 }
                 else
                 {
-                    label = Loc.Format(LocKeys.ForgeCost, cost);
+                    label = Loc.Format(LocKeys.MetaPathCost, cost);
                     color = affordable ? _costAffordable : _costTooDear;
                     priced = true;
                 }

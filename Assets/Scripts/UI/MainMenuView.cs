@@ -1,15 +1,15 @@
 using System;
-using CCQ.Localization;
-using CCQ.Save;
+using Game.Localization;
+using Game.Save;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// The front screen, laid out the way mobile games lay out a home screen rather than as a
-    /// stack of menu entries: status chips along the top, the hero and planet as the art, one
+    /// stack of menu entries: status chips along the top, the hero and world as the art, one
     /// big thumb-height CTA near the bottom, and the tab bar beneath it. The tab bar lives
     /// here and only here — during a run the HUD's home button brings the player back.
     /// Deliberately a scrim, not an opaque panel, so the world stays visible behind it.
@@ -64,7 +64,7 @@ namespace CCQ.UI
 
         /// <summary>
         /// <paramref name="canContinue"/> is false on a fresh save or after a death: the CTA
-        /// becomes "start" and the separate new-voyage button would be a duplicate, so it goes.
+        /// becomes "start" and the separate new-run button would be a duplicate, so it goes.
         /// </summary>
         public void Show(bool canContinue, MenuStatus status, BestSaveData best)
         {
@@ -78,16 +78,16 @@ namespace CCQ.UI
             _levelLabel.text = Loc.Format(LocKeys.HudLevel, status.Level);
             _shardLabel.text = status.Shards.ToString();
             _progress.text = canContinue
-                ? Loc.Format(LocKeys.MenuProgress, status.PlanetName, status.Round,
-                    status.RoundsPerPlanet)
+                ? Loc.Format(LocKeys.MenuProgress, status.WorldName, status.Round,
+                    status.RoundsPerWorld)
                 : Loc.Get(LocKeys.MenuSubtitle);
             _best.text = best != null
-                ? Loc.Format(LocKeys.OverlayBestShort, best.planet, best.round)
+                ? Loc.Format(LocKeys.OverlayBestShort, best.world, best.round)
                 : string.Empty;
 
             if (_progressFill != null)
             {
-                float totalRounds = Mathf.Max(1f, status.RoundsPerPlanet);
+                float totalRounds = Mathf.Max(1f, status.RoundsPerWorld);
                 _progressFill.fillAmount = canContinue
                     ? Mathf.Clamp01(status.Round / totalRounds)
                     : 0f;
@@ -144,8 +144,8 @@ namespace CCQ.UI
     {
         public int Level;
         public int Shards;
-        public string PlanetName;
+        public string WorldName;
         public int Round;
-        public int RoundsPerPlanet;
+        public int RoundsPerWorld;
     }
 }

@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace CCQ.Data
+namespace Game.Data
 {
     [Serializable]
     public class EventWeights
@@ -19,11 +20,11 @@ namespace CCQ.Data
     /// Central balance config — every tunable from the spec (EVENT_WEIGHTS, PLAYER, ENEMY,
     /// ENRAGE...) lives here. Tune in the Inspector, never in code.
     /// </summary>
-    [CreateAssetMenu(menuName = "CCQ/Game Config", fileName = "GameConfig")]
+    [CreateAssetMenu(menuName = "Game/Game Config", fileName = "GameConfig")]
     public class GameConfig : ScriptableObject
     {
         [Header("Run structure")]
-        [SerializeField] private int _roundsPerPlanet = 30;
+        [SerializeField, FormerlySerializedAs("_roundsPerPlanet")] private int _roundsPerWorld = 30;
         [SerializeField] private int _bossEvery = 10;
         [SerializeField, Range(0f, 1f)] private float _eliteChance = 0.12f;
         [SerializeField] private int[] _speeds = { 1, 2, 4 };
@@ -45,7 +46,7 @@ namespace CCQ.Data
         [SerializeField] private int _levelDefFlat = 1;
         [SerializeField] private float _levelHealPct = 0.35f;
 
-        [Header("Enemy scaling (ENEMY), g = planet×30 + round")]
+        [Header("Enemy scaling (ENEMY), g = world×30 + round")]
         [SerializeField] private float _enemyHpBase = 26f;
         [SerializeField] private float _enemyHpLinear = 9f;
         [SerializeField] private float _enemyHpQuad = 0.15f;
@@ -75,23 +76,23 @@ namespace CCQ.Data
         [SerializeField] private Vector2 _treasureXp = new Vector2(0.5f, 1.2f);
         [SerializeField] private int _maxSidekicks = 3;
         [SerializeField, Range(0f, 1f)] private float _snackHeal = 0.15f;
-        [SerializeField, Range(0f, 1f)] private float _planetClearHeal = 0.5f;
+        [SerializeField, Range(0f, 1f), FormerlySerializedAs("_planetClearHeal")] private float _worldClearHeal = 0.5f;
 
         [Header("Meta progression (STAR FORGE) — survives death")]
         [SerializeField] private MetaUpgrade[] _metaUpgrades;
-        [Tooltip("Shards per global round reached when a voyage ends.")]
+        [Tooltip("Shards per global round reached when a run ends.")]
         [SerializeField] private float _shardsPerRound = 0.5f;
         [SerializeField] private int _shardsPerElite = 2;
         [SerializeField] private int _shardsPerBoss = 6;
-        [Tooltip("Paid the moment a planet is cleared, multiplied by the planet number.")]
-        [SerializeField] private int _shardsPerPlanetClear = 15;
+        [Tooltip("Paid the moment a world is cleared, multiplied by the world number.")]
+        [SerializeField, FormerlySerializedAs("_shardsPerPlanetClear")] private int _shardsPerWorldClear = 15;
 
         [Header("Content")]
         [SerializeField] private UpgradeCard[] _upgrades;
         [SerializeField] private Fortune[] _fortunes;
         [SerializeField] private Sidekick[] _sidekicks;
-        [SerializeField] private Planet[] _planets;
-        [SerializeField] private Color[] _critterColors;
+        [SerializeField, FormerlySerializedAs("_planets")] private World[] _worlds;
+        [SerializeField, FormerlySerializedAs("_critterColors")] private Color[] _enemyColors;
 
         [Header("Feel (timings in seconds unless noted)")]
         [SerializeField] private float _lungeDuration = 0.35f;
@@ -112,10 +113,10 @@ namespace CCQ.Data
         [SerializeField] private float _travelDistance = 3.4f;
         [SerializeField] private float _walkHopsPerSecond = 2.6f;
         [SerializeField] private float _enemyEnterDuration = 0.32f;
-        [Tooltip("How far off-screen right the critter starts before sliding in.")]
+        [Tooltip("How far off-screen right the enemy starts before sliding in.")]
         [SerializeField] private float _enemyEnterOffset = 5.2f;
 
-        public int RoundsPerPlanet => _roundsPerPlanet;
+        public int RoundsPerWorld => _roundsPerWorld;
         public int BossEvery => _bossEvery;
         public float EliteChance => _eliteChance;
         public int[] Speeds => _speeds;
@@ -146,19 +147,19 @@ namespace CCQ.Data
         public Vector2 TreasureXp => _treasureXp;
         public int MaxSidekicks => _maxSidekicks;
         public float SnackHeal => _snackHeal;
-        public float PlanetClearHeal => _planetClearHeal;
+        public float WorldClearHeal => _worldClearHeal;
 
         public MetaUpgrade[] MetaUpgrades => _metaUpgrades;
         public float ShardsPerRound => _shardsPerRound;
         public int ShardsPerElite => _shardsPerElite;
         public int ShardsPerBoss => _shardsPerBoss;
-        public int ShardsPerPlanetClear => _shardsPerPlanetClear;
+        public int ShardsPerWorldClear => _shardsPerWorldClear;
 
         public UpgradeCard[] Upgrades => _upgrades;
         public Fortune[] Fortunes => _fortunes;
         public Sidekick[] Sidekicks => _sidekicks;
-        public Planet[] Planets => _planets;
-        public Color[] CritterColors => _critterColors;
+        public World[] Worlds => _worlds;
+        public Color[] EnemyColors => _enemyColors;
 
         public float LungeDuration => _lungeDuration;
         public float HitPoint => _hitPoint;
@@ -197,7 +198,7 @@ namespace CCQ.Data
         public Vector3 BossMult => _bossMult;
         public Vector3 EliteMult => _eliteMult;
 
-        public Planet PlanetAt(int planetIndex) =>
-            _planets[planetIndex % _planets.Length];
+        public World WorldAt(int worldIndex) =>
+            _worlds[worldIndex % _worlds.Length];
     }
 }

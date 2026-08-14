@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using CCQ.Data;
+using Game.Data;
 using UnityEngine;
 
-namespace CCQ.Core
+namespace Game.Core
 {
     /// <summary>Pure hero run-state. No Unity scene dependency — testable, serializable by hand.</summary>
     public class PlayerState

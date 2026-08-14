@@ -1,14 +1,14 @@
-using CCQ.Localization;
+using Game.Localization;
 using UnityEngine;
 
-namespace CCQ.Data
+namespace Game.Data
 {
     /// <summary>
-    /// One step of the Star Forge path, bought rank by rank with star shards between runs.
+    /// One step of the Star MetaPath path, bought rank by rank with star shards between runs.
     /// The path is a single chain: array order is climb order, and each step is gated by the
     /// one below it. Pure data — a new step is a new .asset plus two CSV rows.
     /// </summary>
-    [CreateAssetMenu(menuName = "CCQ/Meta Upgrade", fileName = "MetaUpgrade")]
+    [CreateAssetMenu(menuName = "Game/Meta Upgrade", fileName = "MetaUpgrade")]
     public class MetaUpgrade : ScriptableObject
     {
         [Tooltip("Stable save id — ranks are stored against it, so reordering is safe.")]

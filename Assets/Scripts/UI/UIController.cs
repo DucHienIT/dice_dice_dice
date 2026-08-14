@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Progression;
-using CCQ.Save;
+using Game.Core;
+using Game.Data;
+using Game.Progression;
+using Game.Save;
 using UnityEngine;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// Facade over all UI views. GameManager talks only to this class; button presses
@@ -22,7 +22,7 @@ namespace CCQ.UI
         [SerializeField] private SidekickChipsView _chips;
         [SerializeField] private EngageButton _engage;
         [SerializeField] private OverlayView _overlay;
-        [SerializeField] private StarForgeView _forge;
+        [SerializeField] private MetaPathView _metaPath;
         [SerializeField] private MainMenuView _menu;
         [SerializeField] private NavBarView _nav;
         [SerializeField] private LocalizedFontView _fonts;
@@ -31,9 +31,9 @@ namespace CCQ.UI
         public event Action SpeedPressed;
         public event Action GearPressed;
         public event Action<int> ChoicePicked;
-        public event Action<int> ForgeNodePicked;
-        public event Action ForgeClosed;
-        public event Action ForgeResetRequested;
+        public event Action<int> MetaPathNodePicked;
+        public event Action MetaPathClosed;
+        public event Action MetaPathResetRequested;
         public event Action HomePressed;
         public event Action MenuStartPressed;
         public event Action MenuNewRunPressed;
@@ -42,11 +42,11 @@ namespace CCQ.UI
         public event Action OverlayClosed;
 
         public OverlayView Overlay => _overlay;
-        public StarForgeView Forge => _forge;
+        public MetaPathView MetaPath => _metaPath;
         public MainMenuView Menu => _menu;
 
         /// <summary>Any full-screen modal is up, so the run must hold still.</summary>
-        public bool IsModalOpen => _overlay.IsOpen || _forge.IsOpen || _menu.IsOpen;
+        public bool IsModalOpen => _overlay.IsOpen || _metaPath.IsOpen || _menu.IsOpen;
 
         public void Init()
         {
@@ -54,10 +54,10 @@ namespace CCQ.UI
             _hud.SpeedButton.onClick.AddListener(() => SpeedPressed?.Invoke());
             _hud.GearButton.onClick.AddListener(() => GearPressed?.Invoke());
             _choices.Picked += i => ChoicePicked?.Invoke(i);
-            _forge.NodePicked += i => ForgeNodePicked?.Invoke(i);
-            _forge.CloseRequested += () => ForgeClosed?.Invoke();
-            _forge.ResetRequested += () => ForgeResetRequested?.Invoke();
-            _forge.Init();
+            _metaPath.NodePicked += i => MetaPathNodePicked?.Invoke(i);
+            _metaPath.CloseRequested += () => MetaPathClosed?.Invoke();
+            _metaPath.ResetRequested += () => MetaPathResetRequested?.Invoke();
+            _metaPath.Init();
             _hud.HomeButton.onClick.AddListener(() => HomePressed?.Invoke());
             _menu.StartPressed += () => MenuStartPressed?.Invoke();
             _menu.NewRunPressed += () => MenuNewRunPressed?.Invoke();
@@ -82,26 +82,26 @@ namespace CCQ.UI
             _hud.RefreshStaticText();
             _console.RefreshStaticText();
             _engage.RefreshLabel();
-            _forge.RefreshStaticText();
+            _metaPath.RefreshStaticText();
             _menu.RefreshStaticText();
             _nav.RefreshStaticText();
         }
 
-        public void SetForgeBadge(bool on) => _nav.SetForgeBadge(on);
+        public void SetMetaPathBadge(bool on) => _nav.SetMetaPathBadge(on);
 
-        // ---- star forge ----
-        public void ShowForge(MetaState meta)
+        // ---- star metaPath ----
+        public void ShowMetaPath(MetaState meta)
         {
-            _forge.Refresh(meta);
-            _forge.Show();
+            _metaPath.Refresh(meta);
+            _metaPath.Show();
         }
 
-        public void RefreshForge(MetaState meta) => _forge.Refresh(meta);
-        public void HideForge() => _forge.Hide();
+        public void RefreshMetaPath(MetaState meta) => _metaPath.Refresh(meta);
+        public void HideMetaPath() => _metaPath.Hide();
 
         // ---- main menu ----
         /// <summary>
-        /// Opening the menu also parks the play HUD, so the front screen shows the planet
+        /// Opening the menu also parks the play HUD, so the front screen shows the world
         /// and the hero rather than a paused dashboard. The tab bar rides on the menu, so it
         /// appears and disappears with it.
         /// </summary>
@@ -128,18 +128,18 @@ namespace CCQ.UI
             _banner.Tick(dt);
             _console.Tick(dt);
             _engage.Tick(time);
-            if (_forge.IsOpen) _forge.Tick(time);
+            if (_metaPath.IsOpen) _metaPath.Tick(time);
         }
 
         // ---- HUD ----
-        public void RefreshRun(RunState run, string planetName)
+        public void RefreshRun(RunState run, string worldName)
         {
             _hud.SetStats(run.Player);
-            _hud.SetRound(run.Round, _config.RoundsPerPlanet);
+            _hud.SetRound(run.Round, _config.RoundsPerWorld);
             _hud.SetHits(run.Stats.Hits);
-            _hud.SetPlanet(planetName);
+            _hud.SetWorld(worldName);
             _hud.SetSpeed(_config.Speeds[run.SpeedIndex]);
-            _console.SetStarCycle(run.StarCycle);
+            _console.SetCycle(run.Cycle);
             _chips.SetSidekicks(run.Player.Sidekicks);
         }
 

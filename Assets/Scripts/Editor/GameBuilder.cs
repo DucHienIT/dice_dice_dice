@@ -1,12 +1,12 @@
-using CCQ.Audio;
-using CCQ.Combat;
-using CCQ.Core;
-using CCQ.Data;
-using CCQ.Enemies;
-using CCQ.Localization;
-using CCQ.Planets;
-using CCQ.Sidekicks;
-using CCQ.UI;
+using Game.Audio;
+using Game.Combat;
+using Game.Core;
+using Game.Data;
+using Game.Enemies;
+using Game.Localization;
+using Game.Worlds;
+using Game.Sidekicks;
+using Game.UI;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -17,16 +17,16 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
-using static CCQ.EditorTools.CcqBuilderUtil;
+using static Game.EditorTools.BuilderUtil;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>
     /// One-shot builder: creates config assets, prefabs and the playable scene with every
     /// reference wired. Idempotent — rerunning overwrites the scene and re-wires content
     /// (numeric balance on existing config assets is left untouched).
     /// </summary>
-    public static class CcqGameBuilder
+    public static class GameBuilder
     {
         private const string DataDir = "Assets/Data";
         private const string UiDataDir = "Assets/Data/UI";
@@ -38,7 +38,7 @@ namespace CCQ.EditorTools
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/";
         private const string PictoIcons =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_PictoIcons(x2)/128/";
-        // rune icons come in six rarity tiers, which map 1:1 onto a forge node's 0..5 ranks
+        // rune icons come in six rarity tiers, which map 1:1 onto a metaPath node's 0..5 ranks
         private const string RuneIcons =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_RuneIcons(x2)/128/";
         private const string SoftGlow =
@@ -75,14 +75,14 @@ namespace CCQ.EditorTools
         private class Prefabs
         {
             public GameObject Hero;
-            public GameObject Critter;
+            public GameObject Enemy;
             public GameObject Floater;
             public GameObject BurstStar;
             public GameObject Orb;
             public GameObject HpBar;
         }
 
-        [MenuItem("Tools/CCQ/Build Game (Full)")]
+        [MenuItem("Tools/Game/Build Game (Full)")]
         public static void BuildFull()
         {
             EnsureFolder(DataDir);
@@ -98,13 +98,13 @@ namespace CCQ.EditorTools
 
             // translations first: the configs below only store term keys, and the scene is
             // authored with the strings this asset resolves them to
-            CcqLocalizationImporter.Import();
+            LocalizationImporter.Import();
 
             Fonts fonts = BuildFonts();
             Content content = BuildConfigs();
             // Bake every procedural sprite to a .png asset first — prefabs and the scene only
             // ever reference these, nothing paints at runtime.
-            CcqSpriteBaker.Sprites art = CcqSpriteBaker.BakeAll(content.Config);
+            SpriteBaker.Sprites art = SpriteBaker.BakeAll(content.Config);
             Prefabs prefabs = BuildPrefabs(content, art, fonts.Default, fonts.DefaultWorld);
             BuildScene(content, art, prefabs, fonts);
 
@@ -113,7 +113,7 @@ namespace CCQ.EditorTools
             Debug.Log("[Builder] Cosmic Critter Quest build complete → " + ScenePath);
         }
 
-        [MenuItem("Tools/CCQ/Rebuild Main Menu UI")]
+        [MenuItem("Tools/Game/Rebuild Main Menu UI")]
         public static void RebuildMainMenuUi()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -239,17 +239,17 @@ namespace CCQ.EditorTools
 
         private static Content BuildConfigs()
         {
-            // ---- planets ----
-            var planets = new Planet[5];
-            planets[0] = MakePlanet("Verdania", "#2b1b5e", "#123a6b", "#1fa8a0", "#0f7c86",
+            // ---- worlds ----
+            var worlds = new World[5];
+            worlds[0] = MakeWorld("Verdania", "#2b1b5e", "#123a6b", "#1fa8a0", "#0f7c86",
                 "#1b6d68", "#274b7a", "#ffd98a", new[] { "#ff5fae", "#c95fff", "#37e0b8" }, 110f, false);
-            planets[1] = MakePlanet("Pyros", "#4a1035", "#7a2410", "#e86a28", "#a83c0f",
+            worlds[1] = MakeWorld("Pyros", "#4a1035", "#7a2410", "#e86a28", "#a83c0f",
                 "#6b2a14", "#5c2020", "#ffe9c9", new[] { "#ffd35c", "#ff7a3d", "#ff4a6b" }, 98f, true);
-            planets[2] = MakePlanet("Glacius", "#101a4a", "#1f5a8f", "#6fd8ff", "#2e9ad4",
+            worlds[2] = MakeWorld("Glacius", "#101a4a", "#1f5a8f", "#6fd8ff", "#2e9ad4",
                 "#3a6ea8", "#2a4a8a", "#eaf6ff", new[] { "#aef2ff", "#7a9bff", "#e2c9ff" }, 123.47f, false);
-            planets[3] = MakePlanet("Fungaria", "#1c0f3a", "#3a1a5e", "#8a4ad4", "#5c24a0",
+            worlds[3] = MakeWorld("Fungaria", "#1c0f3a", "#3a1a5e", "#8a4ad4", "#5c24a0",
                 "#4a2a7a", "#38205e", "#d3ffb8", new[] { "#5cff8f", "#c9ff5c", "#ff9bdd" }, 87.31f, true);
-            planets[4] = MakePlanet("Voidreach", "#05030f", "#1a0a2e", "#e83d8f", "#8f1458",
+            worlds[4] = MakeWorld("Voidreach", "#05030f", "#1a0a2e", "#e83d8f", "#8f1458",
                 "#2a0f35", "#1c0f2e", "#ff9bce", new[] { "#ff2e7a", "#8f2eff", "#2effd8" }, 73.42f, true);
 
             // ---- sidekicks ----
@@ -296,7 +296,7 @@ namespace CCQ.EditorTools
             upgrades[7] = MakeUpgrade("NanoSerum",
                 ItemIcons + "Icon_Potion01_Red.png", new StatMod(StatModType.HealNowPct, 0.45f));
 
-            // ---- star forge path (permanent, bought with shards between runs) ----
+            // ---- star metaPath path (permanent, bought with shards between runs) ----
             // One chain, climbed bottom to top: array order is climb order and each step
             // costs more than the last. ChainSteps below gates every step on the one under it.
             var metaUpgrades = new MetaUpgrade[6];
@@ -327,12 +327,12 @@ namespace CCQ.EditorTools
             SetPrivate(narrative, "_sidekickFullKeys", Keys("Narrative/SidekickFull/", 1));
             SetPrivate(narrative, "_trapKeys", Keys("Narrative/Trap/", 2));
             SetPrivate(narrative, "_treasureKeys", Keys("Narrative/Treasure/", 2));
-            SetPrivate(narrative, "_planetClearKeys", Keys("Narrative/PlanetClear/", 1));
+            SetPrivate(narrative, "_worldClearKeys", Keys("Narrative/PlanetClear/", 1));
             SetPrivate(narrative, "_levelUpSuffixKey", "Narrative/LevelUpSuffix");
             SetPrivate(narrative, "_introNewRunKey", "Narrative/IntroNewRun");
             SetPrivate(narrative, "_introResumeKey", "Narrative/IntroResume");
             SetPrivate(narrative, "_deathKey", "Narrative/Death");
-            SetPrivate(narrative, "_critterNameKeys", Keys("Narrative/CritterName/", 8));
+            SetPrivate(narrative, "_enemyNameKeys", Keys("Narrative/CritterName/", 8));
             SetPrivate(narrative, "_bossNameKeys", Keys("Narrative/BossName/", 5));
             SetPrivate(narrative, "_glyphChars", "0123456789<>/|+=*#@%&?!~^");
 
@@ -342,8 +342,8 @@ namespace CCQ.EditorTools
             SetPrivate(config, "_metaUpgrades", metaUpgrades);
             SetPrivate(config, "_fortunes", fortunes);
             SetPrivate(config, "_sidekicks", sidekicks);
-            SetPrivate(config, "_planets", planets);
-            SetPrivate(config, "_critterColors", new[]
+            SetPrivate(config, "_worlds", worlds);
+            SetPrivate(config, "_enemyColors", new[]
             {
                 Hex("#ff6b8f"), Hex("#ffa53d"), Hex("#8f6bff"), Hex("#4ad48f"),
                 Hex("#ff5c5c"), Hex("#5cb8ff"), Hex("#e8d43d")
@@ -360,11 +360,11 @@ namespace CCQ.EditorTools
             return keys;
         }
 
-        private static Planet MakePlanet(string name, string sky1, string sky2, string lake,
+        private static World MakeWorld(string name, string sky1, string sky2, string lake,
             string lakeDeep, string ground, string rock, string moon, string[] flora,
             float rootHz, bool minor)
         {
-            var p = LoadOrCreateAsset<Planet>(DataDir + "/Planets/Planet_" + name + ".asset");
+            var p = LoadOrCreateAsset<World>(DataDir + "/Planets/Planet_" + name + ".asset");
             SetPrivate(p, "_nameKey", "Planet/" + name);
             SetPrivate(p, "_skyTop", Hex(sky1));
             SetPrivate(p, "_skyBottom", Hex(sky2));
@@ -419,7 +419,7 @@ namespace CCQ.EditorTools
         private const int RuneTiers = 6;
 
         /// <summary>
-        /// A forge step. Its rank icons are the six rarity tiers of one rune motif, so the
+        /// A metaPath step. Its rank icons are the six rarity tiers of one rune motif, so the
         /// rune visibly levels up: the dullest stone is rank 0, the finest is maxed.
         /// </summary>
         private static MetaUpgrade MakeMetaUpgrade(string id, string runeMotif, int costBase,
@@ -456,7 +456,7 @@ namespace CCQ.EditorTools
 
         // ================= prefabs =================
 
-        private static Prefabs BuildPrefabs(Content content, CcqSpriteBaker.Sprites art,
+        private static Prefabs BuildPrefabs(Content content, SpriteBaker.Sprites art,
             TMP_FontAsset font, Material worldMat)
         {
             var prefabs = new Prefabs();
@@ -482,20 +482,20 @@ namespace CCQ.EditorTools
                 SetPrivate(view, "_flash", flash);
                 prefabs.Hero = SavePrefab(go, PrefabDir + "/Hero.prefab");
             }
-            // Critter — one renderer per baked layer, stacked in draw order
+            // Enemy — one renderer per baked layer, stacked in draw order
             {
-                var go = new GameObject("Critter");
-                var view = go.AddComponent<CritterView>();
-                SpriteRenderer shadow = NewSprite(go, "Shadow", 3, art.CritterShadow,
+                var go = new GameObject("Enemy");
+                var view = go.AddComponent<EnemyView>();
+                SpriteRenderer shadow = NewSprite(go, "Shadow", 3, art.EnemyShadow,
                     new Vector3(0f, 0.02f, 0f));
-                SpriteRenderer glow = NewSprite(go, "Glow", 4, art.CritterGlow);
-                SpriteRenderer horns = NewSprite(go, "Horns", 5, art.CritterHorns);
-                SpriteRenderer spikes = NewSprite(go, "Spikes", 6, art.CritterSpikes);
-                SpriteRenderer body = NewSprite(go, "Body", 7, art.CritterBodies[0]);
-                SpriteRenderer spots = NewSprite(go, "Spots", 8, art.CritterSpots);
-                SpriteRenderer eyes = NewSprite(go, "Eyes", 9, art.CritterEyes[0]);
-                SpriteRenderer mouth = NewSprite(go, "Mouth", 10, art.CritterMouth);
-                SpriteRenderer flash = NewSprite(go, "Flash", 11, art.CritterFlash,
+                SpriteRenderer glow = NewSprite(go, "Glow", 4, art.EnemyGlow);
+                SpriteRenderer horns = NewSprite(go, "Horns", 5, art.EnemyHorns);
+                SpriteRenderer spikes = NewSprite(go, "Spikes", 6, art.EnemySpikes);
+                SpriteRenderer body = NewSprite(go, "Body", 7, art.EnemyBodies[0]);
+                SpriteRenderer spots = NewSprite(go, "Spots", 8, art.EnemySpots);
+                SpriteRenderer eyes = NewSprite(go, "Eyes", 9, art.EnemyEyes[0]);
+                SpriteRenderer mouth = NewSprite(go, "Mouth", 10, art.EnemyMouth);
+                SpriteRenderer flash = NewSprite(go, "Flash", 11, art.EnemyFlash,
                     new Vector3(0f, 0.9f, 0f));
                 flash.enabled = false;
                 SetPrivate(view, "_glow", glow);
@@ -507,11 +507,11 @@ namespace CCQ.EditorTools
                 SetPrivate(view, "_mouth", mouth);
                 SetPrivate(view, "_shadow", shadow);
                 SetPrivate(view, "_flash", flash);
-                SetPrivate(view, "_bodySprites", art.CritterBodies);
-                SetPrivate(view, "_eyeSprites", art.CritterEyes);
+                SetPrivate(view, "_bodySprites", art.EnemyBodies);
+                SetPrivate(view, "_eyeSprites", art.EnemyEyes);
                 SetPrivate(view, "_tintLayers",
                     new[] { glow, horns, spikes, body, spots, eyes, mouth });
-                prefabs.Critter = SavePrefab(go, PrefabDir + "/Critter.prefab");
+                prefabs.Enemy = SavePrefab(go, PrefabDir + "/Enemy.prefab");
             }
             // Floater
             {
@@ -597,7 +597,7 @@ namespace CCQ.EditorTools
 
         // ================= scene =================
 
-        private static void BuildScene(Content content, CcqSpriteBaker.Sprites art,
+        private static void BuildScene(Content content, SpriteBaker.Sprites art,
             Prefabs prefabs, Fonts fonts)
         {
             TMP_FontAsset font = fonts.Default;
@@ -617,10 +617,10 @@ namespace CCQ.EditorTools
             SetPrivate(shaker, "_target", camGo.transform);
 
             // ---- background ----
-            var bgGo = new GameObject("PlanetBackground");
-            var background = bgGo.AddComponent<PlanetBackgroundRenderer>();
-            Planet firstPlanet = content.Config.Planets[0];
-            SpriteRenderer sky = NewSprite(bgGo, "Sky", -12, firstPlanet.SkyLayer);
+            var bgGo = new GameObject("WorldBackground");
+            var background = bgGo.AddComponent<WorldBackgroundRenderer>();
+            World firstWorld = content.Config.Worlds[0];
+            SpriteRenderer sky = NewSprite(bgGo, "Sky", -12, firstWorld.SkyLayer);
             var twinkles = new SpriteRenderer[8];
             GameObject twinkleRoot = NewChild(bgGo, "Twinkles");
             for (int i = 0; i < twinkles.Length; i++)
@@ -632,26 +632,26 @@ namespace CCQ.EditorTools
             var lakeGlows = new SpriteRenderer[2];
             for (int i = 0; i < groundCopies.Length; i++)
             {
-                groundCopies[i] = NewSprite(bgGo, "Ground" + i, -10, firstPlanet.GroundLayer);
+                groundCopies[i] = NewSprite(bgGo, "Ground" + i, -10, firstWorld.GroundLayer);
                 lakeGlows[i] = NewSprite(groundCopies[i].gameObject, "LakeGlow", -9, art.LakeGlow,
-                    new Vector3(0f, CcqSpriteBaker.BgLakeLocalY, 0f));
+                    new Vector3(0f, SpriteBaker.BgLakeLocalY, 0f));
             }
             SetPrivate(background, "_sky", sky);
             SetPrivate(background, "_groundCopies", groundCopies);
             SetPrivate(background, "_lakeGlows", lakeGlows);
             SetPrivate(background, "_twinkles", twinkles);
             // world metrics must match the pixels the baker produced
-            SetPrivate(background, "_worldWidth", CcqSpriteBaker.BgWorldWidth);
-            SetPrivate(background, "_worldHeight", CcqSpriteBaker.BgWorldHeight);
-            SetPrivate(background, "_bottomWorldY", CcqSpriteBaker.BgBottomY);
-            SetPrivate(background, "_horizonWorldY", CcqSpriteBaker.BgHorizonY);
+            SetPrivate(background, "_worldWidth", SpriteBaker.BgWorldWidth);
+            SetPrivate(background, "_worldHeight", SpriteBaker.BgWorldHeight);
+            SetPrivate(background, "_bottomWorldY", SpriteBaker.BgBottomY);
+            SetPrivate(background, "_horizonWorldY", SpriteBaker.BgHorizonY);
 
             // ---- battle stage ----
             var stageGo = new GameObject("BattleStage");
             var stage = stageGo.AddComponent<BattleStageView>();
             GameObject heroGo = Spawn(prefabs.Hero, stageGo.transform, new Vector3(-1.85f, 3.1f, 0f));
-            GameObject critterGo = Spawn(prefabs.Critter, stageGo.transform, new Vector3(1.85f, 3.1f, 0f));
-            critterGo.SetActive(false);
+            GameObject enemyGo = Spawn(prefabs.Enemy, stageGo.transform, new Vector3(1.85f, 3.1f, 0f));
+            enemyGo.SetActive(false);
             GameObject heroBarGo = Spawn(prefabs.HpBar, stageGo.transform,
                 new Vector3(-1.85f, 2.5f, 0f), "HpBar_Hero");
             GameObject enemyBarGo = Spawn(prefabs.HpBar, stageGo.transform,
@@ -673,7 +673,7 @@ namespace CCQ.EditorTools
             }
             SetPrivate(stage, "_config", content.Config);
             SetPrivate(stage, "_hero", heroGo.GetComponent<HeroView>());
-            SetPrivate(stage, "_critter", critterGo.GetComponent<CritterView>());
+            SetPrivate(stage, "_enemyView", enemyGo.GetComponent<EnemyView>());
             SetPrivate(stage, "_heroBar", heroBar);
             SetPrivate(stage, "_enemyBar", enemyBar);
             SetPrivate(stage, "_enemyName", enemyName);
@@ -735,7 +735,7 @@ namespace CCQ.EditorTools
                 out ConsoleView console, out FortuneBanner banner, out ChoicePanel choices,
                 out SidekickChipsView chips, out EngageButton engage);
             OverlayView overlay = BuildOverlayCanvas(uiRoot.transform, font);
-            StarForgeView forge = BuildForgeCanvas(uiRoot.transform, content, font);
+            MetaPathView metaPath = BuildMetaPathCanvas(uiRoot.transform, content, font);
             MainMenuView menu = BuildMenuCanvas(uiRoot.transform, font, out NavBarView nav);
             SetPrivate(ui, "_config", content.Config);
             SetPrivate(ui, "_hud", hud);
@@ -745,7 +745,7 @@ namespace CCQ.EditorTools
             SetPrivate(ui, "_chips", chips);
             SetPrivate(ui, "_engage", engage);
             SetPrivate(ui, "_overlay", overlay);
-            SetPrivate(ui, "_forge", forge);
+            SetPrivate(ui, "_metaPath", metaPath);
             SetPrivate(ui, "_menu", menu);
             SetPrivate(ui, "_nav", nav);
 
@@ -822,7 +822,7 @@ namespace CCQ.EditorTools
         }
 
         private static HudView BuildHudCanvas(Transform uiRoot, Content content,
-            CcqSpriteBaker.Sprites art, TMP_FontAsset font)
+            SpriteBaker.Sprites art, TMP_FontAsset font)
         {
             Canvas canvas = NewCanvas(uiRoot, "Canvas_HUD", 10, out RectTransform frame);
             var hud = canvas.gameObject.AddComponent<HudView>();
@@ -874,16 +874,16 @@ namespace CCQ.EditorTools
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f)),
                 LoadSprite(PictoIcons + "Pictoicon_Home_0.Png"), Color.white, false, false);
 
-            // planet tag (bottom-left of viewport, above stats bar)
-            RectTransform planet = Place(NewUiChild(frame, "PlanetTag"),
+            // world tag (bottom-left of viewport, above stats bar)
+            RectTransform world = Place(NewUiChild(frame, "WorldTag"),
                 new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 1126f),
                 new Vector2(300f, 58f));
-            AddImage(planet, uiSprite, pillColor);
-            RectTransform planetIcon = Place(NewUiChild(planet, "Icon"), new Vector2(0f, 0.5f),
+            AddImage(world, uiSprite, pillColor);
+            RectTransform worldIcon = Place(NewUiChild(world, "Icon"), new Vector2(0f, 0.5f),
                 new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(36f, 36f));
-            AddImage(planetIcon, LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Color.white,
+            AddImage(worldIcon, LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Color.white,
                 false, false);
-            var planetLabel = AddTmp(Place(NewUiChild(planet, "Name"), new Vector2(0f, 0.5f),
+            var worldLabel = AddTmp(Place(NewUiChild(world, "Name"), new Vector2(0f, 0.5f),
                     new Vector2(0f, 0.5f), new Vector2(60f, 0f), new Vector2(230f, 48f)),
                 "Verdania", 28f, Hex("#ffd98a"), font, TextAlignmentOptions.MidlineLeft);
 
@@ -941,7 +941,7 @@ namespace CCQ.EditorTools
                     value.text = "Lv.1";
                     RectTransform track = Place(NewUiChild(pill, "XpTrack"),
                         new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 15f),
-                        new Vector2(224f, CcqSpriteBaker.CapsuleHeight));
+                        new Vector2(224f, SpriteBaker.CapsuleHeight));
                     AddImage(track, art.UiCapsule, Hex("#3b2f78"));
                     // width is driven by anchorMax.x in HudView, so the fill keeps round caps
                     RectTransform fillRt = NewUiChild(track, "Fill");
@@ -960,7 +960,7 @@ namespace CCQ.EditorTools
             SetPrivate(hud, "_config", content.Config);
             SetPrivate(hud, "_roundLabel", roundLabel);
             SetPrivate(hud, "_hitsLabel", hitsLabel);
-            SetPrivate(hud, "_planetLabel", planetLabel);
+            SetPrivate(hud, "_worldLabel", worldLabel);
             SetPrivate(hud, "_speedLabel", speedLabel);
             SetPrivate(hud, "_speedButton", speedBtn);
             SetPrivate(hud, "_gearButton", gearBtn);
@@ -1225,7 +1225,7 @@ namespace CCQ.EditorTools
 
             SetPrivate(nav, "_buttons", buttons);
             SetPrivate(nav, "_labels", labels);
-            SetPrivate(nav, "_forgeBadge", badge);
+            SetPrivate(nav, "_metaPathBadge", badge);
             return nav;
         }
 
@@ -1255,8 +1255,8 @@ namespace CCQ.EditorTools
                 new Vector2(0.5f, 1f), new Vector2(0f, -120f), new Vector2(700f, 2f));
             AddImage(titleRule, null, new Color(0.43f, 0.9f, 1f, 0.22f));
 
-            // Settings: Resume / Music / SFX / Language / Star Forge / Restart —
-            // see GameManager.ShowSettings. "Reset all data" lives on the forge screen.
+            // Settings: Resume / Music / SFX / Language / Star MetaPath / Restart —
+            // see GameManager.ShowSettings. "Reset all data" lives on the metaPath screen.
             string[] btnSprites =
             {
                 ButtonsDir + "Btn_MainButton_Green.Png",
@@ -1301,7 +1301,7 @@ namespace CCQ.EditorTools
         // ================= main menu =================
 
         /// <summary>
-        /// The front screen. Unlike the forge it is only a scrim, because the planet backdrop
+        /// The front screen. Unlike the metaPath it is only a scrim, because the world backdrop
         /// and the idling hero are the art — UIController parks the play HUD while it is up.
         /// </summary>
         private static MainMenuView BuildMenuCanvas(Transform uiRoot, TMP_FontAsset font,
@@ -1316,7 +1316,7 @@ namespace CCQ.EditorTools
             Sprite shard = LoadSprite(ShardIcon);
             Sprite uiSprite = BuiltinUiSprite();
 
-            // Keep the character and planet as the hero art. A restrained glow adds focus
+            // Keep the character and world as the hero art. A restrained glow adds focus
             // without covering the live world with another decorative card.
             RectTransform heroAura = Place(NewUiChild(root, "HeroAura"),
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
@@ -1393,13 +1393,13 @@ namespace CCQ.EditorTools
                 new Vector2(0f, 0f), new Vector2(8f, 128f));
             AddImage(accent, uiSprite, Hex("#61e6ff"));
 
-            RectTransform planetBase = Place(NewUiChild(mission, "PlanetBase"),
+            RectTransform worldBase = Place(NewUiChild(mission, "WorldBase"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(28f, 0f), new Vector2(104f, 104f));
-            Color planetBaseColor = Hex("#29366a");
-            planetBaseColor.a = 0.95f;
-            AddImage(planetBase, uiSprite, planetBaseColor);
-            AddImage(Place(NewUiChild(planetBase, "PlanetIcon"),
+            Color worldBaseColor = Hex("#29366a");
+            worldBaseColor.a = 0.95f;
+            AddImage(worldBase, uiSprite, worldBaseColor);
+            AddImage(Place(NewUiChild(worldBase, "WorldIcon"),
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     Vector2.zero, new Vector2(60f, 60f)),
                 LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Hex("#7deaff"));
@@ -1475,7 +1475,7 @@ namespace CCQ.EditorTools
             return menu;
         }
 
-        // ================= star forge path =================
+        // ================= star metaPath path =================
 
         private const float StepSpacing = 195f;   // centre-to-centre between two steps
         private const float MedallionSize = 124f;
@@ -1486,16 +1486,16 @@ namespace CCQ.EditorTools
         private static float StepY(int index) => BottomStepY + index * StepSpacing;
 
         /// <summary>
-        /// The Star Forge screen: one rail climbing the left side with a rune medallion per
+        /// The Star MetaPath screen: one rail climbing the left side with a rune medallion per
         /// step and its detail strip beside it. Step count and order come from
         /// GameConfig.MetaUpgrades, so re-shaping the path means editing that data, not this.
         /// </summary>
-        private static StarForgeView BuildForgeCanvas(Transform uiRoot, Content content,
+        private static MetaPathView BuildMetaPathCanvas(Transform uiRoot, Content content,
             TMP_FontAsset font)
         {
-            Canvas canvas = NewCanvas(uiRoot, "Canvas_Forge", 25, out RectTransform frame);
-            RectTransform root = Stretch(NewUiChild(frame, "Forge"));
-            var forge = root.gameObject.AddComponent<StarForgeView>();
+            Canvas canvas = NewCanvas(uiRoot, "Canvas_MetaPath", 25, out RectTransform frame);
+            RectTransform root = Stretch(NewUiChild(frame, "MetaPath"));
+            var metaPath = root.gameObject.AddComponent<MetaPathView>();
             // a full screen, not a popup: opaque, so nothing of the run shows through
             AddImage(root, null, Hex("#0a0620"), true);
 
@@ -1507,7 +1507,7 @@ namespace CCQ.EditorTools
 
             var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(900f, 80f)),
-                Loc.Get(LocKeys.ForgeTitle), 62f, Hex("#ffd35c"), font,
+                Loc.Get(LocKeys.MetaPathTitle), 62f, Hex("#ffd35c"), font,
                 TextAlignmentOptions.Center);
 
             // shard balance pill: star glyph + count
@@ -1522,7 +1522,7 @@ namespace CCQ.EditorTools
 
             var hint = AddTmp(Place(NewUiChild(root, "Hint"), new Vector2(0.5f, 1f),
                     new Vector2(0.5f, 1f), new Vector2(0f, -216f), new Vector2(880f, 90f)),
-                Loc.Get(LocKeys.ForgeIntro), 25f, Hex("#a9aed0"), font,
+                Loc.Get(LocKeys.MetaPathIntro), 25f, Hex("#a9aed0"), font,
                 TextAlignmentOptions.Top, true);
 
             MetaUpgrade[] steps = content.Config.MetaUpgrades;
@@ -1550,7 +1550,7 @@ namespace CCQ.EditorTools
             var nodes = new MetaNodeView[steps.Length];
             for (int i = 0; i < steps.Length; i++)
             {
-                nodes[i] = BuildForgeStep(path, steps[i], StepY(i), uiSprite, shard, glowSprite,
+                nodes[i] = BuildMetaPathStep(path, steps[i], StepY(i), uiSprite, shard, glowSprite,
                     font);
             }
 
@@ -1560,7 +1560,7 @@ namespace CCQ.EditorTools
                 Color.white, true);
             Button closeBtn = AddButton(close, closeImg);
             var closeLabel = AddTmp(Stretch(NewUiChild(close, "Label"), 0f, 0f, 0f, 10f),
-                Loc.Get(LocKeys.ForgeBack), 36f, Color.white, font, TextAlignmentOptions.Center);
+                Loc.Get(LocKeys.MetaPathBack), 36f, Color.white, font, TextAlignmentOptions.Center);
 
             RectTransform reset = Place(NewUiChild(root, "Reset"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 74f), new Vector2(420f, 72f));
@@ -1571,26 +1571,26 @@ namespace CCQ.EditorTools
                 Loc.Get(LocKeys.OverlayResetAll), 26f, Color.white, font,
                 TextAlignmentOptions.Center);
 
-            SetPrivate(forge, "_config", content.Config);
-            SetPrivate(forge, "_nodes", nodes);
-            SetPrivate(forge, "_railFills", railFills);
-            SetPrivate(forge, "_railLengths", railLengths);
-            SetPrivate(forge, "_title", title);
-            SetPrivate(forge, "_shards", shards);
-            SetPrivate(forge, "_hint", hint);
-            SetPrivate(forge, "_closeButton", closeBtn);
-            SetPrivate(forge, "_closeLabel", closeLabel);
-            SetPrivate(forge, "_resetButton", resetBtn);
-            SetPrivate(forge, "_resetLabel", resetLabel);
+            SetPrivate(metaPath, "_config", content.Config);
+            SetPrivate(metaPath, "_nodes", nodes);
+            SetPrivate(metaPath, "_railFills", railFills);
+            SetPrivate(metaPath, "_railLengths", railLengths);
+            SetPrivate(metaPath, "_title", title);
+            SetPrivate(metaPath, "_shards", shards);
+            SetPrivate(metaPath, "_hint", hint);
+            SetPrivate(metaPath, "_closeButton", closeBtn);
+            SetPrivate(metaPath, "_closeLabel", closeLabel);
+            SetPrivate(metaPath, "_resetButton", resetBtn);
+            SetPrivate(metaPath, "_resetLabel", resetLabel);
             root.gameObject.SetActive(false);
-            return forge;
+            return metaPath;
         }
 
         /// <summary>
         /// One step: the detail strip is the button (a comfortable tap target that spans the
         /// row), with the medallion riding the rail on its left.
         /// </summary>
-        private static MetaNodeView BuildForgeStep(RectTransform path, MetaUpgrade step,
+        private static MetaNodeView BuildMetaPathStep(RectTransform path, MetaUpgrade step,
             float y, Sprite panelSprite, Sprite shard, Sprite glowSprite, TMP_FontAsset font)
         {
             RectTransform rt = Place(NewUiChild(path, "Step_" + step.Id),

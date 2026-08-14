@@ -1,4 +1,4 @@
-namespace CCQ.Utils
+namespace Game.Utils
 {
     /// <summary>
     /// Cached int→string lookup so damage floaters and counters avoid per-beat allocations.

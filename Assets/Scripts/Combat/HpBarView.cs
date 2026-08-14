@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
     /// World-space HP bar + number. Frame/fill sprites are baked assets assigned on the prefab

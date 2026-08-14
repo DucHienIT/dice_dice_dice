@@ -1,9 +1,9 @@
 using System;
-using CCQ.Data;
-using CCQ.Localization;
+using Game.Data;
+using Game.Localization;
 using UnityEngine;
 
-namespace CCQ.UI
+namespace Game.UI
 {
     /// <summary>
     /// The decision panel: 3 upgrade cards, or 4 options for a sidekick swap

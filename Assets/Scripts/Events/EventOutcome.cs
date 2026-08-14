@@ -1,7 +1,7 @@
-using CCQ.Data;
-using CCQ.Localization;
+using Game.Data;
+using Game.Localization;
 
-namespace CCQ.Events
+namespace Game.Events
 {
     /// <summary>
     /// Result of a resolved peaceful event, consumed by GameManager/UI.

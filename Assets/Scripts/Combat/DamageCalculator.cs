@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>Spec damage formula: atk × rand(1±variance) [× critMult] − def, minimum 1.</summary>
     public static class DamageCalculator

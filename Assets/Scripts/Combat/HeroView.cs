@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Combat
+namespace Game.Combat
 {
     /// <summary>
     /// Astro-alien hero. Every sprite is baked to an asset at build time and assigned on the

@@ -1,4 +1,4 @@
-namespace CCQ.Events
+namespace Game.Events
 {
     public enum EventType
     {

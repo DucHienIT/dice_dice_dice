@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace CCQ.EditorTools
+namespace Game.EditorTools
 {
     /// <summary>
     /// One menu item = one correct build. Every PlayerSetting that changes the output is
@@ -14,7 +14,7 @@ namespace CCQ.EditorTools
     /// Settings owned: WebGL compression + decompression fallback + data caching, WebGL
     /// template, default web canvas size, interface orientation / autorotate, product name.
     /// </summary>
-    public static class CcqWebGLBuilder
+    public static class WebGLBuilder
     {
         private const string OutputRoot = "Builds/WebGL";
         private const string ReleaseDirectory = OutputRoot + "/Release";
@@ -30,21 +30,21 @@ namespace CCQ.EditorTools
         private const int PortraitWidth = 1080;
         private const int PortraitHeight = 1920;
 
-        [MenuItem("Tools/CCQ/Build WebGL (Release)", false, 100)]
+        [MenuItem("Tools/Game/Build WebGL (Release)", false, 100)]
         public static void BuildRelease() =>
             Build(ReleaseDirectory, BuildOptions.None, WebGLCompressionFormat.Brotli, true);
 
-        [MenuItem("Tools/CCQ/Build WebGL (Development)", false, 101)]
+        [MenuItem("Tools/Game/Build WebGL (Development)", false, 101)]
         public static void BuildDevelopment() =>
             Build(DevelopmentDirectory, BuildOptions.Development,
                 WebGLCompressionFormat.Disabled, false);
 
-        [MenuItem("Tools/CCQ/Build And Run WebGL (Development)", false, 102)]
+        [MenuItem("Tools/Game/Build And Run WebGL (Development)", false, 102)]
         public static void BuildAndRunDevelopment() =>
             Build(DevelopmentDirectory, BuildOptions.Development | BuildOptions.AutoRunPlayer,
                 WebGLCompressionFormat.Disabled, false);
 
-        [MenuItem("Tools/CCQ/Apply Portrait Presentation", false, 120)]
+        [MenuItem("Tools/Game/Apply Portrait Presentation", false, 120)]
         public static void ApplyPresentationMenu()
         {
             ApplyPresentation();
@@ -53,11 +53,11 @@ namespace CCQ.EditorTools
                       $"canvas {PortraitWidth}x{PortraitHeight}, product '{ProductName}'.");
         }
 
-        [MenuItem("Tools/CCQ/Open WebGL Build Folder", false, 140)]
+        [MenuItem("Tools/Game/Open WebGL Build Folder", false, 140)]
         public static void OpenBuildFolder() =>
             EditorUtility.RevealInFinder(Path.GetFullPath(OutputRoot) + Path.DirectorySeparatorChar);
 
-        [MenuItem("Tools/CCQ/Open WebGL Build Folder", true)]
+        [MenuItem("Tools/Game/Open WebGL Build Folder", true)]
         public static bool CanOpenBuildFolder() => Directory.Exists(OutputRoot);
 
         // ---------------------------------------------------------------- build

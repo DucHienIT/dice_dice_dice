@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CCQ.Audio
+namespace Game.Audio
 {
     /// <summary>
     /// Procedural audio: every clip is synthesized once at startup — no audio files.
