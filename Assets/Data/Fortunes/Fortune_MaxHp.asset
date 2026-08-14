@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fortune_MaxHp
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Fortune
   _nameKey: Fortune/MaxHp
-  _icon: {fileID: 21300000, guid: 21cb8c775421e4096915fe18192a6f63, type: 3}
+  _icon: {fileID: 21300000, guid: cb067d40f32bc47a9b11a6697367400c, type: 3}
   _mods:
   - Type: 0
     Value: 0.07

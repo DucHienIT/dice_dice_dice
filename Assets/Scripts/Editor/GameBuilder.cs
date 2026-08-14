@@ -922,7 +922,7 @@ namespace Game.EditorTools
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -14f),
                 new Vector2(76f, 76f));
             Image gearImg = AddImage(gear, LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"),
-                Color.white, true, false);
+                Hex("#2a2018"), true, false);
             Button gearBtn = AddButton(gear, gearImg);
             RectTransform gearIcon = Place(NewUiChild(gear, "Icon"), new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f));
@@ -934,7 +934,7 @@ namespace Game.EditorTools
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-108f, -14f),
                 new Vector2(76f, 76f));
             Image homeImg = AddImage(home, LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"),
-                Color.white, true, false);
+                Hex("#2a2018"), true, false);
             Button homeBtn = AddButton(home, homeImg);
             AddImage(Place(NewUiChild(home, "Icon"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(42f, 42f)),
@@ -958,7 +958,7 @@ namespace Game.EditorTools
                 new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-20f, 1126f),
                 new Vector2(120f, 64f));
             Image speedImg = AddImage(speed, LoadSprite(ButtonsDir + "Button_Basic_Rectangle_H46_White.png"),
-                Color.white, true);
+                Hex("#2a2018"), true);
             Button speedBtn = AddButton(speed, speedImg);
             var speedLabel = AddTmp(Stretch(NewUiChild(speed, "Label")), "x1", 34f,
                 Color.white, font, TextAlignmentOptions.Center);
@@ -1348,7 +1348,7 @@ namespace Game.EditorTools
             RectTransform close = Place(NewUiChild(card, "Close"), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 1f), new Vector2(0f, -34f), new Vector2(112f, 112f));
             Image closeImg = AddImage(close,
-                LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"), Color.white, true);
+                LoadSprite(ButtonsDir + "Button_Border_Circle_H67_White_Bg.png"), Hex("#2a2018"), true);
             Button closeBtn = AddButton(close, closeImg);
             AddImage(Place(NewUiChild(close, "X"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(52f, 52f)),
@@ -1406,7 +1406,7 @@ namespace Game.EditorTools
             RectTransform avatarBase = Place(NewUiChild(chip, "AvatarBase"),
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(10f, 0f), new Vector2(66f, 66f));
-            AddImage(avatarBase, purplePanel, Color.white);
+            AddImage(avatarBase, purplePanel, Hex("#2a2018"));
             AddImage(Place(NewUiChild(avatarBase, "Avatar"), new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(38f, 38f)),
                 LoadSprite(PictoIcons + "PictoIcon_Skin.Png"), Color.white);

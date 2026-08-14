@@ -352,7 +352,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2cad51a5d3836254fb98d2b1982c8b6d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Combat.HeroView
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Combat.HeroView
   _rig: {fileID: 1462582687443636470}
   _shadow: {fileID: 8926275060281656359}
   _sword: {fileID: 1156388678488760909}

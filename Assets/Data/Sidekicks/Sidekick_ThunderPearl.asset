@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 261a7fd1f69c4bc46b6db2ef594e74cd, type: 3}
-  m_Name: Sidekick_Zappy
+  m_Name: Sidekick_ThunderPearl
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Sidekick
   _id: spark
-  _nameKey: Sidekick/Zappy/Name
-  _descriptionKey: Sidekick/Zappy/Desc
-  _icon: {fileID: 21300000, guid: dfc9a525fbb2c432287a50678b1eb0b3, type: 3}
+  _nameKey: Sidekick/ThunderPearl/Name
+  _descriptionKey: Sidekick/ThunderPearl/Desc
+  _icon: {fileID: 21300000, guid: 9851fb8e6f12a40d09379e3d9a144449, type: 3}
   _orbSprite: {fileID: 21300000, guid: f406099d888d45a47a38a24f893ee8ca, type: 3}
   _color: {r: 1, g: 0.827451, b: 0.36078432, a: 1}
   _type: 3

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
-  m_Name: Meta_AegisWeave
+  m_Name: Meta_Foundation
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
-  _id: AegisWeave
-  _nameKey: Meta/AegisWeave/Name
-  _descriptionKey: Meta/AegisWeave/Desc
+  _id: Foundation
+  _nameKey: Meta/Foundation/Name
+  _descriptionKey: Meta/Foundation/Desc
   _rankIcons:
   - {fileID: 21300000, guid: 449419108ff8f4676943e837eb13abb5, type: 3}
   - {fileID: 21300000, guid: 14a650a5a7d1b4f35a7398afea992d85, type: 3}

@@ -44,7 +44,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdc128c7e44afde4ba46ced53a1b6015, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Sidekicks.SidekickOrbView
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Sidekicks.SidekickOrbView
   _body: {fileID: 1575631671937243812}
 --- !u!1 &8546001364650862297
 GameObject:

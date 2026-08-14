@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
-  m_Name: Meta_QuillPlate
+  m_Name: Meta_NascentSoul
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
-  _id: QuillPlate
-  _nameKey: Meta/QuillPlate/Name
-  _descriptionKey: Meta/QuillPlate/Desc
+  _id: NascentSoul
+  _nameKey: Meta/NascentSoul/Name
+  _descriptionKey: Meta/NascentSoul/Desc
   _rankIcons:
   - {fileID: 21300000, guid: edca069d5dcdb4311b3b9b1e485b997f, type: 3}
   - {fileID: 21300000, guid: 191ad806a9e304f57b86ace14615f291, type: 3}

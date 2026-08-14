@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e91d37cf9b4e704da06a444e71fa3b3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CCQ.Combat.HpBarView
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Combat.HpBarView
   _fill: {fileID: 8776559900944839091}
   _value: {fileID: 9129042351628166565}
   _fillTint: {r: 1, g: 1, b: 1, a: 1}
@@ -203,7 +203,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 22b2a39454962854c98de676b4e688bc, type: 2}
+  - {fileID: 2100000, guid: 8704e6634e9512847908bd430eed8d39, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -249,8 +249,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8cdec3f89be2d9a4caf725089bc67865, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 22b2a39454962854c98de676b4e688bc, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7584aae56072f0344beebfac0e1d2a68, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8704e6634e9512847908bd430eed8d39, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

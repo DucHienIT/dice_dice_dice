@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
-  m_Name: Upgrade_UnstableCore
+  m_Name: Upgrade_QiDeviation
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _nameKey: Upgrade/UnstableCore/Name
-  _descriptionKey: Upgrade/UnstableCore/Desc
-  _icon: {fileID: 21300000, guid: 6a804579ee240497ab330defdfcfad4e, type: 3}
+  _nameKey: Upgrade/QiDeviation/Name
+  _descriptionKey: Upgrade/QiDeviation/Desc
+  _icon: {fileID: 21300000, guid: 9195d4643c4b646cb94fcfb537f62d0c, type: 3}
   _mods:
   - Type: 1
     Value: 0.3

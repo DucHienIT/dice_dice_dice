@@ -50,25 +50,32 @@ MonoBehaviour:
   _treasureKeys:
   - Narrative/Treasure/1
   - Narrative/Treasure/2
-  _planetClearKeys:
-  - Narrative/PlanetClear/1
+  _worldClearKeys:
+  - Narrative/WorldClear/1
   _levelUpSuffixKey: Narrative/LevelUpSuffix
+  _realmNameKeys:
+  - Realm/QiRefining
+  - Realm/Foundation
+  - Realm/GoldenCore
+  - Realm/NascentSoul
+  - Realm/SpiritTransformation
+  - Realm/Tribulation
   _introNewRunKey: Narrative/IntroNewRun
   _introResumeKey: Narrative/IntroResume
   _deathKey: Narrative/Death
-  _critterNameKeys:
-  - Narrative/CritterName/1
-  - Narrative/CritterName/2
-  - Narrative/CritterName/3
-  - Narrative/CritterName/4
-  - Narrative/CritterName/5
-  - Narrative/CritterName/6
-  - Narrative/CritterName/7
-  - Narrative/CritterName/8
+  _enemyNameKeys:
+  - Narrative/BeastName/1
+  - Narrative/BeastName/2
+  - Narrative/BeastName/3
+  - Narrative/BeastName/4
+  - Narrative/BeastName/5
+  - Narrative/BeastName/6
+  - Narrative/BeastName/7
+  - Narrative/BeastName/8
   _bossNameKeys:
   - Narrative/BossName/1
   - Narrative/BossName/2
   - Narrative/BossName/3
   - Narrative/BossName/4
   - Narrative/BossName/5
-  _glyphChars: 0123456789<>/|+=*#@%&?!~^
+  _glyphChars: <>/|+=*#%&?!~^

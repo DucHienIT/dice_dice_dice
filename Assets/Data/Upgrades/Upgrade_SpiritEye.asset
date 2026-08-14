@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
-  m_Name: Upgrade_TargetingVisor
+  m_Name: Upgrade_SpiritEye
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _nameKey: Upgrade/TargetingVisor/Name
-  _descriptionKey: Upgrade/TargetingVisor/Desc
-  _icon: {fileID: 21300000, guid: 259dadc21121243e3b779e0d908ce878, type: 3}
+  _nameKey: Upgrade/SpiritEye/Name
+  _descriptionKey: Upgrade/SpiritEye/Desc
+  _icon: {fileID: 21300000, guid: e0d9939b4e24549aebfe1441f4104b8b, type: 3}
   _mods:
   - Type: 3
     Value: 0.08

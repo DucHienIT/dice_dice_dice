@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
-  m_Name: Meta_LuckyNova
+  m_Name: Meta_SpiritSevering
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
-  _id: LuckyNova
-  _nameKey: Meta/LuckyNova/Name
-  _descriptionKey: Meta/LuckyNova/Desc
+  _id: SpiritSevering
+  _nameKey: Meta/SpiritSevering/Name
+  _descriptionKey: Meta/SpiritSevering/Desc
   _rankIcons:
   - {fileID: 21300000, guid: 4d69f56420e294687916e6bb7621b018, type: 3}
   - {fileID: 21300000, guid: 7ca410a5468334b74abfc8bb47ca0530, type: 3}

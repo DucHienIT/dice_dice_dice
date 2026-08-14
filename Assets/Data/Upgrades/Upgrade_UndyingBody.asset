@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
-  m_Name: Upgrade_GeneSplice
+  m_Name: Upgrade_UndyingBody
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _nameKey: Upgrade/GeneSplice/Name
-  _descriptionKey: Upgrade/GeneSplice/Desc
-  _icon: {fileID: 21300000, guid: 6f34fbb70ecfc4511854f0bd608f67ce, type: 3}
+  _nameKey: Upgrade/UndyingBody/Name
+  _descriptionKey: Upgrade/UndyingBody/Desc
+  _icon: {fileID: 21300000, guid: 979e49490cb604527b55ed31c741d96a, type: 3}
   _mods:
   - Type: 0
     Value: 0.22

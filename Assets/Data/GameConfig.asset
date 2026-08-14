@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4d6ea626698555409fc2c2e2dd63ed2, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.GameConfig
-  _roundsPerPlanet: 30
+  _roundsPerWorld: 30
   _bossEvery: 10
   _eliteChance: 0.12
   _speeds: 010000000200000004000000
@@ -61,7 +61,7 @@ MonoBehaviour:
   _treasureXp: {x: 0.5, y: 1.2}
   _maxSidekicks: 3
   _snackHeal: 0.15
-  _planetClearHeal: 0.5
+  _worldClearHeal: 0.5
   _metaUpgrades:
   - {fileID: 11400000, guid: b226211d3f879c240a94226ea4042fad, type: 2}
   - {fileID: 11400000, guid: dce5a2f741d138642819e293e2f6b757, type: 2}
@@ -72,7 +72,7 @@ MonoBehaviour:
   _shardsPerRound: 0.5
   _shardsPerElite: 2
   _shardsPerBoss: 6
-  _shardsPerPlanetClear: 15
+  _shardsPerWorldClear: 15
   _upgrades:
   - {fileID: 11400000, guid: 5369a1fe62c0a1047ae969fedc355f91, type: 2}
   - {fileID: 11400000, guid: ac17fd3c3ebc914439ae6edfacde63d7, type: 2}
@@ -93,20 +93,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 531fa21496d33f643a6e7748fe80eab1, type: 2}
   - {fileID: 11400000, guid: 021359b4d74c3d5418fc4aa83b487ce6, type: 2}
   - {fileID: 11400000, guid: 64d0cbbe9ffc23c4297cedc42bd226ea, type: 2}
-  _planets:
+  _worlds:
   - {fileID: 11400000, guid: 284e4cddd3a8bf742811b171d9dcd948, type: 2}
   - {fileID: 11400000, guid: 519ea3dc64912ea4f93d2278171bfb69, type: 2}
   - {fileID: 11400000, guid: ac31343f4ef1b7844b325a2f1cbaad01, type: 2}
   - {fileID: 11400000, guid: e11603e82877e4f4a882cd8172f9ff94, type: 2}
   - {fileID: 11400000, guid: 88c25d1c85cbd594abc051653ab60c95, type: 2}
-  _critterColors:
-  - {r: 1, g: 0.41960785, b: 0.56078434, a: 1}
-  - {r: 1, g: 0.64705884, b: 0.23921569, a: 1}
+  _enemyColors:
+  - {r: 0.9098039, g: 0.72156864, b: 0.30980393, a: 1}
+  - {r: 0.7529412, g: 0.2901961, b: 0.22745098, a: 1}
+  - {r: 0.36078432, g: 0.72156864, b: 0.627451, a: 1}
   - {r: 0.56078434, g: 0.41960785, b: 1, a: 1}
-  - {r: 0.2901961, g: 0.83137256, b: 0.56078434, a: 1}
-  - {r: 1, g: 0.36078432, b: 0.36078432, a: 1}
-  - {r: 0.36078432, g: 0.72156864, b: 1, a: 1}
-  - {r: 0.9098039, g: 0.83137256, b: 0.23921569, a: 1}
+  - {r: 0.83137256, g: 0.36078432, b: 0.5411765, a: 1}
+  - {r: 0.2901961, g: 0.5647059, b: 0.83137256, a: 1}
+  - {r: 0.60784316, g: 0.83137256, b: 0.36078432, a: 1}
   _lungeDuration: 0.35
   _hitPoint: 0.45
   _winDelay: 0.45

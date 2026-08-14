@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
-  m_Name: Meta_IonEdge
+  m_Name: Meta_QiRefining
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
-  _id: IonEdge
-  _nameKey: Meta/IonEdge/Name
-  _descriptionKey: Meta/IonEdge/Desc
+  _id: QiRefining
+  _nameKey: Meta/QiRefining/Name
+  _descriptionKey: Meta/QiRefining/Desc
   _rankIcons:
   - {fileID: 21300000, guid: c9dcdacc46cc44eb4a5977570eccb4bd, type: 3}
   - {fileID: 21300000, guid: 3d6070f48c2974108a34fa1b52ff0067, type: 3}

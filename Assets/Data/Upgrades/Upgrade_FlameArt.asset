@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
-  m_Name: Upgrade_PlasmaCell
+  m_Name: Upgrade_FlameArt
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _nameKey: Upgrade/PlasmaCell/Name
-  _descriptionKey: Upgrade/PlasmaCell/Desc
-  _icon: {fileID: 21300000, guid: 8ff133579bcb14533bcae0e2e37ce9fe, type: 3}
+  _nameKey: Upgrade/FlameArt/Name
+  _descriptionKey: Upgrade/FlameArt/Desc
+  _icon: {fileID: 21300000, guid: a5edbb1acb3234a5db0f0daa141eb77b, type: 3}
   _mods:
   - Type: 1
     Value: 0.18

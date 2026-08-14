@@ -10,21 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94320bd62fd54d64dbd2cb0b2c493cf9, type: 3}
-  m_Name: Planet_Voidreach
+  m_Name: World_HollowDeep
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Planet
-  _nameKey: Planet/Voidreach
-  _skyTop: {r: 0.019607844, g: 0.011764706, b: 0.05882353, a: 1}
-  _skyBottom: {r: 0.101960786, g: 0.039215688, b: 0.18039216, a: 1}
-  _lake: {r: 0.9098039, g: 0.23921569, b: 0.56078434, a: 1}
-  _lakeDeep: {r: 0.56078434, g: 0.078431375, b: 0.34509805, a: 1}
-  _ground: {r: 0.16470589, g: 0.05882353, b: 0.20784314, a: 1}
-  _rock: {r: 0.10980392, g: 0.05882353, b: 0.18039216, a: 1}
-  _moon: {r: 1, g: 0.60784316, b: 0.80784315, a: 1}
+  _nameKey: World/HollowDeep
+  _skyTop: {r: 0.039215688, g: 0.039215688, b: 0.05882353, a: 1}
+  _skyBottom: {r: 0.10980392, g: 0.078431375, b: 0.15686275, a: 1}
+  _lake: {r: 0.83137256, g: 0.64705884, b: 0.23921569, a: 1}
+  _lakeDeep: {r: 0.5411765, g: 0.39215687, b: 0.1254902, a: 1}
+  _ground: {r: 0.14117648, g: 0.10980392, b: 0.1882353, a: 1}
+  _rock: {r: 0.101960786, g: 0.078431375, b: 0.14117648, a: 1}
+  _moon: {r: 0.9411765, g: 0.8784314, b: 0.6901961, a: 1}
   _flora:
-  - {r: 1, g: 0.18039216, b: 0.47843137, a: 1}
-  - {r: 0.56078434, g: 0.18039216, b: 1, a: 1}
-  - {r: 0.18039216, g: 1, b: 0.84705883, a: 1}
+  - {r: 1, g: 0.827451, b: 0.36078432, a: 1}
+  - {r: 0.7529412, g: 0.2901961, b: 0.22745098, a: 1}
+  - {r: 0.56078434, g: 0.36078432, b: 1, a: 1}
   _skyLayer: {fileID: 21300000, guid: 968bed4d27fdb224d9b5a4b099d4b9e1, type: 3}
   _groundLayer: {fileID: 21300000, guid: f4c62f3b41084114aa1c32c4c62c6732, type: 3}
-  _musicRootHz: 73.42
+  _musicRootHz: 98
   _minorMood: 1
+  _melodyDegrees: 00000000ffffffff0100000000000000ffffffff0400000002000000ffffffff

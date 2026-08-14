@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fortune_Atk
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Fortune
   _nameKey: Fortune/Atk
-  _icon: {fileID: 21300000, guid: 5c0f356e8fdb749c292f0a699fde4480, type: 3}
+  _icon: {fileID: 21300000, guid: 0556552df2e304f23b60de8c1a528f1b, type: 3}
   _mods:
   - Type: 1
     Value: 0.05

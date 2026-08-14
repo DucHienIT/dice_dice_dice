@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fortune_Def
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.Fortune
   _nameKey: Fortune/Def
-  _icon: {fileID: 21300000, guid: 835bb0042ed8d4333baab9882016e7b9, type: 3}
+  _icon: {fileID: 21300000, guid: f569ddd85d34045b1b68f2df0d0c56b0, type: 3}
   _mods:
   - Type: 2
     Value: 2

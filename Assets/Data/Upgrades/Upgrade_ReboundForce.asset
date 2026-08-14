@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15e7a89dd87dba9468411cd7c3c2121e, type: 3}
-  m_Name: Upgrade_SpikeMembrane
+  m_Name: Upgrade_ReboundForce
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.UpgradeCard
-  _nameKey: Upgrade/SpikeMembrane/Name
-  _descriptionKey: Upgrade/SpikeMembrane/Desc
-  _icon: {fileID: 21300000, guid: 3327e0f395a1947e38f2c530c51b109b, type: 3}
+  _nameKey: Upgrade/ReboundForce/Name
+  _descriptionKey: Upgrade/ReboundForce/Desc
+  _icon: {fileID: 21300000, guid: bae21cd8000f741699b9ba1f7c3b060b, type: 3}
   _mods:
   - Type: 5
     Value: 0.2

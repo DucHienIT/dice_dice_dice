@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea0fbc6da9481d34f83bfb7d9e54384c, type: 3}
-  m_Name: Meta_StarHull
+  m_Name: Meta_BodyTempering
   m_EditorClassIdentifier: Assembly-CSharp::CCQ.Data.MetaUpgrade
-  _id: StarHull
-  _nameKey: Meta/StarHull/Name
-  _descriptionKey: Meta/StarHull/Desc
+  _id: BodyTempering
+  _nameKey: Meta/BodyTempering/Name
+  _descriptionKey: Meta/BodyTempering/Desc
   _rankIcons:
   - {fileID: 21300000, guid: 27bec90f229e74928b5433276673e923, type: 3}
   - {fileID: 21300000, guid: 2674867d19bf84f2bb74cbfaa7e811a2, type: 3}
