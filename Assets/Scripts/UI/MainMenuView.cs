@@ -21,10 +21,19 @@ namespace CCQ.UI
         [SerializeField] private TextMeshProUGUI _levelLabel;
         [SerializeField] private TextMeshProUGUI _shardLabel;
 
+        [Header("World presentation")]
+        [SerializeField] private Transform _heroPresentation;
+        private Vector3 _heroGameplayPosition;
+        private Vector3 _heroGameplayScale;
+        private bool _heroPresentationCaptured;
+        private const float MenuHeroScale = 1.45f;
+
         [Header("Banner")]
         [SerializeField] private TextMeshProUGUI _title;
         [SerializeField] private TextMeshProUGUI _progress;
         [SerializeField] private TextMeshProUGUI _best;
+        [SerializeField] private Image _progressFill;
+
 
         [Header("Call to action")]
         [SerializeField] private Button _startButton;
@@ -76,11 +85,56 @@ namespace CCQ.UI
                 ? Loc.Format(LocKeys.OverlayBestShort, best.planet, best.round)
                 : string.Empty;
 
+            if (_progressFill != null)
+            {
+                float totalRounds = Mathf.Max(1f, status.RoundsPerPlanet);
+                _progressFill.fillAmount = canContinue
+                    ? Mathf.Clamp01(status.Round / totalRounds)
+                    : 0f;
+            }
+
+            SetHeroPresentation(true);
             if (!gameObject.activeSelf) gameObject.SetActive(true);
+        }
+
+        private void LateUpdate()
+        {
+            if (!gameObject.activeSelf || !_heroPresentationCaptured ||
+                _heroPresentation == null) return;
+
+            Vector3 position = _heroPresentation.position;
+            position.x = 0f;
+            _heroPresentation.position = position;
+        }
+
+        private void SetHeroPresentation(bool menuMode)
+        {
+            if (_heroPresentation == null) return;
+
+            if (!_heroPresentationCaptured)
+            {
+                _heroGameplayPosition = _heroPresentation.localPosition;
+                _heroGameplayScale = _heroPresentation.localScale;
+                _heroPresentationCaptured = true;
+            }
+
+            if (menuMode)
+            {
+                Vector3 menuPosition = _heroGameplayPosition;
+                menuPosition.x = 0f;
+                _heroPresentation.localPosition = menuPosition;
+                _heroPresentation.localScale = _heroGameplayScale * MenuHeroScale;
+            }
+            else
+            {
+                _heroPresentation.localPosition = _heroGameplayPosition;
+                _heroPresentation.localScale = _heroGameplayScale;
+            }
         }
 
         public void Hide()
         {
+            SetHeroPresentation(false);
             if (gameObject.activeSelf) gameObject.SetActive(false);
         }
     }

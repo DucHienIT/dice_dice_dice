@@ -153,10 +153,12 @@ namespace CCQ.Core
             _ui.RefreshStaticText();
             RefreshAll();
             RenderEvent();
+            // settings, the profile and the records panel all open on top of the front
+            // screen, so it needs re-rendering even when it is not the modal on top
+            if (_ui.Menu.IsOpen) RefreshMenu();
             if (_openOverlay == OverlayKind.Settings) ShowSettings();
             else if (_openOverlay == OverlayKind.Death) ShowDeathOverlay(_deathWasNewBest);
             else if (_openOverlay == OverlayKind.Forge) _ui.RefreshForge(_meta);
-            else if (_openOverlay == OverlayKind.Menu) ShowMenu(_menuCanContinue);
             else if (_openOverlay == OverlayKind.Profile) ShowProfile();
             else if (_openOverlay == OverlayKind.Records) ShowRecords();
         }
@@ -685,6 +687,15 @@ namespace CCQ.Core
             // one does not: the menu would show the monster that just killed the player.
             if (_state == GameState.Dead) _stage.HideEnemy();
             _stage.SetBarsVisible(false);
+            RefreshMenu();
+        }
+
+        /// <summary>
+        /// Re-sends the front screen's values without disturbing whatever is open on top of
+        /// it — the menu's own text comes from here, not from RefreshStaticText.
+        /// </summary>
+        private void RefreshMenu()
+        {
             var status = new MenuStatus
             {
                 Level = _run.Player.Level,
@@ -693,7 +704,7 @@ namespace CCQ.Core
                 Round = _run.Round,
                 RoundsPerPlanet = _config.RoundsPerPlanet
             };
-            _ui.ShowMenu(canContinue, status, SaveSystem.LoadBest());
+            _ui.ShowMenu(_menuCanContinue, status, SaveSystem.LoadBest());
             // the tab bar only exists here, so this is the only place its badge can matter
             _ui.SetForgeBadge(_meta.HasAffordableStep(_config));
         }

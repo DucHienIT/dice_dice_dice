@@ -47,6 +47,10 @@ namespace CCQ.EditorTools
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_ItemIcons(x2)/128/Icon_Star.png";
         private const string ButtonsDir =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Button/";
+        private const string FramesDir =
+            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Frame/";
+        private const string PopupsDir =
+            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Popup/";
         private const string FontTtf =
             "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Fonts/LilitaOne-Regular.ttf";
         // LilitaOne carries no Vietnamese glyphs, so localized languages get their own font
@@ -108,6 +112,60 @@ namespace CCQ.EditorTools
             AssetDatabase.SaveAssets();
             Debug.Log("[Builder] Cosmic Critter Quest build complete → " + ScenePath);
         }
+
+        [MenuItem("Tools/CCQ/Rebuild Main Menu UI")]
+        public static void RebuildMainMenuUi()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogWarning("[Builder] Stop Play Mode before rebuilding the main menu UI.");
+                return;
+            }
+
+            GameObject uiRoot = GameObject.Find("UI");
+            if (uiRoot == null)
+            {
+                Debug.LogError("[Builder] Cannot rebuild main menu: scene has no UI root.");
+                return;
+            }
+
+            TMP_FontAsset font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                                      UiDataDir + "/LilitaOne SDF.asset")
+                                  ?? TMP_Settings.defaultFontAsset;
+            if (font == null)
+            {
+                Debug.LogError("[Builder] Cannot rebuild main menu: no TMP font is available.");
+                return;
+            }
+
+            Transform existing = uiRoot.transform.Find("Canvas_Menu");
+            if (existing != null) Object.DestroyImmediate(existing.gameObject);
+
+            MainMenuView menu = BuildMenuCanvas(uiRoot.transform, font, out NavBarView nav);
+            UIController controller = uiRoot.GetComponent<UIController>();
+            if (controller == null)
+            {
+                Debug.LogError("[Builder] Cannot wire main menu: UI root has no UIController.");
+                Object.DestroyImmediate(menu.transform.parent.parent.gameObject);
+                return;
+            }
+
+            SetPrivate(controller, "_menu", menu);
+            SetPrivate(controller, "_nav", nav);
+
+            LocalizedFontView localizedFonts = uiRoot.GetComponent<LocalizedFontView>();
+            if (localizedFonts != null)
+            {
+                SetPrivate(localizedFonts, "_uiTexts",
+                    uiRoot.GetComponentsInChildren<TextMeshProUGUI>(true));
+            }
+
+            EditorSceneManager.MarkSceneDirty(uiRoot.scene);
+            EditorSceneManager.SaveScene(uiRoot.scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Builder] Main menu UI rebuilt from Layer Lab assets.");
+        }
+
 
         // ================= font =================
 
@@ -1098,24 +1156,31 @@ namespace CCQ.EditorTools
         /// the play HUD. 150 px tall is ~50 dp — above the 48 dp minimum touch target — and
         /// the whole tab is the button, not just its icon.
         /// </summary>
-        private static NavBarView BuildNavBar(RectTransform panel, Sprite uiSprite,
-            TMP_FontAsset font)
+        private static NavBarView BuildNavBar(RectTransform panel, TMP_FontAsset font)
         {
             RectTransform bar = NewUiChild(panel, "NavBar");
             bar.anchorMin = new Vector2(0f, 0f);
             bar.anchorMax = new Vector2(1f, 0f);
             bar.pivot = new Vector2(0.5f, 0f);
             bar.anchoredPosition = Vector2.zero;
-            bar.sizeDelta = new Vector2(0f, 150f);
+            bar.sizeDelta = new Vector2(0f, 154f);
             var nav = bar.gameObject.AddComponent<NavBarView>();
-            AddImage(bar, null, Hex("#0d0820"));
-            RectTransform hairline = NewUiChild(bar, "TopLine");
-            hairline.anchorMin = new Vector2(0f, 1f);
-            hairline.anchorMax = new Vector2(1f, 1f);
-            hairline.pivot = new Vector2(0.5f, 1f);
-            hairline.anchoredPosition = Vector2.zero;
-            hairline.sizeDelta = new Vector2(0f, 2f);
-            AddImage(hairline, null, new Color(0.43f, 0.9f, 1f, 0.22f));
+
+            Color navColor = Hex("#0b1734");
+            navColor.a = 0.97f;
+            AddImage(bar, BuiltinUiSprite(), navColor);
+            var navShadow = bar.gameObject.AddComponent<Shadow>();
+            navShadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
+            navShadow.effectDistance = new Vector2(0f, 8f);
+            navShadow.useGraphicAlpha = true;
+
+            RectTransform topLine = NewUiChild(bar, "TopLine");
+            topLine.anchorMin = new Vector2(0f, 1f);
+            topLine.anchorMax = new Vector2(1f, 1f);
+            topLine.pivot = new Vector2(0.5f, 1f);
+            topLine.anchoredPosition = Vector2.zero;
+            topLine.sizeDelta = new Vector2(0f, 3f);
+            AddImage(topLine, null, new Color(0.36f, 0.89f, 1f, 0.28f));
 
             string[] icons =
             {
@@ -1127,26 +1192,34 @@ namespace CCQ.EditorTools
             var buttons = new Button[NavBarView.TabCount];
             var labels = new TextMeshProUGUI[NavBarView.TabCount];
             GameObject badge = null;
-            Color tabBg = Hex("#1a1240");
-            tabBg.a = 0.5f;
             for (int i = 0; i < NavBarView.TabCount; i++)
             {
-                RectTransform tab = Place(NewUiChild(bar, "Tab" + i), new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f), new Vector2((i - 1.5f) * 268f, 0f),
-                    new Vector2(256f, 130f));
-                Image tabImg = AddImage(tab, uiSprite, tabBg, true);
+                RectTransform tab = Place(NewUiChild(bar, "Tab" + i), new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0f), new Vector2((i - 1.5f) * 258f, 10f),
+                    new Vector2(236f, 130f));
+                Image tabImg = AddImage(tab, BuiltinUiSprite(),
+                    new Color(1f, 1f, 1f, 0.001f), true);
                 buttons[i] = AddButton(tab, tabImg);
-                RectTransform icon = Place(NewUiChild(tab, "Icon"), new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f), new Vector2(0f, 24f), new Vector2(56f, 56f));
-                AddImage(icon, LoadSprite(icons[i]), Color.white);
-                labels[i] = AddTmp(Place(NewUiChild(tab, "Label"), new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f), new Vector2(0f, -36f), new Vector2(240f, 34f)),
-                    "", 24f, Hex("#c9cff2"), font, TextAlignmentOptions.Center);
+
+                RectTransform iconPlate = Place(NewUiChild(tab, "IconPlate"),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 20f), new Vector2(64f, 64f));
+                AddImage(iconPlate, BuiltinUiSprite(), Hex("#182a52"));
+                RectTransform icon = Place(NewUiChild(iconPlate, "Icon"),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
+                    new Vector2(40f, 40f));
+                AddImage(icon, LoadSprite(icons[i]), Hex("#dce8ff"));
+
+                labels[i] = AddTmp(Place(NewUiChild(tab, "Label"),
+                        new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                        new Vector2(0f, -36f), new Vector2(220f, 30f)),
+                    "", 22f, Hex("#aebbdc"), font, TextAlignmentOptions.Center);
+
                 if (i != 0) continue;
-                // unread-style dot: the forge is the only tab with something to chase
-                RectTransform dot = Place(NewUiChild(tab, "Badge"), new Vector2(0.5f, 0.5f),
-                    new Vector2(0.5f, 0.5f), new Vector2(38f, 44f), new Vector2(24f, 24f));
-                AddImage(dot, uiSprite, Hex("#ff4a6b"));
+                RectTransform dot = Place(NewUiChild(tab, "Badge"),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    new Vector2(31f, 48f), new Vector2(22f, 22f));
+                AddImage(dot, BuiltinUiSprite(), Hex("#ffd35c"));
                 badge = dot.gameObject;
             }
 
@@ -1237,91 +1310,163 @@ namespace CCQ.EditorTools
             Canvas canvas = NewCanvas(uiRoot, "Canvas_Menu", 28, out RectTransform frame);
             RectTransform root = Stretch(NewUiChild(frame, "Menu"));
             var menu = root.gameObject.AddComponent<MainMenuView>();
-            AddImage(root, null, new Color(0.02f, 0.01f, 0.08f, 0.55f), true);
+            AddImage(root, null, new Color(0.01f, 0.005f, 0.05f, 0.10f), true);
 
-            Sprite uiSprite = BuiltinUiSprite();
+            Sprite purplePanel = LoadSprite(PopupsDir + "Popup_Frame01_Purple.png");
             Sprite shard = LoadSprite(ShardIcon);
-            Color chipColor = Hex("#1a1240");
-            chipColor.a = 0.92f;
+            Sprite uiSprite = BuiltinUiSprite();
 
-            // The console canvas is parked while the menu is up, and the planet art does not
-            // reach the bottom of the screen — this plate takes over that half of the frame.
-            Color deckColor = Hex("#120c28");
-            deckColor.a = 0.97f;
-            RectTransform deck = NewUiChild(root, "Deck");
-            deck.anchorMin = new Vector2(0f, 0f);
-            deck.anchorMax = new Vector2(1f, 0f);
-            deck.pivot = new Vector2(0.5f, 0f);
-            deck.anchoredPosition = Vector2.zero;
-            // just tall enough to start where the planet art stops, so no black gap opens up
-            deck.sizeDelta = new Vector2(0f, 800f);
-            AddImage(deck, null, deckColor);
+            // Keep the character and planet as the hero art. A restrained glow adds focus
+            // without covering the live world with another decorative card.
+            RectTransform heroAura = Place(NewUiChild(root, "HeroAura"),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 380f), new Vector2(620f, 620f));
+            Color auraColor = Hex("#58e7ff");
+            auraColor.a = 0.10f;
+            AddImage(heroAura, LoadSprite(SoftGlow), auraColor, false, false);
 
-            // ---- status chips, the way a mobile home screen opens ----
+            Color hudColor = Hex("#101d42");
+            hudColor.a = 0.94f;
+
             RectTransform chip = Place(NewUiChild(root, "ProfileChip"), new Vector2(0f, 1f),
-                new Vector2(0f, 1f), new Vector2(22f, -20f), new Vector2(288f, 96f));
-            Image chipImg = AddImage(chip, uiSprite, chipColor, true);
+                new Vector2(0f, 1f), new Vector2(24f, -24f), new Vector2(268f, 84f));
+            Image chipImg = AddImage(chip, uiSprite, hudColor, true);
             Button profileBtn = AddButton(chip, chipImg);
-            AddImage(Place(NewUiChild(chip, "Avatar"), new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(68f, 68f)),
+            var chipShadow = chip.gameObject.AddComponent<Shadow>();
+            chipShadow.effectColor = new Color(0f, 0f, 0f, 0.35f);
+            chipShadow.effectDistance = new Vector2(0f, -6f);
+            chipShadow.useGraphicAlpha = true;
+
+            RectTransform avatarBase = Place(NewUiChild(chip, "AvatarBase"),
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(10f, 0f), new Vector2(66f, 66f));
+            AddImage(avatarBase, purplePanel, Color.white);
+            AddImage(Place(NewUiChild(avatarBase, "Avatar"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(38f, 38f)),
                 LoadSprite(PictoIcons + "Pictoicon_Profile.Png"), Color.white);
             var levelLabel = AddTmp(Place(NewUiChild(chip, "Level"), new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f), new Vector2(94f, 0f), new Vector2(180f, 56f)),
-                "Lv.1", 36f, Color.white, font, TextAlignmentOptions.MidlineLeft);
+                    new Vector2(0f, 0.5f), new Vector2(92f, 0f), new Vector2(158f, 48f)),
+                "Lv.1", 30f, Color.white, font, TextAlignmentOptions.MidlineLeft);
 
-            RectTransform shardChip = Place(NewUiChild(root, "ShardChip"), new Vector2(1f, 1f),
-                new Vector2(1f, 1f), new Vector2(-22f, -20f), new Vector2(236f, 96f));
-            AddImage(shardChip, uiSprite, chipColor);
+            RectTransform shardChip = Place(NewUiChild(root, "ShardChip"),
+                new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-24f, -24f), new Vector2(200f, 84f));
+            AddImage(shardChip, uiSprite, hudColor);
+            var shardShadow = shardChip.gameObject.AddComponent<Shadow>();
+            shardShadow.effectColor = new Color(0f, 0f, 0f, 0.35f);
+            shardShadow.effectDistance = new Vector2(0f, -6f);
+            shardShadow.useGraphicAlpha = true;
+            RectTransform shardGlow = Place(NewUiChild(shardChip, "IconGlow"),
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(8f, 0f), new Vector2(70f, 70f));
+            Color shardGlowColor = Hex("#ffd35c");
+            shardGlowColor.a = 0.25f;
+            AddImage(shardGlow, LoadSprite(SoftGlow), shardGlowColor, false, false);
             AddImage(Place(NewUiChild(shardChip, "Icon"), new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(58f, 58f)),
+                    new Vector2(0f, 0.5f), new Vector2(17f, 0f), new Vector2(48f, 48f)),
                 shard, Color.white);
-            var shardLabel = AddTmp(Place(NewUiChild(shardChip, "Count"), new Vector2(0f, 0.5f),
-                    new Vector2(0f, 0.5f), new Vector2(84f, 0f), new Vector2(140f, 56f)),
-                "0", 36f, Hex("#ffd35c"), font, TextAlignmentOptions.MidlineLeft);
+            var shardLabel = AddTmp(Place(NewUiChild(shardChip, "Count"),
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                    new Vector2(78f, 0f), new Vector2(104f, 48f)),
+                "0", 32f, Hex("#ffe27a"), font, TextAlignmentOptions.MidlineLeft);
 
-            // ---- chapter banner: where the voyage stands, plus the record to beat ----
-            Color plateColor = Hex("#0a0620");
-            plateColor.a = 0.8f;
-            RectTransform plate = Place(NewUiChild(root, "Banner"), new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(920f, 212f));
-            AddImage(plate, uiSprite, plateColor);
-            var title = AddTmp(Place(NewUiChild(plate, "Title"), new Vector2(0.5f, 1f),
-                    new Vector2(0.5f, 1f), new Vector2(0f, -20f), new Vector2(850f, 96f)),
-                Loc.Get(LocKeys.MenuTitle), 62f, Hex("#ffd35c"), font,
-                TextAlignmentOptions.Top, true);
-            var progress = AddTmp(Place(NewUiChild(plate, "Progress"), new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f), new Vector2(0f, 68f), new Vector2(850f, 46f)),
-                "", 30f, Hex("#e8eaf6"), font, TextAlignmentOptions.Center);
-            var best = AddTmp(Place(NewUiChild(plate, "Best"), new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(850f, 44f)),
-                "", 26f, Hex("#8bf07a"), font, TextAlignmentOptions.Center);
+            var title = AddTmp(Place(NewUiChild(root, "Title"), new Vector2(0.5f, 1f),
+                    new Vector2(0.5f, 1f), new Vector2(0f, -140f),
+                    new Vector2(600f, 48f)),
+                Loc.Get(LocKeys.MenuTitle), 34f, Hex("#d8e2ff"), font,
+                TextAlignmentOptions.Center);
+            title.characterSpacing = 2f;
 
-            // ---- one big thumb-height CTA, with the destructive option demoted below it ----
+            RectTransform mission = Place(NewUiChild(root, "MissionCard"),
+                new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 575f), new Vector2(870f, 190f));
+            Color missionColor = Hex("#111d40");
+            missionColor.a = 0.96f;
+            AddImage(mission, uiSprite, missionColor);
+            var missionShadow = mission.gameObject.AddComponent<Shadow>();
+            missionShadow.effectColor = new Color(0f, 0f, 0f, 0.48f);
+            missionShadow.effectDistance = new Vector2(0f, -10f);
+            missionShadow.useGraphicAlpha = true;
+
+            RectTransform accent = Place(NewUiChild(mission, "Accent"),
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(0f, 0f), new Vector2(8f, 128f));
+            AddImage(accent, uiSprite, Hex("#61e6ff"));
+
+            RectTransform planetBase = Place(NewUiChild(mission, "PlanetBase"),
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(28f, 0f), new Vector2(104f, 104f));
+            Color planetBaseColor = Hex("#29366a");
+            planetBaseColor.a = 0.95f;
+            AddImage(planetBase, uiSprite, planetBaseColor);
+            AddImage(Place(NewUiChild(planetBase, "PlanetIcon"),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    Vector2.zero, new Vector2(60f, 60f)),
+                LoadSprite(PictoIcons + "Pictoicon_Planet.Png"), Hex("#7deaff"));
+
+            var progress = AddTmp(Place(NewUiChild(mission, "Progress"),
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                    new Vector2(156f, 35f), new Vector2(665f, 48f)),
+                "", 32f, Color.white, font, TextAlignmentOptions.MidlineLeft);
+            var best = AddTmp(Place(NewUiChild(mission, "Best"),
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                    new Vector2(156f, -18f), new Vector2(665f, 34f)),
+                "", 23f, Hex("#8fe8ff"), font, TextAlignmentOptions.MidlineLeft);
+
+            RectTransform progressTrack = Place(NewUiChild(mission, "ProgressTrack"),
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(156f, -62f), new Vector2(664f, 14f));
+            AddImage(progressTrack, uiSprite, Hex("#26345b"));
+            RectTransform fill = Stretch(NewUiChild(progressTrack, "Fill"));
+            Image progressFill = AddImage(fill, uiSprite, Hex("#56e3dc"));
+            progressFill.type = Image.Type.Filled;
+            progressFill.fillMethod = Image.FillMethod.Horizontal;
+            progressFill.fillOrigin = 0;
+            progressFill.fillAmount = 0.2f;
+
+            RectTransform ctaGlow = Place(NewUiChild(root, "CtaGlow"),
+                new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 370f), new Vector2(900f, 300f));
+            Color ctaGlowColor = Hex("#ffb84f");
+            ctaGlowColor.a = 0.16f;
+            AddImage(ctaGlow, LoadSprite(SoftGlow), ctaGlowColor, false, false);
+
             RectTransform start = Place(NewUiChild(root, "Start"), new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 520f), new Vector2(700f, 168f));
-            Image startImg = AddImage(start, LoadSprite(ButtonsDir + "Btn_MainButton_Green.Png"),
-                Color.white, true);
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 370f),
+                new Vector2(790f, 154f));
+            Image startImg = AddImage(start,
+                LoadSprite(ButtonsDir + "Btn_MainButton_Orange.Png"), Color.white, true);
             Button startBtn = AddButton(start, startImg);
-            var startLabel = AddTmp(Stretch(NewUiChild(start, "Label"), 0f, 0f, 0f, 14f),
-                Loc.Get(LocKeys.MenuContinue), 58f, Color.white, font,
+            AddImage(Place(NewUiChild(start, "PlayIcon"), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), new Vector2(-270f, 5f),
+                    new Vector2(60f, 60f)),
+                LoadSprite(PictoIcons + "Pictoicon_Control_Play.Png"), Hex("#28173f"));
+            var startLabel = AddTmp(Stretch(NewUiChild(start, "Label"), 112f, 36f, 0f, 12f),
+                Loc.Get(LocKeys.MenuContinue), 54f, Hex("#28173f"), font,
                 TextAlignmentOptions.Center);
 
             RectTransform newRun = Place(NewUiChild(root, "NewRun"), new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 372f), new Vector2(520f, 96f));
-            Image newRunImg = AddImage(newRun, LoadSprite(ButtonsDir + "Btn_MainButton_Sky.Png"),
-                Color.white, true);
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 215f),
+                new Vector2(420f, 76f));
+            Color secondaryColor = Hex("#182952");
+            secondaryColor.a = 0.96f;
+            Image newRunImg = AddImage(newRun, uiSprite, secondaryColor, true);
             Button newRunBtn = AddButton(newRun, newRunImg);
-            var newRunLabel = AddTmp(Stretch(NewUiChild(newRun, "Label"), 0f, 0f, 0f, 8f),
-                Loc.Get(LocKeys.MenuNewRun), 32f, Color.white, font, TextAlignmentOptions.Center);
+            var newRunLabel = AddTmp(Stretch(NewUiChild(newRun, "Label"), 0f, 0f, 0f, 4f),
+                Loc.Get(LocKeys.MenuNewRun), 27f, Hex("#c6d3f2"), font,
+                TextAlignmentOptions.Center);
 
-            nav = BuildNavBar(root, uiSprite, font);
+            nav = BuildNavBar(root, font);
 
+            SetPrivate(menu, "_heroPresentation",
+                Object.FindFirstObjectByType<HeroView>()?.transform);
             SetPrivate(menu, "_profileChip", profileBtn);
             SetPrivate(menu, "_levelLabel", levelLabel);
             SetPrivate(menu, "_shardLabel", shardLabel);
             SetPrivate(menu, "_title", title);
             SetPrivate(menu, "_progress", progress);
             SetPrivate(menu, "_best", best);
+            SetPrivate(menu, "_progressFill", progressFill);
             SetPrivate(menu, "_startButton", startBtn);
             SetPrivate(menu, "_startLabel", startLabel);
             SetPrivate(menu, "_newRunButton", newRunBtn);
