@@ -6,7 +6,7 @@ File này **generic** — copy nguyên sang project Unity khác là dùng đư�
 
 ## 1. Cấu trúc thư mục
 
-Toàn bộ code first-party nằm trong `Assets/Scripts/`, chia thư mục theo hệ thống. Bộ khung chuẩn (các thư mục gameplay đặt theo hệ thống thực tế của game):
+Toàn bộ code first-party nằm trong `Assets/Scripts/` — hoặc, nếu project gom tài nguyên game vào một thư mục gốc riêng (ví dụ `Assets/_TenGame/`), thì là `Scripts/` bên trong thư mục gốc đó — chia thư mục theo hệ thống. Bộ khung chuẩn (các thư mục gameplay đặt theo hệ thống thực tế của game):
 
 ```
 Assets/Scripts/
