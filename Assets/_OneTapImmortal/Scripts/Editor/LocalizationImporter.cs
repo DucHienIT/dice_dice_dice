@@ -16,8 +16,8 @@ namespace Game.EditorTools
     /// </summary>
     public static class LocalizationImporter
     {
-        public const string CsvPath = "Assets/Localization/Localization.csv";
-        private const string SourcePath = "Assets/Resources/I2Languages.asset";
+        public const string CsvPath = "Assets/_OneTapImmortal/Localization/Localization.csv";
+        private const string SourcePath = "Assets/_OneTapImmortal/Resources/I2Languages.asset";
         private const char Separator = ',';
 
         [MenuItem("Tools/Game/Localization/Import CSV %#l")]

@@ -28,36 +28,32 @@ namespace Game.EditorTools
     /// </summary>
     public static class GameBuilder
     {
-        private const string DataDir = "Assets/Data";
-        private const string UiDataDir = "Assets/Data/UI";
-        private const string PrefabDir = "Assets/Prefabs";
-        private const string ScenePath = "Assets/Scenes/Main.unity";
+        private const string DataDir = "Assets/_OneTapImmortal/Data";
+        private const string UiDataDir = "Assets/_OneTapImmortal/Data/UI";
+        private const string PrefabDir = "Assets/_OneTapImmortal/Prefabs";
+        private const string ScenePath = "Assets/_OneTapImmortal/Scenes/Main.unity";
         private const string FrameName = "Frame";
 
-        // UI chrome comes from the ornate FantasyHero pack (note the vendor's "Sptites" typo).
-        // CasualGame stays only for what FantasyHero lacks: the six-tier rune medallions and
-        // the generic soft glow.
-        private const string FhComponents =
-            "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Sptites/Components/";
-        private const string ItemIcons = FhComponents + "Icon_ItemIcons/128/";
-        private const string PictoIcons = FhComponents + "Icon_PictoIcons/128/";
+        // UI chrome: the used sprites of the Layer Lab packs (FantasyHero buttons/frames/icons,
+        // CasualGame six-tier rune medallions + soft glow) live under _OneTapImmortal/Textures,
+        // moved there per-file — the untouched remainder of both packs stays in Assets/Layer Lab.
+        private const string TpTextures = "Assets/_OneTapImmortal/Textures/";
+        private const string ItemIcons = TpTextures + "ItemIcons/";
+        private const string PictoIcons = TpTextures + "PictoIcons/";
         // rune icons come in six rarity tiers, which map 1:1 onto a metaPath node's 0..5 ranks
-        private const string RuneIcons =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Icon_RuneIcons(x2)/128/";
-        private const string SoftGlow =
-            "Assets/Layer Lab/GUI Pro-CasualGame/ResourcesData/Sprite/Component/Popup/Popup_00_Glow_white.png";
+        private const string RuneIcons = TpTextures + "RuneIcons/";
+        private const string SoftGlow = TpTextures + "Popup_00_Glow_white.png";
         private const string ShardIcon = ItemIcons + "ItemIcon_Gem_Triangle_Green.png";
-        private const string ButtonsDir = FhComponents + "Button/";
-        private const string FramesDir = FhComponents + "Frame/";
-        private const string PopupsDir = FhComponents + "Popup/";
-        // Display face comes as a pre-baked static SDF inside the FantasyHero pack. It is
-        // COPIED into Assets/Data/UI before use — third-party assets are never modified,
+        private const string ButtonsDir = TpTextures + "Buttons/";
+        private const string FramesDir = TpTextures + "Frames/";
+        // Display face comes as a pre-baked static SDF from the FantasyHero pack. It is
+        // COPIED into Data/UI before use — third-party assets are never modified,
         // and the copy is where the Vietnamese fallback gets wired in.
         private const string DisplayFontPackAsset =
-            "Assets/Layer Lab/GUI Pro-FantasyHero/ResourcesData/Fonts/AfacadFlux-ExtraBold SDF.asset";
+            "Assets/_OneTapImmortal/Fonts/AfacadFlux-ExtraBold SDF.asset";
         private const string DisplayFontAssetPath = UiDataDir + "/Display SDF.asset";
         // The display face carries no Vietnamese glyphs, so localized languages get their own font
-        private const string WideCharsetTtf = "Assets/Data/UI/Fonts/Roboto-Bold.ttf";
+        private const string WideCharsetTtf = "Assets/_OneTapImmortal/Data/UI/Fonts/Roboto-Bold.ttf";
         private const string WideCharsetFallbackTtf = "Assets/TextMesh Pro/Fonts/LiberationSans.ttf";
 
         private class Content
@@ -97,7 +93,7 @@ namespace Game.EditorTools
             EnsureFolder(DataDir + "/Worlds");
             EnsureFolder(PrefabDir);
             EnsureFolder(UiDataDir + "/Fonts");
-            EnsureFolder("Assets/Scenes");
+            EnsureFolder("Assets/_OneTapImmortal/Scenes");
 
             // translations first: the configs below only store term keys, and the scene is
             // authored with the strings this asset resolves them to
@@ -110,6 +106,9 @@ namespace Game.EditorTools
             SpriteBaker.Sprites art = SpriteBaker.BakeAll(content.Config);
             Prefabs prefabs = BuildPrefabs(content, art, fonts.Default, fonts.DefaultWorld);
             BuildScene(content, art, prefabs, fonts);
+            // addressables groups follow the content assets — declarative and idempotent,
+            // incl. the guard that no addressable asset is also a scene dependency
+            AddressablesConfigurator.Sync(content.Config);
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
@@ -192,6 +191,19 @@ namespace Game.EditorTools
                 Debug.LogWarning("[Builder] No diacritic-capable font found — " +
                                  "Vietnamese text will show as missing glyphs");
                 fonts.WideCharset = fonts.Default;
+            }
+            else if (fonts.WideCharset.atlasPopulationMode == AtlasPopulationMode.Dynamic)
+            {
+                // without this flag the dynamic font ships every glyph the editor ever
+                // rasterized (~7 MB); it is internal in this uGUI version, so enforce it
+                // through serialization — the builder owns it like every payload setting
+                var fontSo = new SerializedObject(fonts.WideCharset);
+                SerializedProperty clearOnBuild = fontSo.FindProperty("m_ClearDynamicDataOnBuild");
+                if (clearOnBuild != null && !clearOnBuild.boolValue)
+                {
+                    clearOnBuild.boolValue = true;
+                    fontSo.ApplyModifiedPropertiesWithoutUndo();
+                }
             }
 
             // The static display atlas covers plain Latin only; the dynamic wide-charset font
@@ -669,8 +681,9 @@ namespace Game.EditorTools
             // ---- background ----
             var bgGo = new GameObject("WorldBackground");
             var background = bgGo.AddComponent<WorldBackgroundRenderer>();
-            World firstWorld = content.Config.Worlds[0];
-            SpriteRenderer sky = NewSprite(bgGo, "Sky", -12, firstWorld.SkyLayer);
+            // no seed sprite: the backdrop is addressable and streams in on EnterWorld —
+            // a baked sprite here would ship the same texture twice (scene + bundle)
+            SpriteRenderer sky = NewSprite(bgGo, "Sky", -12, null);
             var twinkles = new SpriteRenderer[8];
             GameObject twinkleRoot = NewChild(bgGo, "Twinkles");
             for (int i = 0; i < twinkles.Length; i++)
@@ -794,7 +807,7 @@ namespace Game.EditorTools
             esGo.AddComponent<EventSystem>();
             var inputModule = esGo.AddComponent<InputSystemUIInputModule>();
             var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(
-                "Assets/InputSystem_Actions.inputactions");
+                "Assets/_OneTapImmortal/Settings/InputSystem_Actions.inputactions");
             if (actions != null) inputModule.actionsAsset = actions;
 
             // ---- UI ----

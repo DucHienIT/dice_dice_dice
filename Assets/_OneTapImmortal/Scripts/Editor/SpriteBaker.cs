@@ -3,6 +3,7 @@ using Game.Data;
 using UnityEditor;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using static Game.EditorTools.BuilderUtil;
 
 namespace Game.EditorTools
@@ -19,8 +20,8 @@ namespace Game.EditorTools
     /// </summary>
     public static class SpriteBaker
     {
-        public const string ArtDir = "Assets/Art/Generated";
-        private const string AuthoredArtDir = "Assets/Art/Immortal";
+        public const string ArtDir = "Assets/_OneTapImmortal/Art/Generated";
+        private const string AuthoredArtDir = "Assets/_OneTapImmortal/Art/Immortal";
         private const string AzureCloudBackdrop = AuthoredArtDir + "/azure_side_scroll_v3.png";
         private const string CultivatorRunSheet = AuthoredArtDir +
             "/cultivator_side_run_v3.png";
@@ -41,15 +42,11 @@ private const float AuthoredBackdropPpu = 87.13f;
 
         // Background world metrics — pushed onto WorldBackgroundRenderer by the builder so
         // the baked pixels and the scene placement can never drift apart. BgWorldWidth doubles
-        // as the scroll period: the ground strip tiles seamlessly every BgWorldWidth units.
+        // as the scroll period of the sky belt.
         public const float BgWorldWidth = 14.6f;
         public const float BgWorldHeight = 12f;
         public const float BgBottomY = -2.4f;
         public const float BgHorizonY = 3f;
-        /// <summary>Lake center, local to a ground strip copy — where the animated glow sits.</summary>
-        public const float BgLakeLocalY = BgHorizonY - BgBottomY - 0.52f;
-
-        private const int GroundStripHeight = 700;
 
         // uGUI progress-bar pill. Show it at CapsuleHeight px tall; any width >= 2*CapsuleRadius
         // renders correctly thanks to the horizontal 9-slice border.
@@ -104,7 +101,6 @@ private const float AuthoredBackdropPpu = 87.13f;
             public Sprite BurstStar;
             public Sprite Bolt;
             public Sprite Twinkle;
-            public Sprite LakeGlow;
 
             /// <summary>White 9-sliced pill for uGUI bars — tint it, stretch it, caps stay round.</summary>
             public Sprite UiCapsule;
@@ -196,7 +192,6 @@ private const float AuthoredBackdropPpu = 87.13f;
             s.BurstStar = Save(BurstStar(), "burst_star", Center, BurstPpu);
             s.Twinkle = Save(Twinkle(), "twinkle", Center);
             s.Bolt = Save(TribulationBolt(), "fx_bolt", new Vector2(0.5f, 1f));
-            s.LakeGlow = Save(LakeGlow(), "lake_glow", Center);
             s.UiCapsule = Save(UiCapsule(), "ui_capsule", Center, Ppu,
                 border: new Vector4(CapsuleRadius, 0f, CapsuleRadius, 0f));
 
@@ -211,20 +206,31 @@ private const float AuthoredBackdropPpu = 87.13f;
             for (int i = 0; i < worlds.Length; i++)
             {
                 World def = worlds[i];
-                bool authoredBackdrop = i == 0 && File.Exists(AzureCloudBackdrop);
+                // every realm shares the authored backdrop — the baked procedural sky read
+                // as off-theme, so PaintSky survives only as the fallback when the authored
+                // art file is missing
+                bool authoredBackdrop = File.Exists(AzureCloudBackdrop);
                 SetPrivate(def, "_authoredBackdrop", authoredBackdrop);
                 Sprite sky = authoredBackdrop
                     ? LoadAuthoredSprite(AzureCloudBackdrop, new Vector2(0.5f, 0.125f),
                         AuthoredBackdropPpu, true)
                     : Save(PaintSky(i, def), "bg_" + def.name + "_sky",
                         new Vector2(0.5f, 0f), Ppu, opaque: true, backdrop: true);
-                SetPrivate(def, "_skyLayer", sky);
-                SetPrivate(def, "_groundLayer", Save(PaintGround(i, def, authoredBackdrop),
-                    "bg_" + def.name + "_ground", new Vector2(0.5f, 0f), Ppu,
-                    opaque: false, backdrop: true));
+                // the World asset holds an AssetReference, never the sprite itself — the
+                // backdrop ships in a bundle, not with the scene
+                SetPrivate(def, "_skyLayerRef", SkyReference(sky));
             }
 
             return s;
+        }
+
+        /// <summary>GUID + sub-object reference to a baked sky sprite. The addressable entry
+        /// itself is created later by <see cref="AddressablesConfigurator"/>.</summary>
+        private static AssetReferenceSprite SkyReference(Sprite sprite)
+        {
+            if (sprite == null) return null;
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(sprite));
+            return new AssetReferenceSprite(guid) { SubObjectName = sprite.name };
         }
 
         // ================= asset writing =================
@@ -917,17 +923,9 @@ private static Painter HeroBody(int frame)
             return p;
         }
 
-        private static Painter LakeGlow()
-        {
-            var p = new Painter(500, 140);
-            p.Glow(250f, 70f, 240f, Color.white, 0.5f);
-            p.FillEllipse(250f, 70f, 220f, 52f, new Color(1f, 1f, 1f, 0.25f));
-            return p;
-        }
-
         // ================= world backdrop =================
-        // Two layers so the world can scroll: the sky never moves (distant parallax), the
-        // ground strip scrolls and is drawn twice side by side, so it must tile seamlessly.
+        // A single sky layer per realm, streamed via Addressables and repeated as a
+        // mirrored belt by WorldBackgroundRenderer so it can scroll seamlessly.
 
         private static Painter PaintSky(int worldIndex, World def)
         {
@@ -989,69 +987,6 @@ private static Painter HeroBody(int frame)
             return p;
         }
 
-        /// <summary>
-        /// The scrolling strip. Everything that sticks out near an edge is drawn three times
-        /// (x, x-w, x+w) so the left and right seams match — off-canvas copies are clipped away
-        /// for free by the painter, so this costs nothing for elements in the middle.
-        /// </summary>
-private static Painter PaintGround(int worldIndex, World def, bool authoredBackdrop)
-        {
-            if (authoredBackdrop) return PaintAdventureForeground(worldIndex, def);
-            int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
-            int h = GroundStripHeight;
-            float groundTop = (BgHorizonY - BgBottomY) * Ppu;
-            var rng = new System.Random(worldIndex * 7919 + 13);
-            var p = new Painter(w, h);
-            float cx = w * 0.5f;
-
-            // distant rocks (behind the ground line)
-            for (int r = -1; r <= 1; r++)
-            {
-                RockCluster(p, def.Rock, 110f + r * w, groundTop + 10f, 2.9f);
-                RockCluster(p, def.Rock, w - 120f + r * w, groundTop + 4f, 3.3f);
-            }
-
-            // ground — flat bands, seamless by construction
-            p.FillRect(0f, 0f, w, groundTop, def.Ground);
-            p.FillRect(0f, 0f, w, groundTop - 380f, Color.Lerp(def.Ground, Color.black, 0.25f));
-
-            // glowing lake, centered in the strip so it never crosses a seam
-            float ly = groundTop - 52f;
-            p.Glow(cx, ly, 300f, def.Lake, 0.25f);
-            p.FillEllipseShaded(cx, ly, 430f, 100f, def.Lake, def.LakeDeep);
-            p.OutlineEllipse(cx, ly, 430f, 100f, 3f, new Color(1f, 1f, 1f, 0.25f));
-            // reflection streaks
-            for (int i = 0; i < 5; i++)
-            {
-                float rx = cx + Rand(rng, -320f, 320f);
-                p.FillEllipse(rx, ly + Rand(rng, -40f, 40f), Rand(rng, 22f, 60f), 3f,
-                    new Color(1f, 1f, 1f, 0.16f));
-            }
-
-            // lotus resting on the spirit pool (kept near the middle, away from the seam)
-            for (int i = 0; i < 3; i++)
-            {
-                Lotus(p, cx + Rand(rng, -260f, 260f), ly + Rand(rng, -28f, 34f),
-                    def.Flora[i % def.Flora.Length], Rand(rng, 0.8f, 1.25f));
-            }
-
-            // bamboo and stone lanterns on both flanks
-            for (int f = 0; f < 8; f++)
-            {
-                float fx = f < 4 ? Rand(rng, 30f, 260f) : w - Rand(rng, 30f, 260f);
-                float fy = Rand(rng, groundTop - 175f, groundTop - 6f);
-                Color fc = def.Flora[f % def.Flora.Length];
-                float s = Rand(rng, 0.8f, 1.7f);
-                bool lantern = rng.NextDouble() < 0.35;
-                for (int r = -1; r <= 1; r++)
-                {
-                    if (lantern) StoneLantern(p, fx + r * w, fy, def.Rock, s);
-                    else Bamboo(p, fx + r * w, fy, fc, s);
-                }
-            }
-            return p;
-        }
-
         private static float Rand(System.Random rng, float min, float max) =>
             min + (float)rng.NextDouble() * (max - min);
 
@@ -1071,116 +1006,6 @@ private static Painter PaintGround(int worldIndex, World def, bool authoredBackd
             Color lit = Color.Lerp(color, Color.white, 0.3f);
             p.FillTriangle(new Vector2(d.x - 7f * s, d.y - 12f * s), d,
                 new Vector2(d.x + 7f * s, d.y - 12f * s), lit);
-        }
-
-        /// <summary>Stone lantern with a warm glowing window — the wanderer's waypoint.</summary>
-        private static void StoneLantern(Painter p, float x, float y, Color stone, float s)
-        {
-            var warm = new Color(1f, 0.83f, 0.45f);
-            Color lit = Color.Lerp(stone, Color.white, 0.25f);
-            // pedestal + post
-            p.FillRoundRect(x - 7f * s, y - 8f * s, 14f * s, 5f * s, 2f * s, stone);
-            p.FillRoundRect(x - 3f * s, y - 5f * s, 6f * s, 16f * s, 2f * s, stone);
-            // lamp box with the light inside
-            p.Glow(x, y + 15f * s, 26f * s, warm, 0.6f);
-            p.FillRoundRect(x - 6.5f * s, y + 10f * s, 13f * s, 10f * s, 2f * s, lit);
-            p.FillRect(x - 3.5f * s, y + 12f * s, 7f * s, 6f * s, warm);
-            // little roof
-            p.FillTriangle(new Vector2(x - 9f * s, y + 20f * s), new Vector2(x, y + 27f * s),
-                new Vector2(x + 9f * s, y + 20f * s), stone);
-        }
-
-        /// <summary>A small stand of bamboo — tapered stalks, node ticks, leaf pairs.</summary>
-        private static void Bamboo(Painter p, float x, float y, Color color, float s)
-        {
-            p.Glow(x, y + 12f * s, 24f * s, color, 0.30f);
-            for (int k = -1; k <= 1; k++)
-            {
-                float bx = x + k * 8f * s;
-                float height = (30f - Mathf.Abs(k) * 8f) * s;
-                Color stalk = Color.Lerp(color, Color.white, 0.12f + 0.08f * k);
-                p.TaperedLine(new Vector2(bx, y - 6f * s), new Vector2(bx + 2f * s, y + height),
-                    3.6f * s, 1.8f * s, stalk);
-                // node ticks
-                p.Line(new Vector2(bx - 2f * s, y + height * 0.35f),
-                    new Vector2(bx + 3f * s, y + height * 0.35f), 1.1f * s,
-                    Color.Lerp(color, Color.black, 0.25f));
-                // leaf pair at the tip
-                Vector2 tip = new Vector2(bx + 2f * s, y + height);
-                p.FillTriangle(tip, new Vector2(tip.x - 9f * s, tip.y + 5f * s),
-                    new Vector2(tip.x - 2f * s, tip.y - 2f * s), stalk);
-                p.FillTriangle(tip, new Vector2(tip.x + 8f * s, tip.y + 6f * s),
-                    new Vector2(tip.x + 2f * s, tip.y - 2f * s),
-                    Color.Lerp(stalk, Color.white, 0.15f));
-            }
-        }
-
-        /// <summary>Lotus bloom on a pad, floating on the spirit pool.</summary>
-        private static void Lotus(Painter p, float x, float y, Color tint, float s)
-        {
-            var pad = new Color(0.16f, 0.42f, 0.30f);
-            Color petal = Color.Lerp(tint, Color.white, 0.55f);
-            Color petalDeep = Color.Lerp(tint, Color.white, 0.2f);
-            p.FillEllipse(x, y, 16f * s, 5f * s, pad);
-            p.FillTriangle(new Vector2(x - 8f * s, y + 2f * s), new Vector2(x - 4f * s, y + 12f * s),
-                new Vector2(x, y + 2f * s), petalDeep);
-            p.FillTriangle(new Vector2(x + 8f * s, y + 2f * s), new Vector2(x + 4f * s, y + 12f * s),
-                new Vector2(x, y + 2f * s), petalDeep);
-            p.FillTriangle(new Vector2(x - 4f * s, y + 2f * s), new Vector2(x, y + 14f * s),
-                new Vector2(x + 4f * s, y + 2f * s), petal);
-            p.Glow(x, y + 6f * s, 14f * s, petal, 0.35f);
-        }
-    
-
-private static Painter PaintAdventureForeground(int worldIndex, World def)
-        {
-            int w = Mathf.RoundToInt(BgWorldWidth * Ppu);
-            int h = GroundStripHeight;
-            var p = new Painter(w, h);
-            var rng = new System.Random(worldIndex * 3571 + 29);
-            Color rock = Color.Lerp(def.Rock, new Color(0.18f, 0.34f, 0.29f), 0.35f);
-            Color rockLight = Color.Lerp(rock, new Color(0.78f, 0.84f, 0.68f), 0.34f);
-            Color grass = Color.Lerp(def.Flora[0], new Color(0.16f, 0.45f, 0.34f), 0.45f);
-            Color mist = new Color(0.92f, 0.95f, 0.86f, 0.055f);
-
-            // Keep the layer soft, but place its landmarks beside the visible road (around y=550)
-            // so their leftward travel is immediately readable behind the running hero.
-            for (int band = -1; band <= 1; band++)
-            {
-                p.FillEllipse(w * 0.22f + band * w, 470f, 255f, 28f, mist);
-                p.FillEllipse(w * 0.72f + band * w, 505f, 290f, 24f, mist);
-            }
-
-            for (int i = 0; i < 10; i++)
-            {
-                float baseX = (float)rng.NextDouble() * w;
-                bool roadEdge = i < 7;
-                float baseY = roadEdge
-                    ? 505f + (float)rng.NextDouble() * 32f
-                    : 420f + (float)rng.NextDouble() * 48f;
-                float size = roadEdge
-                    ? 7f + (float)rng.NextDouble() * 6f
-                    : 11f + (float)rng.NextDouble() * 8f;
-
-                for (int seam = -1; seam <= 1; seam++)
-                {
-                    float x = baseX + seam * w;
-                    p.FillEllipse(x, baseY - size * 0.18f, size * 1.8f, size * 0.34f,
-                        new Color(0.13f, 0.22f, 0.18f, 0.12f));
-                    p.FillEllipseShaded(x, baseY, size * 1.35f, size * 0.72f,
-                        rockLight, rock);
-                    p.TaperedLine(new Vector2(x - size * 0.15f, baseY + size * 0.5f),
-                        new Vector2(x - size * 0.55f, baseY + size * 1.65f),
-                        3.6f, 0.9f, grass);
-                    p.TaperedLine(new Vector2(x + size * 0.1f, baseY + size * 0.48f),
-                        new Vector2(x + size * 0.52f, baseY + size * 1.75f),
-                        3.2f, 0.8f, grass);
-                    p.TaperedLine(new Vector2(x, baseY + size * 0.5f),
-                        new Vector2(x + size * 0.04f, baseY + size * 1.95f),
-                        3.2f, 0.8f, grass);
-                }
-            }
-            return p;
         }
 }
 }
