@@ -174,7 +174,7 @@ namespace Game.Core
 
             if (_state == GameState.Battling && !paused) _engine.Tick(scaledDt);
             else if (_state == GameState.Traveling && !paused) TickTravel(scaledDt);
-            _stage.Tick(_time, paused ? 0f : scaledDt, _engine, _run.Player);
+            _stage.Tick(_time, paused ? 0f : dt, paused ? 0f : scaledDt, _engine, _run.Player);
             _floaters.Tick(dt);
             _bursts.Tick(dt);
             _tribulationFx.Tick(dt);

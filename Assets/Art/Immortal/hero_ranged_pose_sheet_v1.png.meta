@@ -1,58 +1,19 @@
 fileFormatVersion: 2
-guid: ce74d048efae7a54a86e21829591d1a9
+guid: f006b7997381f3a4a98182c54b39fb2e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4095002279227803100
-    second: cultivator_side_run_v3_0
+      213: -7391620672933748341
+    second: hero_ranged_pose_sheet_v1_0
   - first:
-      213: -9105479545289037520
-    second: cultivator_side_run_v3_1
+      213: -7820607672258947966
+    second: hero_ranged_pose_sheet_v1_1
   - first:
-      213: 4559508282370305645
-    second: cultivator_side_run_v3_2
+      213: -8289277450722028453
+    second: hero_ranged_pose_00
   - first:
-      213: -2024546176283448725
-    second: cultivator_side_run_v3_3
-  - first:
-      213: -7349467139258981483
-    second: cultivator_side_run_v3_4
-  - first:
-      213: -2663063728601940589
-    second: cultivator_side_run_v3_5
-  - first:
-      213: 1764773236670821272
-    second: cultivator_side_run_v3_6
-  - first:
-      213: -5512018827844780756
-    second: cultivator_side_run_v3_7
-  - first:
-      213: 1992669340051057344
-    second: cultivator_side_run_v3_8
-  - first:
-      213: -443759321500707382
-    second: cultivator_side_run_v3_9
-  - first:
-      213: 8240190859770920866
-    second: cultivator_side_run_v3_10
-  - first:
-      213: -5957420169110027242
-    second: cultivator_side_run_v3_11
-  - first:
-      213: -427548134451772956
-    second: cultivator_side_0
-  - first:
-      213: 6343705538336642885
-    second: cultivator_side_1
-  - first:
-      213: -1767555608344930303
-    second: cultivator_side_2
-  - first:
-      213: 7060477606640575400
-    second: cultivator_side_3
-  - first:
-      213: -8177531225031194935
-    second: cultivator_side_4
+      213: 4224693835901978420
+    second: hero_ranged_pose_01
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -120,7 +81,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 4096
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 2
@@ -187,111 +148,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cultivator_side_0
+      name: hero_ranged_pose_00
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 368
-        height: 724
+        width: 887
+        height: 887
       alignment: 9
-      pivot: {x: 0.5, y: 0.025}
+      pivot: {x: 0.5, y: 0.16798197}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e10f99ac3b011af0800000000000000
-      internalID: -427548134451772956
+      spriteID: b54de09b31296fc80800000000000000
+      internalID: -8289277450722028453
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cultivator_side_1
+      name: hero_ranged_pose_01
       rect:
         serializedVersion: 2
-        x: 368
+        x: 887
         y: 0
-        width: 536
-        height: 724
+        width: 887
+        height: 887
       alignment: 9
-      pivot: {x: 0.5, y: 0.025}
+      pivot: {x: 0.5, y: 0.16347238}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 547db34a39e590850800000000000000
-      internalID: 6343705538336642885
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_2
-      rect:
-        serializedVersion: 2
-        x: 904
-        y: 0
-        width: 399
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 108d9d30a816877e0800000000000000
-      internalID: -1767555608344930303
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_3
-      rect:
-        serializedVersion: 2
-        x: 1303
-        y: 0
-        width: 508
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8a36968a9fadbf160800000000000000
-      internalID: 7060477606640575400
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_4
-      rect:
-        serializedVersion: 2
-        x: 1811
-        y: 0
-        width: 361
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c6c9506da2938e80800000000000000
-      internalID: -8177531225031194935
+      spriteID: 43748bd09a021aa30800000000000000
+      internalID: 4224693835901978420
       vertices: []
       indices: 
       edges: []
@@ -300,7 +195,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: cf8138ceba3807e42ab42bb73952d96a
+    spriteID: ab0514a43c03b264abfe6a4292f5b144
     internalID: 0
     vertices: []
     indices: 
@@ -310,23 +205,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cultivator_side_0: -427548134451772956
-      cultivator_side_1: 6343705538336642885
-      cultivator_side_2: -1767555608344930303
-      cultivator_side_3: 7060477606640575400
-      cultivator_side_4: -8177531225031194935
-      cultivator_side_run_v3_0: 4095002279227803100
-      cultivator_side_run_v3_1: -9105479545289037520
-      cultivator_side_run_v3_10: 8240190859770920866
-      cultivator_side_run_v3_11: -5957420169110027242
-      cultivator_side_run_v3_2: 4559508282370305645
-      cultivator_side_run_v3_3: -2024546176283448725
-      cultivator_side_run_v3_4: -7349467139258981483
-      cultivator_side_run_v3_5: -2663063728601940589
-      cultivator_side_run_v3_6: 1764773236670821272
-      cultivator_side_run_v3_7: -5512018827844780756
-      cultivator_side_run_v3_8: 1992669340051057344
-      cultivator_side_run_v3_9: -443759321500707382
+      hero_ranged_pose_00: -8289277450722028453
+      hero_ranged_pose_01: 4224693835901978420
+      hero_ranged_pose_sheet_v1_0: -7391620672933748341
+      hero_ranged_pose_sheet_v1_1: -7820607672258947966
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

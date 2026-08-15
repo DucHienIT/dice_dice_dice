@@ -499,7 +499,7 @@ namespace Game.EditorTools
             {
                 var go = new GameObject("Hero");
                 var view = go.AddComponent<HeroView>();
-                // shadow stays on the ground; everything else hops with the Rig while walking
+                // Shadow stays on the ground; everything else moves with the Rig.
                 SpriteRenderer shadow = NewSprite(go, "Shadow", 3, art.HeroShadow,
                     new Vector3(0f, 0.02f, 0f));
                 GameObject rig = NewChild(go, "Rig");
@@ -510,14 +510,26 @@ namespace Game.EditorTools
                 SpriteRenderer flash = NewSprite(rig, "Flash", 9, art.HeroFlash,
                     new Vector3(0f, 0.85f, 0f));
                 flash.enabled = false;
-                
+
+                SpriteRenderer projectile = NewSprite(go, "Projectile", 10,
+                    art.HeroSword, new Vector3(0.55f, 0.78f, 0f));
+                projectile.enabled = false;
+
                 SetPrivate(view, "_body", body);
                 SetPrivate(view, "_idleSprite", art.HeroBody);
-                SetPrivate(view, "_runFrames", art.HeroRunFrames);
-SetPrivate(view, "_rig", rig.transform);
+                SetPrivate(view, "_runSprite", art.HeroRunPose);
+                SetPrivate(view, "_attackSprite", art.HeroAttackPose);
+                SetPrivate(view, "_rangedSwordSprite", art.HeroRangedSwordPose);
+                SetPrivate(view, "_spellSprite", art.HeroSpellPose);
+                SetPrivate(view, "_hitSprite", art.HeroHitPose);
+                SetPrivate(view, "_flySprite", art.HeroFlyPose);
+                SetPrivate(view, "_rig", rig.transform);
                 SetPrivate(view, "_shadow", shadow);
                 SetPrivate(view, "_sword", sword);
                 SetPrivate(view, "_flash", flash);
+                SetPrivate(view, "_projectile", projectile);
+                SetPrivate(view, "_projectileSwordSprite", art.HeroSword);
+                SetPrivate(view, "_projectileSpellSprite", art.HeroSpellProjectile);
                 prefabs.Hero = SavePrefab(go, PrefabDir + "/Hero.prefab");
             }
             // Enemy — one renderer per baked layer, stacked in draw order
@@ -665,18 +677,7 @@ SetPrivate(view, "_rig", rig.transform);
             {
                 twinkles[i] = NewSprite(twinkleRoot, "Twinkle" + i, -11, art.Twinkle);
             }
-            // two copies of the tiling ground strip leap-frog each other as it scrolls
-            var groundCopies = new SpriteRenderer[2];
-            var lakeGlows = new SpriteRenderer[2];
-            for (int i = 0; i < groundCopies.Length; i++)
-            {
-                groundCopies[i] = NewSprite(bgGo, "Ground" + i, -10, firstWorld.GroundLayer);
-                lakeGlows[i] = NewSprite(groundCopies[i].gameObject, "LakeGlow", -9, art.LakeGlow,
-                    new Vector3(0f, SpriteBaker.BgLakeLocalY, 0f));
-            }
             SetPrivate(background, "_sky", sky);
-            SetPrivate(background, "_groundCopies", groundCopies);
-            SetPrivate(background, "_lakeGlows", lakeGlows);
             SetPrivate(background, "_twinkles", twinkles);
             // world metrics must match the pixels the baker produced
             SetPrivate(background, "_worldWidth", SpriteBaker.BgWorldWidth);

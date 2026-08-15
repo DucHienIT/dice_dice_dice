@@ -2,88 +2,239 @@ using UnityEngine;
 
 namespace Game.Combat
 {
+    public enum HeroAttackStyle
+    {
+        Melee,
+        FlyingSword,
+        Spell
+    }
+
     /// <summary>
-    /// Astro-alien hero. Every sprite is baked to an asset at build time and assigned on the
-    /// prefab's SpriteRenderers; this view only drives the walk hop, sword swing and hit flash.
-    /// BattleStageView positions the root.
+    /// Pose-based hero presentation. Each action uses one authored sprite; ranged attacks add a
+    /// separately animated projectile so the hero never has to slide into melee range.
     /// </summary>
     public class HeroView : MonoBehaviour
     {
-        [Tooltip("Holds body/sword/flash — hops and leans while walking, so the shadow stays put.")]
-        
+        private enum HeroPose
+        {
+            Idle,
+            Run,
+            Attack,
+            RangedSword,
+            Spell,
+            Hit,
+            Fly
+        }
+
         [SerializeField] private SpriteRenderer _body;
         [SerializeField] private Sprite _idleSprite;
-        [SerializeField] private Sprite[] _runFrames;
-[SerializeField] private Transform _rig;
+        [SerializeField] private Sprite _runSprite;
+        [SerializeField] private Sprite _attackSprite;
+        [SerializeField] private Sprite _rangedSwordSprite;
+        [SerializeField] private Sprite _spellSprite;
+        [SerializeField] private Sprite _hitSprite;
+        [SerializeField] private Sprite _flySprite;
+        [SerializeField] private Transform _rig;
         [SerializeField] private SpriteRenderer _shadow;
         [SerializeField] private SpriteRenderer _sword;
         [SerializeField] private SpriteRenderer _flash;
-        [SerializeField] private float _swordRestAngle = 28f;
-        [SerializeField] private float _swordSwingAngle = -70f;
-        [Header("Walk")]
-        [SerializeField] private float _hopHeight = 0.09f;
-        [SerializeField] private float _leanAngle = 3f;
-        [Tooltip("How much the shadow shrinks at the top of a hop.")]
-        [SerializeField] private float _shadowShrink = 1.1f;
+        [SerializeField] private SpriteRenderer _projectile;
+        [SerializeField] private Sprite _projectileSwordSprite;
+        [SerializeField] private Sprite _projectileSpellSprite;
 
-        private float _runSwordOffset;
-        private int _shownFrame = -2;
+        [Header("Pose motion")]
+        [SerializeField] private float _runBobHeight = 0.06f;
+        [SerializeField] private float _runLeanAngle = 2.2f;
+        [SerializeField] private float _flyHeight = 0.28f;
+        [SerializeField] private float _flyBobHeight = 0.045f;
+        [SerializeField] private float _hitRecoil = 0.11f;
+        [SerializeField] private float _rangedDistance = 3.65f;
 
-private void Awake()
+        private HeroPose _shownPose = (HeroPose)(-1);
+        private HeroAttackStyle _attackStyle;
+        private Color _shadowBaseColor;
+        private float _travelPhase;
+        private float _travelAmount;
+        private float _attack01;
+        private bool _hit;
+        private bool _wasTraveling;
+        private bool _flyThisLeg;
+        private int _travelLeg;
+
+        public string CurrentPoseName => _shownPose.ToString();
+        public string CurrentAttackStyleName => _attackStyle.ToString();
+
+        private void Awake()
         {
+            _shadowBaseColor = _shadow.color;
+            Color flashColor = _flash.color;
+            flashColor.a = 0.38f;
+            _flash.color = flashColor;
             _flash.enabled = false;
-            ShowFrame(-1);
+            _projectile.enabled = false;
+            RefreshPose();
         }
 
-public void SetSwing(float swing01)
+        public void SetWalk(float phase, float amount)
         {
-            float z = _swordRestAngle + _runSwordOffset +
-                _swordSwingAngle * Mathf.Sin(swing01 * Mathf.PI);
-            _sword.transform.localRotation = Quaternion.Euler(0f, 0f, z);
+            _travelPhase = phase;
+            _travelAmount = amount;
+            bool traveling = amount > 0.22f;
+            if (traveling && !_wasTraveling)
+            {
+                _travelLeg++;
+                _flyThisLeg = (_travelLeg & 1) == 0;
+            }
+            _wasTraveling = traveling;
+            RefreshPose();
+        }
+
+        public void SetAttack(float attack01, HeroAttackStyle style)
+        {
+            _attack01 = attack01;
+            _attackStyle = style;
+            RefreshPose();
+        }
+
+        public void SetSwing(float swing01)
+        {
+            SetAttack(swing01, HeroAttackStyle.Melee);
         }
 
         public void SetFlash(bool on)
         {
+            _hit = on;
             if (_flash.enabled != on) _flash.enabled = on;
+            RefreshPose();
         }
 
-        /// <summary>
-        /// Walk cycle. <paramref name="phase"/> counts hops (one hop per whole number),
-        /// <paramref name="amount"/> 0→1 blends the whole thing in and out so stopping is smooth.
-        /// </summary>
-public void SetWalk(float phase, float amount)
+        private void RefreshPose()
         {
-            float cycle = phase * Mathf.PI * 2f;
-            float stride = Mathf.Sin(cycle);
-            float hop = Mathf.Abs(stride) * _hopHeight * amount;
+            bool attacking = _attack01 > 0.015f && _attack01 < 0.985f;
+            bool traveling = _travelAmount > 0.22f;
+            HeroPose pose = _hit
+                ? HeroPose.Hit
+                : attacking
+                    ? AttackPose(_attackStyle)
+                    : traveling
+                        ? (_flyThisLeg ? HeroPose.Fly : HeroPose.Run)
+                        : HeroPose.Idle;
 
-            _rig.localPosition = new Vector3(stride * 0.025f * amount, hop, 0f);
-            _rig.localRotation = Quaternion.Euler(0f, 0f,
-                -stride * _leanAngle * amount);
-            _runSwordOffset = stride * 9f * amount;
-
-            float s = Mathf.Max(0.72f, 1f - hop * _shadowShrink);
-            _shadow.transform.localScale = new Vector3(s, s, 1f);
-
-            if (amount > 0.22f && _runFrames != null && _runFrames.Length > 0)
+            if (_shownPose != pose)
             {
-                int frame = Mathf.FloorToInt(Mathf.Repeat(phase, 1f) * _runFrames.Length);
-                ShowFrame(frame);
+                _shownPose = pose;
+                _body.sprite = SpriteFor(pose);
+                _sword.enabled = pose == HeroPose.Idle;
+            }
+
+            float stride = Mathf.Sin(_travelPhase * Mathf.PI * 2f);
+            Vector3 position = Vector3.zero;
+            float angle = 0f;
+            float shadowScale = 1f;
+            float shadowAlpha = _shadowBaseColor.a;
+
+            switch (pose)
+            {
+                case HeroPose.Run:
+                    position = new Vector3(stride * 0.018f,
+                        Mathf.Abs(stride) * _runBobHeight, 0f);
+                    angle = -stride * _runLeanAngle;
+                    shadowScale = 1f - Mathf.Abs(stride) * 0.08f;
+                    break;
+                case HeroPose.Attack:
+                    float attackArc = Mathf.Sin(_attack01 * Mathf.PI);
+                    position = new Vector3(attackArc * 0.055f, attackArc * 0.018f, 0f);
+                    angle = -attackArc * 3.5f;
+                    shadowScale = 1.05f;
+                    break;
+                case HeroPose.RangedSword:
+                    float swordFocus = Mathf.Sin(_attack01 * Mathf.PI);
+                    position = new Vector3(-swordFocus * 0.018f, swordFocus * 0.012f, 0f);
+                    angle = swordFocus * 1.5f;
+                    shadowScale = 0.98f;
+                    break;
+                case HeroPose.Spell:
+                    float spellFocus = Mathf.Sin(_attack01 * Mathf.PI);
+                    position = new Vector3(-spellFocus * 0.025f, spellFocus * 0.025f, 0f);
+                    angle = spellFocus * 1.8f;
+                    shadowScale = 1f + spellFocus * 0.04f;
+                    break;
+                case HeroPose.Hit:
+                    position = new Vector3(-_hitRecoil, 0.025f, 0f);
+                    angle = 7f;
+                    shadowScale = 1.08f;
+                    break;
+                case HeroPose.Fly:
+                    float hover = Mathf.Sin(_travelPhase * Mathf.PI * 4f);
+                    position = new Vector3(0f, _flyHeight + hover * _flyBobHeight, 0f);
+                    angle = hover * 1.2f;
+                    shadowScale = 0.72f;
+                    shadowAlpha *= 0.32f;
+                    break;
+            }
+
+            _rig.localPosition = position;
+            _rig.localRotation = Quaternion.Euler(0f, 0f, angle);
+            _shadow.transform.localScale = new Vector3(shadowScale, shadowScale, 1f);
+            Color shadowColor = _shadowBaseColor;
+            shadowColor.a = shadowAlpha;
+            _shadow.color = shadowColor;
+            UpdateProjectile(attacking);
+        }
+
+        private void UpdateProjectile(bool attacking)
+        {
+            bool ranged = _attackStyle == HeroAttackStyle.FlyingSword ||
+                _attackStyle == HeroAttackStyle.Spell;
+            bool visible = attacking && ranged && _attack01 > 0.10f && _attack01 < 0.90f;
+            if (_projectile.enabled != visible) _projectile.enabled = visible;
+            if (!visible) return;
+
+            float travel = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(0.12f, 0.72f, _attack01));
+            float wave = Mathf.Sin(travel * Mathf.PI * 3f);
+            _projectile.transform.localPosition = new Vector3(
+                Mathf.Lerp(0.55f, _rangedDistance, travel),
+                0.78f + wave * 0.10f, 0f);
+
+            if (_attackStyle == HeroAttackStyle.FlyingSword)
+            {
+                _projectile.sprite = _projectileSwordSprite;
+                _projectile.transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
+                _projectile.transform.localScale = Vector3.one * 1.05f;
             }
             else
             {
-                ShowFrame(-1);
+                _projectile.sprite = _projectileSpellSprite;
+                _projectile.transform.localRotation = Quaternion.Euler(
+                    0f, 0f, travel * 540f);
+                float pulse = 1f + Mathf.Sin(travel * Mathf.PI * 6f) * 0.15f;
+                _projectile.transform.localScale = Vector3.one * pulse;
             }
         }
-    
 
-private void ShowFrame(int frame)
+        private static HeroPose AttackPose(HeroAttackStyle style)
         {
-            if (_shownFrame == frame) return;
-            _shownFrame = frame;
-            _body.sprite = frame >= 0 && frame < _runFrames.Length
-                ? _runFrames[frame]
-                : _idleSprite;
+            switch (style)
+            {
+                case HeroAttackStyle.FlyingSword: return HeroPose.RangedSword;
+                case HeroAttackStyle.Spell: return HeroPose.Spell;
+                default: return HeroPose.Attack;
+            }
         }
-}
+
+        private Sprite SpriteFor(HeroPose pose)
+        {
+            switch (pose)
+            {
+                case HeroPose.Run: return _runSprite;
+                case HeroPose.Attack: return _attackSprite;
+                case HeroPose.RangedSword: return _rangedSwordSprite;
+                case HeroPose.Spell: return _spellSprite;
+                case HeroPose.Hit: return _hitSprite;
+                case HeroPose.Fly: return _flySprite;
+                default: return _idleSprite;
+            }
+        }
+    }
 }

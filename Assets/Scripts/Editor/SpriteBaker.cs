@@ -1,6 +1,7 @@
 using System.IO;
 using Game.Data;
 using UnityEditor;
+using UnityEditor.U2D.Sprites;
 using UnityEngine;
 using static Game.EditorTools.BuilderUtil;
 
@@ -23,9 +24,16 @@ namespace Game.EditorTools
         private const string AzureCloudBackdrop = AuthoredArtDir + "/azure_side_scroll_v3.png";
         private const string CultivatorRunSheet = AuthoredArtDir +
             "/cultivator_side_run_v3.png";
-        
+        private const string CultivatorPoseSheet = AuthoredArtDir +
+            "/hero_pose_sheet_v1.png";
+        private const string CultivatorRangedPoseSheet = AuthoredArtDir +
+            "/hero_ranged_pose_sheet_v1.png";
+
         private const float AuthoredHeroPpu = 280f;
+        private const float AuthoredPosePpu = 220f;
+        private const float AuthoredRangedPosePpu = 280f;
         private const int AuthoredHeroFrameCount = 5;
+        private const int AuthoredPoseCount = 4;
 private const float AuthoredBackdropPpu = 87.13f;
 
         public const float Ppu = 100f;
@@ -70,7 +78,13 @@ private const float AuthoredBackdropPpu = 87.13f;
         public sealed class Sprites
         {
             public Sprite HeroBody;
-            public Sprite[] HeroRunFrames;
+            public Sprite HeroRunPose;
+            public Sprite HeroAttackPose;
+            public Sprite HeroHitPose;
+            public Sprite HeroFlyPose;
+            public Sprite HeroRangedSwordPose;
+            public Sprite HeroSpellPose;
+            public Sprite HeroSpellProjectile;
             public Sprite HeroSword;
             public Sprite HeroShadow;
             public Sprite HeroFlash;
@@ -110,26 +124,51 @@ private const float AuthoredBackdropPpu = 87.13f;
                 ? LoadAuthoredSpriteSheet(CultivatorRunSheet, AuthoredHeroFrameCount,
                     new Vector2(0.5f, 0.025f), AuthoredHeroPpu)
                 : null;
-            if (authoredHero != null && authoredHero.Length == AuthoredHeroFrameCount)
+            Sprite[] authoredPoses = File.Exists(CultivatorPoseSheet)
+                ? LoadAuthoredPoseSheet(CultivatorPoseSheet, AuthoredPosePpu,
+                    2, 2, "hero_pose_")
+                : null;
+            Sprite[] authoredRangedPoses = File.Exists(CultivatorRangedPoseSheet)
+                ? LoadAuthoredPoseSheet(CultivatorRangedPoseSheet, AuthoredRangedPosePpu,
+                    2, 1, "hero_ranged_pose_")
+                : null;
+
+            s.HeroBody = authoredHero != null && authoredHero.Length == AuthoredHeroFrameCount
+                ? authoredHero[0]
+                : Save(HeroBody(0), "hero_body", new Vector2(0.5f, 0.03f));
+
+            if (authoredPoses != null && authoredPoses.Length == AuthoredPoseCount)
             {
-                s.HeroBody = authoredHero[0];
-                s.HeroRunFrames = new Sprite[4];
-                for (int i = 0; i < s.HeroRunFrames.Length; i++)
-                {
-                    s.HeroRunFrames[i] = authoredHero[i + 1];
-                }
+                s.HeroRunPose = authoredPoses[0];
+                s.HeroAttackPose = authoredPoses[1];
+                s.HeroHitPose = authoredPoses[2];
+                s.HeroFlyPose = authoredPoses[3];
             }
             else
             {
-                s.HeroBody = Save(HeroBody(0), "hero_body", new Vector2(0.5f, 0.03f));
-                s.HeroRunFrames = new Sprite[4];
-                for (int i = 0; i < s.HeroRunFrames.Length; i++)
-                {
-                    s.HeroRunFrames[i] = Save(HeroBody(i + 1), "hero_run_" + i,
-                        new Vector2(0.5f, 0.03f));
-                }
+                s.HeroRunPose = authoredHero != null ? authoredHero[1]
+                    : Save(HeroBody(1), "hero_pose_run", new Vector2(0.5f, 0.03f));
+                s.HeroAttackPose = authoredHero != null ? authoredHero[2]
+                    : Save(HeroBody(2), "hero_pose_attack", new Vector2(0.5f, 0.03f));
+                s.HeroHitPose = authoredHero != null ? authoredHero[3]
+                    : Save(HeroBody(3), "hero_pose_hit", new Vector2(0.5f, 0.03f));
+                s.HeroFlyPose = authoredHero != null ? authoredHero[4]
+                    : Save(HeroBody(4), "hero_pose_fly", new Vector2(0.5f, 0.03f));
+            }
+            if (authoredRangedPoses != null && authoredRangedPoses.Length == 2)
+            {
+                s.HeroRangedSwordPose = authoredRangedPoses[0];
+                s.HeroSpellPose = authoredRangedPoses[1];
+            }
+            else
+            {
+                s.HeroRangedSwordPose = s.HeroAttackPose;
+                s.HeroSpellPose = s.HeroAttackPose;
             }
             s.HeroSword = Save(HeroSword(), "hero_sword", new Vector2(0.5f, 0.1f));
+            s.HeroSpellProjectile = Save(
+                Orb(new Color(0.34f, 0.78f, 1f), "spark"),
+                "hero_spell_projectile", Center);
             s.HeroShadow = Save(HeroShadow(), "hero_shadow", Center);
             s.HeroFlash = Save(HeroFlash(), "hero_flash", Center);
 
@@ -291,8 +330,6 @@ private const float AuthoredBackdropPpu = 87.13f;
                 return null;
             }
 
-            // Read the real alpha layout first. The authored poses have long hair and robe tails,
-            // so equal-width cells cut one pose into the next and create a double-character frame.
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Multiple;
             importer.mipmapEnabled = false;
@@ -306,26 +343,15 @@ private const float AuthoredBackdropPpu = 87.13f;
             importer.SaveAndReimport();
 
             Texture2D source = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (source == null)
-            {
-                Debug.LogError("[Baker] Could not read sprite sheet pixels for " + path);
-                return null;
-            }
-
+            if (source == null) return null;
             Color32[] pixels = source.GetPixels32();
             int[] alphaCount = new int[source.width];
             for (int x = 0; x < source.width; x++)
             {
-                int count = 0;
                 for (int y = 0; y < source.height; y++)
-                {
-                    if (pixels[y * source.width + x].a > 12) count++;
-                }
-                alphaCount[x] = count;
+                    if (pixels[y * source.width + x].a > 12) alphaCount[x]++;
             }
 
-            // Find the thinnest alpha valley around every nominal divider. This assigns flowing
-            // cloth to only one pose even when silhouettes overlap horizontally.
             int[] cuts = new int[frameCount + 1];
             cuts[0] = 0;
             cuts[frameCount] = source.width;
@@ -340,48 +366,24 @@ private const float AuthoredBackdropPpu = 87.13f;
                     x <= Mathf.Min(source.width - 2, expected + searchRadius); x++)
                 {
                     int amount = alphaCount[x];
-                    if (amount < bestAlpha ||
-                        (amount == bestAlpha &&
-                         Mathf.Abs(x - expected) < Mathf.Abs(bestX - expected)))
-                    {
-                        bestX = x;
-                        bestAlpha = amount;
-                    }
+                    if (amount >= bestAlpha &&
+                        (amount != bestAlpha ||
+                         Mathf.Abs(x - expected) >= Mathf.Abs(bestX - expected))) continue;
+                    bestX = x;
+                    bestAlpha = amount;
                 }
                 cuts[i] = bestX;
             }
 
             var frames = new SpriteMetaData[frameCount];
-            int footBandHeight = Mathf.Max(1, Mathf.RoundToInt(source.height * 0.10f));
             for (int i = 0; i < frameCount; i++)
             {
-                int x0 = cuts[i];
-                int x1 = cuts[i + 1];
-
-                // Opaque pixels in the lowest 10% are the feet. Their centre remains on the same
-                // world point when differently-sized frames swap.
-                long footXTotal = 0;
-                int footPixelCount = 0;
-                for (int x = x0; x < x1; x++)
-                {
-                    for (int y = 0; y < footBandHeight; y++)
-                    {
-                        if (pixels[y * source.width + x].a <= 100) continue;
-                        footXTotal += x;
-                        footPixelCount++;
-                    }
-                }
-                float footX = footPixelCount > 0
-                    ? footXTotal / (float)footPixelCount
-                    : (x0 + x1) * 0.5f;
-                float pivotX = Mathf.Clamp01((footX - x0) / Mathf.Max(1f, x1 - x0));
-
                 frames[i] = new SpriteMetaData
                 {
                     name = "cultivator_side_" + i,
-                    rect = new Rect(x0, 0, x1 - x0, source.height),
+                    rect = new Rect(cuts[i], 0, cuts[i + 1] - cuts[i], source.height),
                     alignment = (int)SpriteAlignment.Custom,
-                    pivot = new Vector2(pivotX, pivot.y),
+                    pivot = pivot,
                     border = Vector4.zero
                 };
             }
@@ -396,12 +398,122 @@ private const float AuthoredBackdropPpu = 87.13f;
             settings.spriteGenerateFallbackPhysicsShape = false;
             settings.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.SetTextureSettings(settings);
-
 #pragma warning disable 0618
             importer.spritesheet = frames;
 #pragma warning restore 0618
             importer.SaveAndReimport();
+            return LoadOrderedSprites(path, "cultivator_side_", frameCount, false);
+        }
 
+        private static Sprite[] LoadAuthoredPoseSheet(string path, float ppu,
+            int columns, int rows, string prefix)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer == null)
+            {
+                Debug.LogError("[Baker] Pose sheet import failed for " + path);
+                return null;
+            }
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Multiple;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.alphaIsTransparency = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.maxTextureSize = 2048;
+            importer.isReadable = true;
+            importer.spritePixelsPerUnit = ppu;
+            importer.SaveAndReimport();
+
+            Texture2D source = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (source == null || source.width % columns != 0 || source.height % rows != 0)
+            {
+                Debug.LogError("[Baker] Invalid " + columns + "x" + rows +
+                    " hero pose sheet dimensions for " + path);
+                return null;
+            }
+
+            int poseCount = columns * rows;
+            int cellWidth = source.width / columns;
+            int cellHeight = source.height / rows;
+            Color32[] pixels = source.GetPixels32();
+            var poses = new SpriteMetaData[poseCount];
+            var desiredPivots = new Vector2[poseCount];
+
+            for (int pose = 0; pose < poseCount; pose++)
+            {
+                int x0 = (pose % columns) * cellWidth;
+                int y0 = source.height - (pose / columns + 1) * cellHeight;
+                int lowestOpaqueY = cellHeight;
+                for (int y = 0; y < cellHeight && lowestOpaqueY == cellHeight; y++)
+                {
+                    int rowOffset = (y0 + y) * source.width + x0;
+                    for (int x = 0; x < cellWidth; x++)
+                    {
+                        if (pixels[rowOffset + x].a <= 100) continue;
+                        lowestOpaqueY = y;
+                        break;
+                    }
+                }
+
+                float pivotY = lowestOpaqueY < cellHeight
+                    ? Mathf.Clamp01((lowestOpaqueY - 2f) / cellHeight)
+                    : 0.03f;
+                desiredPivots[pose] = new Vector2(0.5f, pivotY);
+                poses[pose] = new SpriteMetaData
+                {
+                    name = prefix + pose.ToString("00"),
+                    rect = new Rect(x0, y0, cellWidth, cellHeight),
+                    alignment = (int)SpriteAlignment.Custom,
+                    pivot = desiredPivots[pose],
+                    border = Vector4.zero
+                };
+            }
+
+            importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            settings.spriteExtrude = 0;
+            settings.spriteGenerateFallbackPhysicsShape = false;
+            settings.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.SetTextureSettings(settings);
+#pragma warning disable 0618
+            importer.spritesheet = poses;
+#pragma warning restore 0618
+            importer.SaveAndReimport();
+
+            importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            var factories = new SpriteDataProviderFactories();
+            factories.Init();
+            ISpriteEditorDataProvider provider =
+                factories.GetSpriteEditorDataProviderFromObject(importer);
+            provider.InitSpriteEditorDataProvider();
+            SpriteRect[] spriteRects = provider.GetSpriteRects();
+            for (int i = 0; i < spriteRects.Length; i++)
+            {
+                if (!spriteRects[i].name.StartsWith(prefix)) continue;
+                int pose;
+                if (!int.TryParse(spriteRects[i].name.Substring(prefix.Length), out pose) ||
+                    pose < 0 || pose >= desiredPivots.Length) continue;
+                spriteRects[i].alignment = SpriteAlignment.Custom;
+                spriteRects[i].pivot = desiredPivots[pose];
+            }
+            provider.SetSpriteRects(spriteRects);
+            provider.Apply();
+
+            importer.textureCompression = TextureImporterCompression.CompressedHQ;
+            importer.isReadable = false;
+            importer.SaveAndReimport();
+            return LoadOrderedSprites(path, prefix, poseCount, true);
+        }
+
+        private static Sprite[] LoadOrderedSprites(string path, string prefix, int frameCount,
+            bool twoDigitSuffix)
+        {
             Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
             var result = new Sprite[frameCount];
             for (int i = 0; i < assets.Length; i++)
@@ -410,24 +522,22 @@ private const float AuthoredBackdropPpu = 87.13f;
                 if (sprite == null) continue;
                 for (int frame = 0; frame < frameCount; frame++)
                 {
-                    if (sprite.name == "cultivator_side_" + frame)
-                    {
-                        result[frame] = sprite;
-                        break;
-                    }
+                    string suffix = twoDigitSuffix ? frame.ToString("00") : frame.ToString();
+                    if (sprite.name != prefix + suffix) continue;
+                    result[frame] = sprite;
+                    break;
                 }
             }
             for (int i = 0; i < result.Length; i++)
             {
-                if (result[i] == null)
-                {
-                    Debug.LogError("[Baker] Missing authored hero frame " + i + " in " + path);
-                    return null;
-                }
+                if (result[i] != null) continue;
+                Debug.LogError("[Baker] Missing sprite frame " + i + " in " + path);
+                return null;
             }
             return result;
         }
-// ================= hero =================
+
+        // ================= hero =================
 
         // Cultivator palette — ivory robe, jade trim, vermillion sash, ink hair.
         private static readonly Color RobeLight = new Color(0.96f, 0.92f, 0.84f);

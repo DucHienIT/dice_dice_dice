@@ -125,6 +125,97 @@ Transform:
   - {fileID: 6039573063850464974}
   m_Father: {fileID: 7774925442620677895}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1849301601336848787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1058337204825856884}
+  - component: {fileID: 6019738385943177504}
+  m_Layer: 0
+  m_Name: Projectile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1058337204825856884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849301601336848787}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.55, y: 0.78, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7774925442620677895}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &6019738385943177504
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849301601336848787}
+  m_Enabled: 0
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 9b7006f2a4f638946917e074bad065e5, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.48, y: 1.32}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &2364351395033058726
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,6 +430,7 @@ Transform:
   m_Children:
   - {fileID: 1551960642725108583}
   - {fileID: 1462582687443636470}
+  - {fileID: 1058337204825856884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5745058303288534408
@@ -355,20 +447,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Combat.HeroView
   _body: {fileID: 5149348418127870536}
   _idleSprite: {fileID: -427548134451772956, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
-  _runFrames:
-  - {fileID: 6343705538336642885, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
-  - {fileID: -1767555608344930303, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
-  - {fileID: 7060477606640575400, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
-  - {fileID: -8177531225031194935, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
+  _runSprite: {fileID: -1319317763007011964, guid: e2676eae35544be419f689300247b67c, type: 3}
+  _attackSprite: {fileID: -103775661203427290, guid: e2676eae35544be419f689300247b67c, type: 3}
+  _rangedSwordSprite: {fileID: -8289277450722028453, guid: f006b7997381f3a4a98182c54b39fb2e, type: 3}
+  _spellSprite: {fileID: 4224693835901978420, guid: f006b7997381f3a4a98182c54b39fb2e, type: 3}
+  _hitSprite: {fileID: 1685428185819514569, guid: e2676eae35544be419f689300247b67c, type: 3}
+  _flySprite: {fileID: 2626509414331855048, guid: e2676eae35544be419f689300247b67c, type: 3}
   _rig: {fileID: 1462582687443636470}
   _shadow: {fileID: 8926275060281656359}
   _sword: {fileID: 1156388678488760909}
   _flash: {fileID: 552394300595051230}
-  _swordRestAngle: 28
-  _swordSwingAngle: -70
-  _hopHeight: 0.09
-  _leanAngle: 3
-  _shadowShrink: 1.1
+  _projectile: {fileID: 6019738385943177504}
+  _projectileSwordSprite: {fileID: 21300000, guid: 9b7006f2a4f638946917e074bad065e5, type: 3}
+  _projectileSpellSprite: {fileID: 21300000, guid: 652efec615576c343b5f1a2948a66552, type: 3}
+  _runBobHeight: 0.06
+  _runLeanAngle: 2.2
+  _flyHeight: 0.28
+  _flyBobHeight: 0.045
+  _hitRecoil: 0.11
+  _rangedDistance: 3.65
 --- !u!1 &8037508472694654634
 GameObject:
   m_ObjectHideFlags: 0

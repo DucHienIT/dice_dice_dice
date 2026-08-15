@@ -23,8 +23,7 @@ namespace Game.Combat
         [SerializeField] private TextMeshPro _enemyName;
         [SerializeField] private SidekickOrbView[] _orbs;
         
-        [SerializeField] private float _travelStartX = -3.65f;
-[SerializeField] private float _heroX = -1.85f;
+        [SerializeField] private float _heroX = -1.85f;
         [SerializeField] private float _enemyX = 1.85f;
         [SerializeField] private float _baseY = 3.1f;
 
@@ -37,23 +36,23 @@ namespace Game.Combat
         private float _enterT = 1f;
         private bool _walking;
         private float _walkPhase;
-        
-        private float _travelVisualT = 1f;
-        private float _heroCurrentX;
-private float _walkAmount;
+        private float _walkAmount;
         private float _enemyBarY;
 
-private void Awake()
+        private bool _heroAttackWasActive;
+        private HeroAttackStyle _heroAttackStyle = HeroAttackStyle.Melee;
+        private int _rangedAttackSequence;
+
+        private void Awake()
         {
             _enemyBarY = _enemyBar.transform.position.y;
-            _heroCurrentX = _heroX;
         }
 
-        public float HeroX => _heroCurrentX;
+        public float HeroX => _heroX;
         public float EnemyX => _enemyX;
         public float BaseY => _baseY;
 
-        public Vector3 HeroFloaterPos => new Vector3(_heroCurrentX, _baseY + 1.4f, 0f);
+        public Vector3 HeroFloaterPos => new Vector3(_heroX, _baseY + 1.4f, 0f);
 
         public Vector3 EnemyFloaterPos =>
             new Vector3(_enemyX, _baseY + (_enemy != null ? 1.3f * _enemy.Look.Size : 1.3f), 0f);
@@ -108,19 +107,13 @@ private void Awake()
             }
         }
 
-        /// <summary>Hero walk cycle on/off — blended, so stopping mid-stride still settles.</summary>
-public void SetWalking(bool on)
+        /// <summary>
+        /// Hero walk cycle on/off — blended, so stopping mid-stride still settles. The hero
+        /// hops in place at his battle spot; the scrolling backdrop sells the motion, so
+        /// starting or cutting a leg short never moves (or snaps) his position.
+        /// </summary>
+        public void SetWalking(bool on)
         {
-            if (on && !_walking)
-            {
-                _travelVisualT = 0f;
-                _heroCurrentX = _travelStartX;
-            }
-            else if (!on)
-            {
-                _travelVisualT = 1f;
-                _heroCurrentX = _heroX;
-            }
             _walking = on;
         }
 
@@ -132,40 +125,47 @@ public void SetWalking(bool on)
             }
         }
 
-        /// <summary>time = unscaled elapsed (for bob), scaledDt matches the engine tick rate.</summary>
-        public void Tick(float time, float scaledDt, BattleEngine engine, PlayerState player)
+        /// <summary>
+        /// time = unscaled elapsed (for bob), dt = unscaled frame dt (0 while paused),
+        /// scaledDt matches the engine tick rate. The walk cycle advances on dt, not scaledDt:
+        /// at x2/x4 battle speed the 24-frame run sheet would step faster than the display
+        /// refreshes and read as a broken animation, not a faster run.
+        /// </summary>
+public void Tick(float time, float dt, float scaledDt, BattleEngine engine, PlayerState player)
         {
             bool heroAttacking = engine.AnimActive && engine.AnimWho == BattleActor.Hero;
             bool enemyAttacking = engine.AnimActive && engine.AnimWho == BattleActor.Enemy;
             float animT = engine.AnimT;
             bool inFlashWindow = animT > 0.3f && animT < 0.7f;
 
-            // hero — the idle bob cross-fades into the walk hop
+            if (heroAttacking && !_heroAttackWasActive)
+            {
+                _heroAttackStyle = ChooseHeroAttackStyle(player);
+            }
+            _heroAttackWasActive = heroAttacking;
+
+            // Hero travel uses a single authored pose plus transform motion, in place.
             _walkAmount = Mathf.MoveTowards(_walkAmount, _walking ? 1f : 0f, scaledDt * 6f);
             if (_walking)
             {
-                _walkPhase += scaledDt * _config.WalkHopsPerSecond;
-                _travelVisualT = Mathf.Min(1f, _travelVisualT +
-                    scaledDt / Mathf.Max(0.01f, _config.TravelDuration));
-                float travelEase = Mathf.SmoothStep(0f, 1f, _travelVisualT);
-                _heroCurrentX = Mathf.Lerp(_travelStartX, _heroX, travelEase);
-            }
-            else
-            {
-                _heroCurrentX = _heroX;
+                _walkPhase += dt * _config.WalkHopsPerSecond;
             }
             _hero.SetWalk(_walkPhase, _walkAmount);
 
-            float lunge = heroAttacking ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance : 0f;
+            bool meleeHeroAttack = heroAttacking &&
+                _heroAttackStyle == HeroAttackStyle.Melee;
+            float lunge = meleeHeroAttack
+                ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance
+                : 0f;
             _hero.transform.position = new Vector3(
-                _heroCurrentX + lunge,
+                _heroX + lunge,
                 _baseY + Mathf.Sin(time * _config.BobFrequency) * _config.BobAmplitude
                     * (1f - _walkAmount),
                 0f);
-            _hero.SetSwing(heroAttacking ? animT : 0f);
+            _hero.SetAttack(heroAttacking ? animT : 0f, _heroAttackStyle);
             _hero.SetFlash(enemyAttacking && inFlashWindow);
 
-            // enemy
+            // Enemy
             if (_enemy != null)
             {
                 float scaleMul = 1f;
@@ -176,7 +176,8 @@ public void SetWalking(bool on)
                 }
                 if (_dissolveT >= 0f)
                 {
-                    _dissolveT = Mathf.Min(1f, _dissolveT + scaledDt / Mathf.Max(0.05f, _config.WinDelay));
+                    _dissolveT = Mathf.Min(1f, _dissolveT + scaledDt /
+                        Mathf.Max(0.05f, _config.WinDelay));
                     _enemyView.SetDissolve(_dissolveT);
                 }
                 else
@@ -185,7 +186,7 @@ public void SetWalking(bool on)
                     _enemyView.SetSquish(scaleMul * squish, scaleMul / squish);
                 }
 
-                // entrance: slide in from off-screen right, name and HP bar riding along
+                // Entrance: slide in from off-screen right, name and HP bar riding along.
                 float enter = 0f;
                 if (_enterT < 1f)
                 {
@@ -196,10 +197,13 @@ public void SetWalking(bool on)
                     Vector3 namePos = _enemyName.transform.position;
                     namePos.x = _enemyX + enter;
                     _enemyName.transform.position = namePos;
-                    _enemyBar.transform.position = new Vector3(_enemyX + enter, _enemyBarY, 0f);
+                    _enemyBar.transform.position =
+                        new Vector3(_enemyX + enter, _enemyBarY, 0f);
                 }
 
-                float eLunge = enemyAttacking ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance : 0f;
+                float eLunge = enemyAttacking
+                    ? Mathf.Sin(animT * Mathf.PI) * _config.LungeDistance
+                    : 0f;
                 _enemyView.transform.position = new Vector3(
                     _enemyX - eLunge + enter,
                     _baseY + Mathf.Sin(time * 2.6f + 1f) * _config.BobAmplitude,
@@ -225,13 +229,14 @@ public void SetWalking(bool on)
 
             _heroBar.SetValues(player.Hp, player.MaxHp);
 
-            // sidekick orbs float behind the hero
+            // Sidekick orbs float behind the hero.
             for (int i = 0; i < _orbs.Length; i++)
             {
                 if (!_orbs[i].gameObject.activeSelf) continue;
                 _orbs[i].transform.position = new Vector3(
-                    _heroCurrentX - 0.78f - i * 0.4f,
-                    _baseY + 0.42f + Mathf.Sin(time * 2.5f + i * 1.7f) * 0.07f,
+                    _heroX - 0.78f - i * 0.4f,
+                    _baseY + 0.42f +
+                        Mathf.Sin(time * 2.5f + i * 1.7f) * 0.07f,
                     0f);
             }
         }
@@ -243,5 +248,32 @@ public void SetWalking(bool on)
             float u = t - 1f;
             return 1f + c3 * u * u * u + c1 * u * u;
         }
-    }
+    
+
+        private HeroAttackStyle ChooseHeroAttackStyle(PlayerState player)
+        {
+            bool hasFlyingSword = false;
+            bool hasSpell = false;
+
+            for (int i = 0; i < player.Sidekicks.Count; i++)
+            {
+                string id = player.Sidekicks[i].Id;
+                if (id == "blob") hasFlyingSword = true;
+                else if (id == "spark") hasSpell = true;
+            }
+
+            if (hasFlyingSword && hasSpell)
+            {
+                HeroAttackStyle style = (_rangedAttackSequence & 1) == 0
+                    ? HeroAttackStyle.FlyingSword
+                    : HeroAttackStyle.Spell;
+                _rangedAttackSequence++;
+                return style;
+            }
+
+            if (hasFlyingSword) return HeroAttackStyle.FlyingSword;
+            if (hasSpell) return HeroAttackStyle.Spell;
+            return HeroAttackStyle.Melee;
+        }
+}
 }

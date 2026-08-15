@@ -1,58 +1,31 @@
 fileFormatVersion: 2
-guid: ce74d048efae7a54a86e21829591d1a9
+guid: e2676eae35544be419f689300247b67c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4095002279227803100
-    second: cultivator_side_run_v3_0
+      213: -8916304552857939362
+    second: hero_pose_sheet_v1_0
   - first:
-      213: -9105479545289037520
-    second: cultivator_side_run_v3_1
+      213: 3925928399406664370
+    second: hero_pose_sheet_v1_1
   - first:
-      213: 4559508282370305645
-    second: cultivator_side_run_v3_2
+      213: -8198748907689494583
+    second: hero_pose_sheet_v1_2
   - first:
-      213: -2024546176283448725
-    second: cultivator_side_run_v3_3
+      213: 6693413287114305918
+    second: hero_pose_sheet_v1_3
   - first:
-      213: -7349467139258981483
-    second: cultivator_side_run_v3_4
+      213: -1319317763007011964
+    second: hero_pose_00
   - first:
-      213: -2663063728601940589
-    second: cultivator_side_run_v3_5
+      213: -103775661203427290
+    second: hero_pose_01
   - first:
-      213: 1764773236670821272
-    second: cultivator_side_run_v3_6
+      213: 1685428185819514569
+    second: hero_pose_02
   - first:
-      213: -5512018827844780756
-    second: cultivator_side_run_v3_7
-  - first:
-      213: 1992669340051057344
-    second: cultivator_side_run_v3_8
-  - first:
-      213: -443759321500707382
-    second: cultivator_side_run_v3_9
-  - first:
-      213: 8240190859770920866
-    second: cultivator_side_run_v3_10
-  - first:
-      213: -5957420169110027242
-    second: cultivator_side_run_v3_11
-  - first:
-      213: -427548134451772956
-    second: cultivator_side_0
-  - first:
-      213: 6343705538336642885
-    second: cultivator_side_1
-  - first:
-      213: -1767555608344930303
-    second: cultivator_side_2
-  - first:
-      213: 7060477606640575400
-    second: cultivator_side_3
-  - first:
-      213: -8177531225031194935
-    second: cultivator_side_4
+      213: 2626509414331855048
+    second: hero_pose_03
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -99,7 +72,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 280
+  spritePixelsToUnits: 220
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
@@ -120,7 +93,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 4096
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 2
@@ -187,111 +160,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cultivator_side_0
+      name: hero_pose_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 627
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.11642743}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 483aa1e0c77d0bde0800000000000000
+      internalID: -1319317763007011964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_pose_01
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 627
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.114832535}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62073a106905f8ef0800000000000000
+      internalID: -103775661203427290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hero_pose_02
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 368
-        height: 724
+        width: 627
+        height: 627
       alignment: 9
-      pivot: {x: 0.5, y: 0.025}
+      pivot: {x: 0.5, y: 0.23125997}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e10f99ac3b011af0800000000000000
-      internalID: -427548134451772956
+      spriteID: 9c604365108d36710800000000000000
+      internalID: 1685428185819514569
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cultivator_side_1
+      name: hero_pose_03
       rect:
         serializedVersion: 2
-        x: 368
+        x: 627
         y: 0
-        width: 536
-        height: 724
+        width: 627
+        height: 627
       alignment: 9
-      pivot: {x: 0.5, y: 0.025}
+      pivot: {x: 0.5, y: 0.23125997}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 547db34a39e590850800000000000000
-      internalID: 6343705538336642885
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_2
-      rect:
-        serializedVersion: 2
-        x: 904
-        y: 0
-        width: 399
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 108d9d30a816877e0800000000000000
-      internalID: -1767555608344930303
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_3
-      rect:
-        serializedVersion: 2
-        x: 1303
-        y: 0
-        width: 508
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8a36968a9fadbf160800000000000000
-      internalID: 7060477606640575400
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cultivator_side_4
-      rect:
-        serializedVersion: 2
-        x: 1811
-        y: 0
-        width: 361
-        height: 724
-      alignment: 9
-      pivot: {x: 0.5, y: 0.025}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c6c9506da2938e80800000000000000
-      internalID: -8177531225031194935
+      spriteID: 8c03870856c337420800000000000000
+      internalID: 2626509414331855048
       vertices: []
       indices: 
       edges: []
@@ -300,7 +251,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: cf8138ceba3807e42ab42bb73952d96a
+    spriteID: 7e33db624dc9d834e8d1e649898c1778
     internalID: 0
     vertices: []
     indices: 
@@ -310,23 +261,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cultivator_side_0: -427548134451772956
-      cultivator_side_1: 6343705538336642885
-      cultivator_side_2: -1767555608344930303
-      cultivator_side_3: 7060477606640575400
-      cultivator_side_4: -8177531225031194935
-      cultivator_side_run_v3_0: 4095002279227803100
-      cultivator_side_run_v3_1: -9105479545289037520
-      cultivator_side_run_v3_10: 8240190859770920866
-      cultivator_side_run_v3_11: -5957420169110027242
-      cultivator_side_run_v3_2: 4559508282370305645
-      cultivator_side_run_v3_3: -2024546176283448725
-      cultivator_side_run_v3_4: -7349467139258981483
-      cultivator_side_run_v3_5: -2663063728601940589
-      cultivator_side_run_v3_6: 1764773236670821272
-      cultivator_side_run_v3_7: -5512018827844780756
-      cultivator_side_run_v3_8: 1992669340051057344
-      cultivator_side_run_v3_9: -443759321500707382
+      hero_pose_00: -1319317763007011964
+      hero_pose_01: -103775661203427290
+      hero_pose_02: 1685428185819514569
+      hero_pose_03: 2626509414331855048
+      hero_pose_sheet_v1_0: -8916304552857939362
+      hero_pose_sheet_v1_1: 3925928399406664370
+      hero_pose_sheet_v1_2: -8198748907689494583
+      hero_pose_sheet_v1_3: 6693413287114305918
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
