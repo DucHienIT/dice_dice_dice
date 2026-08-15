@@ -24,9 +24,13 @@ MonoBehaviour:
   - {r: 0.8117647, g: 0.91764706, b: 1, a: 1}
   - {r: 0.60784316, g: 0.72156864, b: 1, a: 1}
   - {r: 0.9098039, g: 0.84705883, b: 1, a: 1}
-  _authoredBackdrop: 0
-  _skyLayer: {fileID: 21300000, guid: 0a544162bdbdf384592edd43d53bd394, type: 3}
-  _groundLayer: {fileID: 21300000, guid: 2c8364560c4f50644a2112a58385e341, type: 3}
+  _authoredBackdrop: 1
+  _skyLayerRef:
+    m_AssetGUID: 5b0002ab8f6457f4eb3f0506644c5eb9
+    m_SubObjectName: azure_side_scroll_v3
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   _musicRootHz: 164.81
   _minorMood: 0
   _melodyDegrees: 00000000040000000700000009000000070000000400000002000000ffffffff
