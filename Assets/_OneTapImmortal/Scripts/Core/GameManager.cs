@@ -251,7 +251,8 @@ namespace Game.Core
         private void EnterWorld()
         {
             World world = _config.WorldAt(_run.WorldIndex);
-            _background.Build(_run.WorldIndex, world);
+            // async: the previous realm's backdrop stays up until the new bundle lands
+            _background.Enter(_run.WorldIndex, world);
             _audio.PlayWorldMusic(world);
         }
 
@@ -909,6 +910,19 @@ namespace Game.Core
                 Debug.LogError("[Core] GameManager: GameConfig has " +
                                _config.MetaUpgrades.Length + " meta upgrades but the " +
                                "cultivation path has " + _ui.MetaPath.NodeCount + " nodes");
+            }
+            if (_config != null && _config.Worlds != null)
+            {
+                for (int i = 0; i < _config.Worlds.Length; i++)
+                {
+                    World world = _config.Worlds[i];
+                    if (world == null || world.SkyLayerRef == null ||
+                        !world.SkyLayerRef.RuntimeKeyIsValid())
+                    {
+                        Debug.LogError("[Core] GameManager: world " + i + " has no addressable " +
+                                       "sky backdrop — run Tools > Game > Build Game (Full)");
+                    }
+                }
             }
             if (_narrative == null) Debug.LogError("[Core] GameManager: NarrativeConfig missing");
             if (_camera == null) Debug.LogError("[Core] GameManager: Camera missing");

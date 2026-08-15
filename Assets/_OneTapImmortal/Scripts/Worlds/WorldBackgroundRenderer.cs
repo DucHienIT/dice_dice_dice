@@ -1,12 +1,16 @@
 using Game.Data;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Game.Worlds
 {
     /// <summary>
     /// Side-scrolling backdrop: the sky is repeated as a wide, mirrored three-tile belt
     /// that drifts left while the hero walks forward. Nothing is painted at runtime —
-    /// the sprite lives on the World asset.
+    /// the sky sprite is addressable (one bundle per world) and streamed in by Enter;
+    /// the previous world's sprite stays on screen until the new one has loaded, and its
+    /// handle is only released after the swap so the texture is never yanked mid-frame.
     /// </summary>
     public class WorldBackgroundRenderer : MonoBehaviour
     {
@@ -27,14 +31,59 @@ namespace Game.Worlds
         private float _skyTileWidth;
         private bool _authoredBackdrop;
         private Vector3 _skyBasePosition;
+        // handle backing the sprite currently on screen — released only after a newer one lands
+        private AsyncOperationHandle<Sprite> _skyHandle;
+        private AsyncOperationHandle<Sprite> _pendingHandle;
+        private int _pendingWorldIndex;
+        private World _pendingWorld;
+        private System.Action<AsyncOperationHandle<Sprite>> _onSkyLoaded;
 
-private void Awake()
+        private void Awake()
         {
             _twinklePhases = new float[_twinkles.Length];
+            _onSkyLoaded = OnSkyLoaded;
             EnsureSkyCopies();
         }
 
-public void Build(int worldIndex, World def)
+        private void OnDestroy()
+        {
+            if (_pendingHandle.IsValid()) Addressables.Release(_pendingHandle);
+            if (_skyHandle.IsValid()) Addressables.Release(_skyHandle);
+        }
+
+        /// <summary>
+        /// Streams in the world's sky bundle and swaps the belt over on arrival. Safe to
+        /// call again before the previous load finished — the superseded load is dropped.
+        /// </summary>
+        public void Enter(int worldIndex, World def)
+        {
+            if (_pendingHandle.IsValid())
+            {
+                Addressables.Release(_pendingHandle);
+                _pendingHandle = default;
+            }
+            _pendingWorldIndex = worldIndex;
+            _pendingWorld = def;
+            _pendingHandle = Addressables.LoadAssetAsync<Sprite>(def.SkyLayerRef.RuntimeKey);
+            _pendingHandle.Completed += _onSkyLoaded;
+        }
+
+        private void OnSkyLoaded(AsyncOperationHandle<Sprite> handle)
+        {
+            if (!handle.Equals(_pendingHandle)) return; // superseded by a newer Enter
+
+            if (handle.Status != AsyncOperationStatus.Succeeded)
+            {
+                Debug.LogError("[World] Sky backdrop failed to load for " + _pendingWorld.name);
+                return;
+            }
+            Apply(_pendingWorldIndex, _pendingWorld, handle.Result);
+            if (_skyHandle.IsValid()) Addressables.Release(_skyHandle);
+            _skyHandle = handle;
+            _pendingHandle = default;
+        }
+
+        private void Apply(int worldIndex, World def, Sprite sky)
         {
             EnsureSkyCopies();
             _authoredBackdrop = def.AuthoredBackdrop;
@@ -47,12 +96,12 @@ public void Build(int worldIndex, World def)
                 : Vector3.one;
             for (int i = 0; i < _skyCopies.Length; i++)
             {
-                _skyCopies[i].sprite = def.SkyLayer;
+                _skyCopies[i].sprite = sky;
                 _skyCopies[i].transform.localScale = skyScale;
                 _skyCopies[i].gameObject.SetActive(true);
             }
-            _skyTileWidth = def.SkyLayer != null
-                ? Mathf.Max(0.01f, def.SkyLayer.bounds.size.x * skyScale.x)
+            _skyTileWidth = sky != null
+                ? Mathf.Max(0.01f, sky.bounds.size.x * skyScale.x)
                 : _worldWidth;
 
             bool showAtmosphericFx = !_authoredBackdrop;
@@ -72,7 +121,7 @@ public void Build(int worldIndex, World def)
         }
 
         /// <summary>Advances the backdrop by <paramref name="worldDelta"/> units to the left.</summary>
-public void Scroll(float worldDelta)
+        public void Scroll(float worldDelta)
         {
             // the wide mountain belt drifts left and only wraps after one whole tile has left the camera
             _skyScrollX += worldDelta * (_authoredBackdrop
@@ -91,7 +140,7 @@ public void Scroll(float worldDelta)
             }
         }
 
-private void EnsureSkyCopies()
+        private void EnsureSkyCopies()
         {
             if (_skyCopies != null && _skyCopies.Length == SkyCopyCount) return;
 
@@ -119,5 +168,5 @@ private void EnsureSkyCopies()
                     Vector3.right * (-wrapped + i * _skyTileWidth);
             }
         }
-}
+    }
 }

@@ -1,7 +1,11 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using Game.Data;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -19,7 +23,7 @@ namespace Game.EditorTools
         private const string OutputRoot = "Builds/WebGL";
         private const string ReleaseDirectory = OutputRoot + "/Release";
         private const string DevelopmentDirectory = OutputRoot + "/Development";
-        private const string FallbackScenePath = "Assets/Scenes/Main.unity";
+        private const string FallbackScenePath = "Assets/_OneTapImmortal/Scenes/Main.unity";
 
         private const string TemplateName = "PortraitGame";
         private const string TemplateDirectory = "Assets/WebGLTemplates/" + TemplateName;
@@ -107,6 +111,9 @@ namespace Game.EditorTools
             ApplyPresentation();
             AssetDatabase.SaveAssets();
 
+            // bundles are target-specific, so this must come after the WebGL switch above
+            if (!BuildAddressablesContent()) return;
+
             Directory.CreateDirectory(directory);
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
@@ -127,6 +134,37 @@ namespace Game.EditorTools
             Debug.Log(BuildLog(directory, summary, compression, decompressionFallback));
             string index = Path.Combine(directory, "index.html");
             if (File.Exists(index)) EditorUtility.RevealInFinder(Path.GetFullPath(index));
+        }
+
+        /// <summary>
+        /// Fresh Addressables content build per player build — sync the groups from the
+        /// content assets first, then pack. A stale or failed content build must stop the
+        /// player build: it would ship bundles that no longer match the catalog.
+        /// </summary>
+        private static bool BuildAddressablesContent()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<GameConfig>("Assets/_OneTapImmortal/Data/GameConfig.asset");
+            if (config == null)
+            {
+                Debug.LogError("[Build] GameConfig missing — run Tools > Game > Build Game (Full)");
+                return false;
+            }
+            if (!AddressablesConfigurator.Sync(config))
+            {
+                Debug.LogError("[Build] Addressables sync failed — fix the errors above, " +
+                               "then rebuild.");
+                return false;
+            }
+
+            AddressableAssetSettings.CleanPlayerContent(
+                AddressableAssetSettingsDefaultObject.Settings.ActivePlayerDataBuilder);
+            AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
+            if (!string.IsNullOrEmpty(result.Error))
+            {
+                Debug.LogError("[Build] Addressables content build failed: " + result.Error);
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -193,6 +231,21 @@ namespace Game.EditorTools
             {
                 sb.Append("    ").Append(Mb((ulong)f.Length).PadLeft(10)).Append("  ")
                     .AppendLine(f.Name);
+            }
+
+            // addressables bundles load on demand — listed apart so the always-paid
+            // first-load payload above stays readable at a glance
+            string aaDir = Path.Combine(directory, "StreamingAssets", "aa");
+            if (Directory.Exists(aaDir))
+            {
+                sb.AppendLine("  addressables (on demand):");
+                foreach (FileInfo f in new DirectoryInfo(aaDir)
+                             .GetFiles("*", SearchOption.AllDirectories)
+                             .OrderByDescending(f => f.Length))
+                {
+                    sb.Append("    ").Append(Mb((ulong)f.Length).PadLeft(10)).Append("  ")
+                        .AppendLine(f.Name);
+                }
             }
             return sb.ToString();
         }

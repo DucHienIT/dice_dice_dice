@@ -1,5 +1,6 @@
 using Game.Localization;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Game.Data
 {
@@ -19,10 +20,10 @@ namespace Game.Data
         [Header("Art — baked from the palette above by Tools > Game > Build Game (Full)")]
         [Tooltip("True when the far layer is a hand-authored full environment rather than the palette fallback.")]
         [SerializeField] private bool _authoredBackdrop;
-        [Tooltip("Static far layer: sky, distant terrain and atmosphere.")]
-        [SerializeField] private Sprite _skyLayer;
-        [Tooltip("Scrolling strip: ground, rocks, lake, flora. Tiles seamlessly.")]
-        [SerializeField] private Sprite _groundLayer;
+        [Tooltip("Static far layer: sky, distant terrain and atmosphere. Addressable — one " +
+                 "bundle per world, streamed in by WorldBackgroundRenderer.Enter so only the " +
+                 "active realm's backdrop is ever in memory.")]
+        [SerializeField] private AssetReferenceSprite _skyLayerRef;
         [Header("Music")]
         [SerializeField] private float _musicRootHz = 110f;
         [SerializeField] private bool _minorMood;
@@ -39,8 +40,7 @@ namespace Game.Data
         public Color Moon => _moon;
         public Color[] Flora => _flora;
         public bool AuthoredBackdrop => _authoredBackdrop;
-        public Sprite SkyLayer => _skyLayer;
-        public Sprite GroundLayer => _groundLayer;
+        public AssetReferenceSprite SkyLayerRef => _skyLayerRef;
         public float MusicRootHz => _musicRootHz;
         public bool MinorMood => _minorMood;
         public int[] MelodyDegrees => _melodyDegrees;
