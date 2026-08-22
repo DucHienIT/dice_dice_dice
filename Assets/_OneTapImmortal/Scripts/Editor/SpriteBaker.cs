@@ -23,12 +23,20 @@ namespace Game.EditorTools
         public const string ArtDir = "Assets/_OneTapImmortal/Art/Generated";
         private const string AuthoredArtDir = "Assets/_OneTapImmortal/Art/Immortal";
         private const string AzureCloudBackdrop = AuthoredArtDir + "/azure_side_scroll_v3.png";
-        private const string CultivatorRunSheet = AuthoredArtDir +
+        public const string CultivatorRunSheet = AuthoredArtDir +
             "/cultivator_side_run_v3.png";
-        private const string CultivatorPoseSheet = AuthoredArtDir +
+        public const string CultivatorPoseSheet = AuthoredArtDir +
             "/hero_pose_sheet_v1.png";
-        private const string CultivatorRangedPoseSheet = AuthoredArtDir +
+        public const string CultivatorRangedPoseSheet = AuthoredArtDir +
             "/hero_ranged_pose_sheet_v1.png";
+
+        /// <summary>True when all three authored hero sheets exist — the mode where the
+        /// hero prefab streams them as weak references (HeroArt bundle) instead of having
+        /// procedural sprites wired hard. All-or-nothing keeps the wiring branch-free.</summary>
+        public static bool AuthoredHeroArtComplete =>
+            File.Exists(CultivatorRunSheet) &&
+            File.Exists(CultivatorPoseSheet) &&
+            File.Exists(CultivatorRangedPoseSheet);
 
         private const float AuthoredHeroPpu = 280f;
         private const float AuthoredPosePpu = 220f;

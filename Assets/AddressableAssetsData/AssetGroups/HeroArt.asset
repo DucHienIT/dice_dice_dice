@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: HeroArt
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: HeroArt
+  m_GUID: f7f3f3153bb3f414aaa3e5587a80b384
+  m_SerializeEntries:
+  - m_GUID: ce74d048efae7a54a86e21829591d1a9
+    m_Address: Hero/run
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Hero
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2676eae35544be419f689300247b67c
+    m_Address: Hero/poses
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Hero
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f006b7997381f3a4a98182c54b39fb2e
+    m_Address: Hero/ranged
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Hero
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 108aa2d59bc27fe43a7a0ab7161541aa, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5ecb6d57ca913ff4baba3a162277b6a4, type: 2}
+    - {fileID: 11400000, guid: 1c6a270eb6da66c4dae2eedaa4591fad, type: 2}

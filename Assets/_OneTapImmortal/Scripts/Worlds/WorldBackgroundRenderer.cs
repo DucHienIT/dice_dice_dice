@@ -1,16 +1,15 @@
 using Game.Data;
+using Game.Utils;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Game.Worlds
 {
     /// <summary>
     /// Side-scrolling backdrop: the sky is repeated as a wide, mirrored three-tile belt
     /// that drifts left while the hero walks forward. Nothing is painted at runtime —
-    /// the sky sprite is addressable (one bundle per world) and streamed in by Enter;
-    /// the previous world's sprite stays on screen until the new one has loaded, and its
-    /// handle is only released after the swap so the texture is never yanked mid-frame.
+    /// the sky sprite is addressable (one bundle per world) and streamed in by Enter
+    /// through a StreamedAsset slot, which keeps the previous world's sprite on screen
+    /// until the new one has loaded and only releases its handle after the swap.
     /// </summary>
     public class WorldBackgroundRenderer : MonoBehaviour
     {
@@ -31,12 +30,10 @@ namespace Game.Worlds
         private float _skyTileWidth;
         private bool _authoredBackdrop;
         private Vector3 _skyBasePosition;
-        // handle backing the sprite currently on screen — released only after a newer one lands
-        private AsyncOperationHandle<Sprite> _skyHandle;
-        private AsyncOperationHandle<Sprite> _pendingHandle;
+        private readonly StreamedAsset<Sprite> _skyStream = new StreamedAsset<Sprite>();
         private int _pendingWorldIndex;
         private World _pendingWorld;
-        private System.Action<AsyncOperationHandle<Sprite>> _onSkyLoaded;
+        private System.Action<Sprite> _onSkyLoaded;
 
         private void Awake()
         {
@@ -47,8 +44,7 @@ namespace Game.Worlds
 
         private void OnDestroy()
         {
-            if (_pendingHandle.IsValid()) Addressables.Release(_pendingHandle);
-            if (_skyHandle.IsValid()) Addressables.Release(_skyHandle);
+            _skyStream.Release();
         }
 
         /// <summary>
@@ -57,30 +53,15 @@ namespace Game.Worlds
         /// </summary>
         public void Enter(int worldIndex, World def)
         {
-            if (_pendingHandle.IsValid())
-            {
-                Addressables.Release(_pendingHandle);
-                _pendingHandle = default;
-            }
             _pendingWorldIndex = worldIndex;
             _pendingWorld = def;
-            _pendingHandle = Addressables.LoadAssetAsync<Sprite>(def.SkyLayerRef.RuntimeKey);
-            _pendingHandle.Completed += _onSkyLoaded;
+            _skyStream.Load(def.SkyLayerRef.RuntimeKey, _onSkyLoaded, def.name);
         }
 
-        private void OnSkyLoaded(AsyncOperationHandle<Sprite> handle)
+        private void OnSkyLoaded(Sprite sky)
         {
-            if (!handle.Equals(_pendingHandle)) return; // superseded by a newer Enter
-
-            if (handle.Status != AsyncOperationStatus.Succeeded)
-            {
-                Debug.LogError("[World] Sky backdrop failed to load for " + _pendingWorld.name);
-                return;
-            }
-            Apply(_pendingWorldIndex, _pendingWorld, handle.Result);
-            if (_skyHandle.IsValid()) Addressables.Release(_skyHandle);
-            _skyHandle = handle;
-            _pendingHandle = default;
+            // _pendingWorld is always the newest Enter — StreamedSprite drops superseded loads
+            Apply(_pendingWorldIndex, _pendingWorld, sky);
         }
 
         private void Apply(int worldIndex, World def, Sprite sky)

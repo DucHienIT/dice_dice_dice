@@ -57,7 +57,12 @@ Assets/Scripts/
 - Không dùng chuỗi (`Invoke("MethodName")`, `SendMessage`) — dùng gọi trực tiếp hoặc event.
 - `Update` chỉ ở nơi thật sự cần chạy mỗi frame; timer đơn giản (beat, cooldown, animation ngắn) dùng cộng dồn `Time.deltaTime`, không tạo coroutine tràn lan.
 - Tween dùng thư viện tween của project (thường là **DOTween**); với DOTween luôn đặt `SetLink(gameObject)` để tween tự hủy theo object.
-- Không dùng `Resources.Load` cho asset gameplay — reference qua Inspector/ScriptableObject.
+- Không dùng `Resources.Load` cho asset gameplay — reference qua Inspector/ScriptableObject, hoặc reference **yếu** qua Addressables cho asset thuộc diện streaming (bullet dưới).
+- **Asset thuộc diện streaming được phép tham chiếu yếu qua Addressables** thay cho hard reference — đây là ngoại lệ có chủ đích của quy tắc "mọi reference là `[SerializeField]` trực tiếp", dùng để tách asset nặng khỏi payload ban đầu và kiểm soát unload. Ràng buộc đi kèm:
+  - Field vẫn là `[SerializeField] AssetReference` wired sẵn trong Inspector/builder — **không address string trong code**, không load theo tên/đường dẫn.
+  - Load async với vòng đời handle tường minh: load → callback swap → release handle cũ sau swap; `Release()` khi owner bị destroy. Gói vòng đời này vào helper dùng chung của project, không viết tay ở từng view.
+  - Cấm `WaitForCompletion()` khi target có WebGL.
+  - Hard reference vẫn là **mặc định** cho mọi asset còn lại; asset nào thuộc diện streaming do CLAUDE.md/tài liệu của từng project khai báo, kèm guard build-time chống ship trùng (asset vừa nằm trong player vừa nằm trong bundle).
 - Text dùng **TextMeshPro**, không dùng `UnityEngine.UI.Text` cũ.
 - Input dùng **Input System mới** (asset `.inputactions`), không dùng `Input.GetKey` cũ — trừ khi project đã chọn hệ input khác từ đầu.
 

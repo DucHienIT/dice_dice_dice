@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using Game.Utils;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Game.Combat
 {
@@ -12,6 +15,10 @@ namespace Game.Combat
     /// <summary>
     /// Pose-based hero presentation. Each action uses one authored sprite; ranged attacks add a
     /// separately animated projectile so the hero never has to slide into melee range.
+    /// The authored pose sheets are weak-referenced (AssetReference) and stream in from the
+    /// Hero bundle at Awake — until they land the body renderer simply shows nothing, the
+    /// same boot behavior as the streamed backdrop. When the builder runs without authored
+    /// sheets it wires procedural sprites hard and leaves the references empty instead.
     /// </summary>
     public class HeroView : MonoBehaviour
     {
@@ -42,6 +49,11 @@ namespace Game.Combat
         [SerializeField] private Sprite _projectileSwordSprite;
         [SerializeField] private Sprite _projectileSpellSprite;
 
+        [Header("Streamed pose sheets (empty = procedural sprites wired hard)")]
+        [SerializeField] private AssetReference _runSheet;
+        [SerializeField] private AssetReference _poseSheet;
+        [SerializeField] private AssetReference _rangedSheet;
+
         [Header("Pose motion")]
         [SerializeField] private float _runBobHeight = 0.06f;
         [SerializeField] private float _runLeanAngle = 2.2f;
@@ -50,6 +62,12 @@ namespace Game.Combat
         [SerializeField] private float _hitRecoil = 0.11f;
         [SerializeField] private float _rangedDistance = 3.65f;
 
+        private readonly StreamedAsset<IList<Sprite>> _runStream =
+            new StreamedAsset<IList<Sprite>>();
+        private readonly StreamedAsset<IList<Sprite>> _poseStream =
+            new StreamedAsset<IList<Sprite>>();
+        private readonly StreamedAsset<IList<Sprite>> _rangedStream =
+            new StreamedAsset<IList<Sprite>>();
         private HeroPose _shownPose = (HeroPose)(-1);
         private HeroAttackStyle _attackStyle;
         private Color _shadowBaseColor;
@@ -73,6 +91,76 @@ namespace Game.Combat
             _flash.enabled = false;
             _projectile.enabled = false;
             RefreshPose();
+            StreamPoseSheets();
+        }
+
+        private void OnDestroy()
+        {
+            _runStream.Release();
+            _poseStream.Release();
+            _rangedStream.Release();
+        }
+
+        private void StreamPoseSheets()
+        {
+            if (_runSheet != null && _runSheet.RuntimeKeyIsValid())
+            {
+                _runStream.Load(_runSheet.RuntimeKey, OnRunSheetLoaded, "hero run sheet");
+            }
+            if (_poseSheet != null && _poseSheet.RuntimeKeyIsValid())
+            {
+                _poseStream.Load(_poseSheet.RuntimeKey, OnPoseSheetLoaded, "hero pose sheet");
+            }
+            if (_rangedSheet != null && _rangedSheet.RuntimeKeyIsValid())
+            {
+                _rangedStream.Load(_rangedSheet.RuntimeKey, OnRangedSheetLoaded,
+                    "hero ranged sheet");
+            }
+        }
+
+        private void OnRunSheetLoaded(IList<Sprite> sprites)
+        {
+            _idleSprite = BySuffix(sprites, 0);
+            ReapplyPose();
+        }
+
+        private void OnPoseSheetLoaded(IList<Sprite> sprites)
+        {
+            _runSprite = BySuffix(sprites, 0);
+            _attackSprite = BySuffix(sprites, 1);
+            _hitSprite = BySuffix(sprites, 2);
+            _flySprite = BySuffix(sprites, 3);
+            ReapplyPose();
+        }
+
+        private void OnRangedSheetLoaded(IList<Sprite> sprites)
+        {
+            _rangedSwordSprite = BySuffix(sprites, 0);
+            _spellSprite = BySuffix(sprites, 1);
+            ReapplyPose();
+        }
+
+        /// <summary>Sub-sprite order in a loaded sheet is not contractual — pick by the
+        /// numeric tail of the baker's name ("cultivator_side_0" and "hero_pose_00"
+        /// styles both parse). Positional fallback covers renamed art.</summary>
+        private static Sprite BySuffix(IList<Sprite> sprites, int index)
+        {
+            for (int i = 0; i < sprites.Count; i++)
+            {
+                string name = sprites[i].name;
+                int cut = name.LastIndexOf('_');
+                if (cut < 0 || cut == name.Length - 1) continue;
+                if (int.TryParse(name.Substring(cut + 1), out int value) && value == index)
+                {
+                    return sprites[i];
+                }
+            }
+            return index < sprites.Count ? sprites[index] : null;
+        }
+
+        private void ReapplyPose()
+        {
+            _body.sprite = SpriteFor(_shownPose);
         }
 
         public void SetWalk(float phase, float amount)

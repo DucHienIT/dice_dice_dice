@@ -109,6 +109,9 @@ namespace Game.EditorTools
             // addressables groups follow the content assets — declarative and idempotent,
             // incl. the guard that no addressable asset is also a scene dependency
             AddressablesConfigurator.Sync(content.Config);
+            // sprite atlases follow the sprite folders the same way (freshly baked art
+            // joins Atlas_Gameplay automatically — the packable is the folder)
+            AtlasConfigurator.Sync();
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
@@ -515,7 +518,12 @@ namespace Game.EditorTools
                 SpriteRenderer shadow = NewSprite(go, "Shadow", 3, art.HeroShadow,
                     new Vector3(0f, 0.02f, 0f));
                 GameObject rig = NewChild(go, "Rig");
-                SpriteRenderer body = NewSprite(rig, "Body", 6, art.HeroBody);
+                // authored pose art streams in as weak refs (HeroArt bundle) — hard-wiring
+                // the sheets here would ship them twice (scene + bundle); procedural
+                // sprites are only wired hard when the authored sheets are absent
+                bool streamHeroArt = SpriteBaker.AuthoredHeroArtComplete;
+                SpriteRenderer body = NewSprite(rig, "Body", 6,
+                    streamHeroArt ? null : art.HeroBody);
                 SpriteRenderer sword = NewSprite(rig, "Sword", 5, art.HeroSword,
                     new Vector3(0.34f, 0.5f, 0f));
                 sword.transform.localRotation = Quaternion.Euler(0f, 0f, 28f);
@@ -528,13 +536,20 @@ namespace Game.EditorTools
                 projectile.enabled = false;
 
                 SetPrivate(view, "_body", body);
-                SetPrivate(view, "_idleSprite", art.HeroBody);
-                SetPrivate(view, "_runSprite", art.HeroRunPose);
-                SetPrivate(view, "_attackSprite", art.HeroAttackPose);
-                SetPrivate(view, "_rangedSwordSprite", art.HeroRangedSwordPose);
-                SetPrivate(view, "_spellSprite", art.HeroSpellPose);
-                SetPrivate(view, "_hitSprite", art.HeroHitPose);
-                SetPrivate(view, "_flySprite", art.HeroFlyPose);
+                SetPrivate(view, "_idleSprite", streamHeroArt ? null : art.HeroBody);
+                SetPrivate(view, "_runSprite", streamHeroArt ? null : art.HeroRunPose);
+                SetPrivate(view, "_attackSprite", streamHeroArt ? null : art.HeroAttackPose);
+                SetPrivate(view, "_rangedSwordSprite",
+                    streamHeroArt ? null : art.HeroRangedSwordPose);
+                SetPrivate(view, "_spellSprite", streamHeroArt ? null : art.HeroSpellPose);
+                SetPrivate(view, "_hitSprite", streamHeroArt ? null : art.HeroHitPose);
+                SetPrivate(view, "_flySprite", streamHeroArt ? null : art.HeroFlyPose);
+                SetPrivate(view, "_runSheet", SheetReference(
+                    streamHeroArt ? SpriteBaker.CultivatorRunSheet : null));
+                SetPrivate(view, "_poseSheet", SheetReference(
+                    streamHeroArt ? SpriteBaker.CultivatorPoseSheet : null));
+                SetPrivate(view, "_rangedSheet", SheetReference(
+                    streamHeroArt ? SpriteBaker.CultivatorRangedPoseSheet : null));
                 SetPrivate(view, "_rig", rig.transform);
                 SetPrivate(view, "_shadow", shadow);
                 SetPrivate(view, "_sword", sword);
@@ -639,6 +654,14 @@ namespace Game.EditorTools
             Object.DestroyImmediate(temp);
             if (prefab == null) Debug.LogError("[Builder] Failed to save prefab " + path);
             return prefab;
+        }
+
+        /// <summary>Weak reference to a streamed sheet texture; a null path yields an
+        /// empty reference, which HeroView treats as "procedural sprites wired hard".</summary>
+        private static UnityEngine.AddressableAssets.AssetReference SheetReference(string path)
+        {
+            return new UnityEngine.AddressableAssets.AssetReference(
+                path == null ? "" : AssetDatabase.AssetPathToGUID(path));
         }
 
         private static GameObject Spawn(GameObject prefab, Transform parent, Vector3 pos,

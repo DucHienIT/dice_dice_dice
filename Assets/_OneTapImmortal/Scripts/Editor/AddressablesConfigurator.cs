@@ -15,16 +15,26 @@ namespace Game.EditorTools
     /// builder, never edited by hand in the Groups window (hand-added entries are removed
     /// on the next sync).
     ///
-    /// Partition policy: Main.unity is always loaded, so anything it references ships with
-    /// the player and must NOT be addressable — marking it would duplicate it (once in the
-    /// scene data, once in a bundle). Only content that is mutually exclusive at runtime
-    /// with a known swap moment goes into bundles; today that is the per-world sky backdrop
-    /// (one bundle per world, streamed by WorldBackgroundRenderer.Enter, previous world
-    /// released after the swap). ValidateNoSceneDuplication enforces the policy.
+    /// Partition policy: Main.unity is always loaded (scenes themselves are never
+    /// addressable in this project), so anything the scene HARD-references ships with
+    /// the player and must NOT also be addressable — that would duplicate it (once in
+    /// the scene data, once in a bundle). Streamed content is instead weak-referenced
+    /// from the scene via AssetReference (per CODE_RULES' streaming exception), which
+    /// leaves the pixels out of the player payload. ValidateNoSceneDuplication enforces
+    /// the split.
+    ///
+    /// Streamed content is organized in categories, one group per category and one
+    /// Add* method in DesiredEntries per category — adding a category means one method
+    /// here plus a runtime loader (see Utils/StreamedAsset for the handle lifecycle).
+    /// Categories: the per-world sky backdrop (one bundle per world via its label,
+    /// streamed by WorldBackgroundRenderer.Enter) and the authored hero pose sheets
+    /// (one HeroArt bundle, streamed by HeroView at Awake).
     /// </summary>
     public static class AddressablesConfigurator
     {
         private const string WorldGroupName = "WorldBackdrops";
+        private const string HeroArtGroupName = "HeroArt";
+        private const string HeroArtLabel = "Hero";
         private const string ScenePath = "Assets/_OneTapImmortal/Scenes/Main.unity";
         private const string GameConfigPath = "Assets/_OneTapImmortal/Data/GameConfig.asset";
 
@@ -32,6 +42,7 @@ namespace Game.EditorTools
         {
             public string Address;
             public string Label;
+            public string Group;
         }
 
         [MenuItem("Tools/Game/Addressables/Sync Groups")]
@@ -60,31 +71,66 @@ namespace Game.EditorTools
             }
 
             ConfigureDataBuilders(settings);
-            Dictionary<string, DesiredEntry> desired = DesiredWorldEntries(config);
-            AddressableAssetGroup worldGroup = EnsureWorldGroup(settings);
+            Dictionary<string, DesiredEntry> desired = DesiredEntries(config);
             RemoveStrayEntries(settings, desired);
 
             foreach (KeyValuePair<string, DesiredEntry> pair in desired)
             {
-                AddressableAssetEntry entry = settings.CreateOrMoveEntry(pair.Key, worldGroup);
+                AddressableAssetGroup group = EnsureGroup(settings, pair.Value.Group);
+                AddressableAssetEntry entry = settings.CreateOrMoveEntry(pair.Key, group);
                 entry.SetAddress(pair.Value.Address);
                 SyncLabels(entry, pair.Value.Label);
             }
+            RemoveEmptyStrayGroups(settings, desired);
 
             bool clean = ValidateNoSceneDuplication(desired);
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.BatchModification,
                 null, true, true);
-            Debug.Log("[Addressables] Synced " + desired.Count + " entries into '" +
-                      WorldGroupName + "'" + (clean ? "" : " — WITH ERRORS, see above"));
+            Debug.Log("[Addressables] Synced " + desired.Count + " entr" +
+                      (desired.Count == 1 ? "y" : "ies") +
+                      (clean ? "" : " — WITH ERRORS, see above"));
             return clean;
+        }
+
+        /// <summary>The full desired entry set — one Add* call per streamed category.</summary>
+        private static Dictionary<string, DesiredEntry> DesiredEntries(GameConfig config)
+        {
+            var desired = new Dictionary<string, DesiredEntry>(config.Worlds.Length + 3);
+            AddWorldBackdrops(config, desired);
+            AddHeroArt(desired);
+            return desired;
+        }
+
+        /// <summary>The three authored hero pose sheets, one shared label so they pack
+        /// into a single HeroArt bundle fetched once at boot (weak-referenced by
+        /// HeroView, wired by the builder). Absent sheets mean procedural fallback art
+        /// is wired hard instead — then there is nothing to stream.</summary>
+        private static void AddHeroArt(Dictionary<string, DesiredEntry> desired)
+        {
+            if (!SpriteBaker.AuthoredHeroArtComplete) return;
+
+            AddSheet(desired, SpriteBaker.CultivatorRunSheet, "Hero/run");
+            AddSheet(desired, SpriteBaker.CultivatorPoseSheet, "Hero/poses");
+            AddSheet(desired, SpriteBaker.CultivatorRangedPoseSheet, "Hero/ranged");
+        }
+
+        private static void AddSheet(Dictionary<string, DesiredEntry> desired,
+            string path, string address)
+        {
+            desired[AssetDatabase.AssetPathToGUID(path)] = new DesiredEntry
+            {
+                Address = address,
+                Label = HeroArtLabel,
+                Group = HeroArtGroupName,
+            };
         }
 
         /// <summary>One entry per world: the sky sprite's texture, addressed
         /// "World_X/sky" and labeled "World_X" so PackTogetherByLabel makes one
         /// bundle per world.</summary>
-        private static Dictionary<string, DesiredEntry> DesiredWorldEntries(GameConfig config)
+        private static void AddWorldBackdrops(GameConfig config,
+            Dictionary<string, DesiredEntry> desired)
         {
-            var desired = new Dictionary<string, DesiredEntry>(config.Worlds.Length);
             for (int i = 0; i < config.Worlds.Length; i++)
             {
                 World world = config.Worlds[i];
@@ -99,17 +145,18 @@ namespace Game.EditorTools
                 {
                     Address = world.name + "/sky",
                     Label = world.name,
+                    Group = WorldGroupName,
                 };
             }
-            return desired;
         }
 
-        private static AddressableAssetGroup EnsureWorldGroup(AddressableAssetSettings settings)
+        private static AddressableAssetGroup EnsureGroup(AddressableAssetSettings settings,
+            string name)
         {
-            AddressableAssetGroup group = settings.FindGroup(WorldGroupName);
+            AddressableAssetGroup group = settings.FindGroup(name);
             if (group == null)
             {
-                group = settings.CreateGroup(WorldGroupName, false, false, false, null,
+                group = settings.CreateGroup(name, false, false, false, null,
                     typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
             }
 
@@ -148,6 +195,32 @@ namespace Game.EditorTools
                 Debug.Log("[Addressables] Removed " + strays.Count +
                           " stray entr" + (strays.Count == 1 ? "y" : "ies") +
                           " not owned by AddressablesConfigurator");
+            }
+        }
+
+        /// <summary>A renamed or deleted category leaves its old group behind, empty —
+        /// remove it so the Groups window mirrors the categories exactly. The default
+        /// group and read-only groups (Built In Data) are Addressables-owned and stay.</summary>
+        private static void RemoveEmptyStrayGroups(AddressableAssetSettings settings,
+            Dictionary<string, DesiredEntry> desired)
+        {
+            var desiredGroups = new HashSet<string>();
+            foreach (KeyValuePair<string, DesiredEntry> pair in desired)
+            {
+                desiredGroups.Add(pair.Value.Group);
+            }
+
+            var stale = new List<AddressableAssetGroup>();
+            foreach (AddressableAssetGroup group in settings.groups)
+            {
+                if (group == null || group.ReadOnly || group == settings.DefaultGroup) continue;
+                if (desiredGroups.Contains(group.Name) || group.entries.Count > 0) continue;
+                stale.Add(group);
+            }
+            for (int i = 0; i < stale.Count; i++)
+            {
+                Debug.Log("[Addressables] Removed empty stray group '" + stale[i].Name + "'");
+                settings.RemoveGroup(stale[i]);
             }
         }
 

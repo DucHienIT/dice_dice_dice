@@ -62,6 +62,7 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: 5aeb6e5bf850a654aba4f5ff2c856cba, type: 2}
   - {fileID: 11400000, guid: eba5d5c994050e54ea6e051d8396c30d, type: 2}
+  - {fileID: 11400000, guid: bfe14fb3663907f44ba84fb37a15b6f4, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -106,6 +107,8 @@ MonoBehaviour:
     - World_Frostmoon
     - World_Gloomfen
     - World_HollowDeep
+    - Main
+    - Hero
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: ea94d8f808d8b034ca06c737c2f237e2, type: 2}

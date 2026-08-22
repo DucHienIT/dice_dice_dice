@@ -446,13 +446,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Combat.HeroView
   _body: {fileID: 5149348418127870536}
-  _idleSprite: {fileID: -427548134451772956, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
-  _runSprite: {fileID: -1319317763007011964, guid: e2676eae35544be419f689300247b67c, type: 3}
-  _attackSprite: {fileID: -103775661203427290, guid: e2676eae35544be419f689300247b67c, type: 3}
-  _rangedSwordSprite: {fileID: -8289277450722028453, guid: f006b7997381f3a4a98182c54b39fb2e, type: 3}
-  _spellSprite: {fileID: 4224693835901978420, guid: f006b7997381f3a4a98182c54b39fb2e, type: 3}
-  _hitSprite: {fileID: 1685428185819514569, guid: e2676eae35544be419f689300247b67c, type: 3}
-  _flySprite: {fileID: 2626509414331855048, guid: e2676eae35544be419f689300247b67c, type: 3}
+  _idleSprite: {fileID: 0}
+  _runSprite: {fileID: 0}
+  _attackSprite: {fileID: 0}
+  _rangedSwordSprite: {fileID: 0}
+  _spellSprite: {fileID: 0}
+  _hitSprite: {fileID: 0}
+  _flySprite: {fileID: 0}
   _rig: {fileID: 1462582687443636470}
   _shadow: {fileID: 8926275060281656359}
   _sword: {fileID: 1156388678488760909}
@@ -460,6 +460,24 @@ MonoBehaviour:
   _projectile: {fileID: 6019738385943177504}
   _projectileSwordSprite: {fileID: 21300000, guid: 9b7006f2a4f638946917e074bad065e5, type: 3}
   _projectileSpellSprite: {fileID: 21300000, guid: 652efec615576c343b5f1a2948a66552, type: 3}
+  _runSheet:
+    m_AssetGUID: ce74d048efae7a54a86e21829591d1a9
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _poseSheet:
+    m_AssetGUID: e2676eae35544be419f689300247b67c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  _rangedSheet:
+    m_AssetGUID: f006b7997381f3a4a98182c54b39fb2e
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   _runBobHeight: 0.06
   _runLeanAngle: 2.2
   _flyHeight: 0.28
@@ -547,7 +565,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -427548134451772956, guid: ce74d048efae7a54a86e21829591d1a9, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -555,5 +573,5 @@ SpriteRenderer:
   m_Size: {x: 1.3142858, y: 2.5857143}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
